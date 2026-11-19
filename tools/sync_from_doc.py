@@ -70,6 +70,9 @@ def render_text(t: str, ctx: dict, figs: dict, tabs: dict) -> str:
     return TOKEN.sub(lambda m: ctx.get(m.group(1), m.group(0)), t)
 
 
+PREFIX = re.compile(r"^\s*(?:#+\s*)?(?:(?:\d+\.)+\d*\.?\s+|Appendix [A-Z]\.\s+)?(?:[-*]\s+|\d+\.\s+)?")
+
+
 def mask(t: str) -> str:
     t = re.sub(r"^#+\s*(\d+(\.\d+)*\.?\s+)?", "", t.strip())           # heading numbers are automatic
     t = re.sub(r"[*_`|]", "", t)
@@ -93,7 +96,7 @@ def back_to_tokens(doc_text: str, old_template: str | None, ctx: dict, rev: dict
                 continue
             pat = re.compile(r"(?<![\w.,$])" + re.escape(v) + r"(?![\w])")
             if pat.search(d):
-                d = pat.sub("{{%s}}" % k, d, count=1)
+                d = pat.sub("{{%s}}" % k, d, count=keys.count(k))      # as many times as the old text used this token
                 used.append(k)
     literal_old = set(NUM.findall(TOKEN.sub("", old_template or "")))
 
@@ -126,7 +129,7 @@ def sync_file(path: Path, doc_blocks: list[dict], ctx: dict, figs: dict, tabs: d
         elif tag == "replace":
             used = set()
             for i in range(i1, i2):                      # pair by similarity inside the changed stretch
-                best, bj = 0.55, None
+                best, bj = (0.85 if rendered[otxt[i]].lstrip().startswith("#") else 0.72), None
                 for j in range(j1, j2):
                     if j in used:
                         continue
@@ -142,8 +145,9 @@ def sync_file(path: Path, doc_blocks: list[dict], ctx: dict, figs: dict, tabs: d
             new_lines.append((blk, None))
             continue
         d = dtxt[pair[i]]["text"].strip()
-        d = re.sub(r"^(#+)\s*\d+(\.\d+)*\.?\s+", lambda m: m.group(1) + " " if len(m.group(1)) > 2 else m.group(0), d)   # auto-numbered subheadings
-        new = back_to_tokens(d, blk["text"], ctx, rev, figs, tabs, unmapped)
+        old_prefix = PREFIX.match(blk["text"]).group(0)
+        d = PREFIX.sub("", d, count=1)                                  # numbering and list markers are not numbers to map
+        new = old_prefix + back_to_tokens(d, blk["text"][len(old_prefix):], ctx, rev, figs, tabs, unmapped)
         # keep the markup the Doc export may have flattened: evidence tags and the old leading marker
         if new != blk["text"] and mask(new) != mask(rendered[i]) or TOKEN.findall(new) != TOKEN.findall(blk["text"]):
             changes += 1
@@ -186,6 +190,15 @@ def main() -> int:
         if diff:
             any_change = True
             print("\n".join(diff))
+            print(f"\nWord-level changes in {f.name}:")
+            for ol, nl in zip(old.splitlines(), new.splitlines()):
+                if ol != nl:
+                    ow, nw = ol.split(), nl.split()
+                    parts = []
+                    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, ow, nw, autojunk=False).get_opcodes():
+                        if tag != "equal":
+                            parts.append(f"[-{' '.join(ow[i1:i2])}-] {{+{' '.join(nw[j1:j2])}+}}")
+                    print("  " + "  ".join(parts)[:400])
         else:
             print(f"{f.name}: no changes")
         total_unmapped += [(f.name, u) for u in unmapped]

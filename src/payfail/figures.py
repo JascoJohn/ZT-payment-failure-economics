@@ -92,7 +92,7 @@ def fig03_trend(res, **_):
     fig.update_yaxes(tickformat=".0%")
     lo, hi = m.count_rem.min(), m.count_rem.max()
     return _style(fig, "Figure 3. Excluding extreme-volume anomalies and the escalation account, failure is persistent but steady",
-                  f"Monthly; excluding anomalies the count failure rate stays between {lo:.0%} and {hi:.0%}", 560)
+                  f"Monthly; the count failure rate of remaining exposure stays between {lo:.0%} and {hi:.0%}", 560)
 
 
 # 4 ---------------------------------------------------------------------------------------------

@@ -200,8 +200,21 @@ CUES = {"attempts": r"\battempts?\b|\bcount\b", "records": r"\brecords?\b", "fee
         "translatable": r"translatable", "non-anomalous": r"non-anomalous|excluding|outside the", "all": r"\ball (?:records|activity)\b|whole period|overall"}
 
 
-def denominators(au) -> None:
+def denominators(au, res: dict, prep) -> None:
     S = "4. Denominators"
+    tx = prep.tx
+    dr = res["drivers"].set_index(["country", "pt"])
+    gap = ((dr.fee_per_failed_attempt / (dr.f_fee / dr.f_att)) - 1).abs()
+    big = gap[dr.f_fee > 15_000].sort_values(ascending=False)
+    au.add(S, "Fee per failed attempt (Table 3): numerator and denominator cover the same records", big.max() < 0.001,
+           f"The report divides USD fees (translatable records only) by failed attempts of all records, so records without an exchange rate sit in the denominator with no fee. "
+           f"Largest effect among the cells over $15K: {big.index[0][0]} {big.index[0][1]} ${dr.loc[big.index[0]].f_fee / dr.loc[big.index[0]].f_att:.2f} as printed vs "
+           f"${dr.loc[big.index[0]].fee_per_failed_attempt:.2f} on translatable records only ({big.iloc[0]:.2%}). Not changed.", flag=True)
+    ns = tx[tx.sector.isna()]
+    secsum = res["sectors"].f_fee.sum()
+    au.add(S, "Sector table covers all fees on failed transactions", abs(secsum - tx.f_fee.sum()) < 1,
+           f"{len(ns):,} records (customers with no sector label) hold ${ns.f_fee.sum():,.0f} ({ns.f_fee.sum() / tx.f_fee.sum():.1%}) of fees on failed transactions and are not in the sector table, "
+           f"which sums to ${secsum:,.0f} against the headline ${tx.f_fee.sum():,.0f}. The sector table is not printed in the report.", flag=True)
     text = _report_text("The_Economics_of_Payment_Failure.html")
     rows, unstated, mixed = [], [], []
     for s in _sentences(text):
@@ -482,6 +495,9 @@ def figures_resolve(au) -> None:
            f"{len(set(refs))} distinct figures referenced; unresolved {missing}; files missing {nofile}")
     main_refs = re.findall(r"\[\[figure (\w+)\]\]", (CONTENT / "03_main_report.md").read_text(encoding="utf-8"))
     au.add(S, "Report figures appear in REPORT_ORDER order, numbered 1-16", main_refs == REPORT_ORDER and idx[idx.in_report].shape[0] == 16)
+    from .figures import label as _lab
+    bad = [x for x, l in zip(idx.slug, idx.label) if _lab(x) != l]
+    au.add(S, "figure_index.csv (read by the report, dashboard and Doc sync) agrees with figures.label()", not bad, ", ".join(bad))
     dash = idx[~idx.in_report]
     au.add(S, "Ten dashboard-only figures, labelled D1-D10", len(dash) == 10 and list(dash.label) == [f"Figure D{i}" for i in range(1, 11)])
 
@@ -491,7 +507,7 @@ def run_audit(au, res: dict, prep, cfg: dict, ctx: dict) -> None:
     independent(au, res, cfg)
     numbers_in_text(au, res, cfg, ctx)
     terminology(au, res, cfg)
-    denominators(au)
+    denominators(au, res, prep)
     units(au, res)
     claims(au, res, prep)
     cross_output(au, res, ctx, cfg)

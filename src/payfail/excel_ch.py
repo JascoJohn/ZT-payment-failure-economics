@@ -49,7 +49,7 @@ def color_series(s, color, line=False):
         gp.line.solidFill = color
 
 
-def bar_chart(ws, title, cats, series, *, horizontal=False, stacked=False, yfmt=None, ytitle=None, point_colors=None, labels=False, w=20, h=9.5, legend=True):
+def bar_chart(ws, title, cats, series, *, horizontal=False, stacked=False, yfmt=None, ytitle=None, point_colors=None, labels=False, w=20, h=9.5, legend=True, note=None):
     """series = [(Reference, title, colour or None for invisible)]. point_colors colours individual bars of the first visible series."""
     ch = BarChart()
     ch.type = "bar" if horizontal else "col"
@@ -77,7 +77,7 @@ def bar_chart(ws, title, cats, series, *, horizontal=False, stacked=False, yfmt=
         for a in ("showSerName", "showCatName", "showLegendKey", "showPercent"):
             setattr(vis[0].dLbls, a, False)
     ch.set_categories(cats)
-    _ax(ch, yfmt=yfmt, ytitle=ytitle)
+    _ax(ch, yfmt=yfmt, ytitle=ytitle, xtitle=note)
     ch.width, ch.height = w, h
     if not legend or len(vis) <= 1:
         ch.legend = None

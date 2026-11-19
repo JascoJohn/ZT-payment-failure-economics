@@ -382,8 +382,8 @@ def _math(tex: str, display: bool) -> str:
 
 def numbering(texts: list[str]) -> tuple[dict, dict]:
     """Figure and table numbers in order of first appearance across the given texts."""
-    from .figures import REPORT_ORDER, label
-    figs = {slug: label(slug).split()[1] for slug in REPORT_ORDER}
+    from .figindex import report_numbers
+    figs = report_numbers()                  # read from outputs/figure_index.csv, the one figure index
     tabs: dict[str, int] = {}
     for t in texts:
         for line in t.splitlines():

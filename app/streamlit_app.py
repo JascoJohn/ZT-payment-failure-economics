@@ -15,7 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from payfail import analyse, load_config, prepare  # noqa: E402
-from payfail.figures import FIGURES, REPORT_ORDER, build_all, label  # noqa: E402
+from payfail.figindex import figure_index  # noqa: E402
+from payfail.figures import FIGURES, build_all  # noqa: E402
 
 st.set_page_config(page_title="The Economics of Payment Failure", layout="wide")
 
@@ -88,13 +89,14 @@ if default:
 else:
     st.info(f"Custom selection: {n:,} records. Figures that need data outside the selection show a notice.")
 
+idx = figure_index().set_index("slug")          # the one figure index: labels and which figures are in the report
 sections = list(dict.fromkeys(s for _, _, s, _ in FIGURES))
 for tab, sec in zip(st.tabs(sections), sections):
     with tab:
         for _, slug, s, _ in FIGURES:
             if s == sec:
-                if slug not in REPORT_ORDER:
-                    st.caption(f"{label(slug)} is in the dashboard only; the report gives these numbers in a table.")
+                if not idx.loc[slug, "in_report"]:
+                    st.caption(f"{idx.loc[slug, 'label']} is in the dashboard only; the report gives these numbers in a table.")
                 st.plotly_chart(figs[slug], width="stretch", key=f"fig_{slug}")
 
 with st.expander("Download the selection's tables"):

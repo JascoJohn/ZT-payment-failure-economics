@@ -84,6 +84,8 @@ def build_conc(bk) -> dict:
     for r in sec.itertuples():
         w.row([_c(ws, r.sector), val(ws, int(r.att), INT), val(ws, int(r.f_att), INT), val(ws, float(r.fail_rate), PCT), val(ws, float(r.fee), USD),
                val(ws, float(r.f_fee), USD), val(ws, float(r.fee_share), PCT)])
+    nos = float(bk.prep.tx.loc[bk.prep.tx.sector.isna(), "f_fee"].sum())
+    w.row([_c(ws, "No sector label (customers without one; not in the table above)"), val(ws, int(bk.prep.tx.loc[bk.prep.tx.sector.isna(), "att"].sum()), INT), None, None, None, val(ws, nos, USD)])
     i = w.r + 1
     w.row([_c(ws, "Check: sector failed fees less headline", BOLD), None, None, None, None,
            _c(ws, f"=SUM(F{s0}:F{w.r})-{S['failed_fees']}", fmt=USD2), _c(ws, f'=IF(ABS(F{i})<1,"OK","CHECK")', BOLD)])
@@ -92,6 +94,7 @@ def build_conc(bk) -> dict:
     # ---- Table 3 drivers
     w.caption("drivers")
     dr = static_table(bk.root, bk.ctx, "drivers")
+    w.text("Fee per failed attempt = fees on failed transactions / all failed attempts in the cell, as the report prints it (attempts of records without an exchange rate stay in the denominator).", note=True)
     w.head(["Cell", "Share of attempts", "Failure rate", "Fee per failed attempt", "Fees on failed transactions", "Dominant driver"])
     d0 = w.r + 1
     cells = [("Kenya", "card"), ("Kenya", "mobilemoney"), ("Uganda", "card"), ("Tanzania", "card"), ("Ghana", "card"), ("Uganda", "mobilemoney")]
@@ -101,14 +104,14 @@ def build_conc(bk) -> dict:
         q = f'{T("J")},"{cn}",{T("E")},"{pt}",{nbq}'
         w.row([_c(ws, f"{cn} {'mobile money' if pt == 'mobilemoney' else pt}"), _c(ws, f"=SUMIFS({T('P')},{q})/SUMIFS({T('P')},{nbq})", fmt=PCT),
                _c(ws, f"=SUMIFS({T('Q')},{q})/SUMIFS({T('P')},{q})", fmt=PCT),
-               _c(ws, f"=SUMIFS({T('W')},{q},{T('N')},TRUE)/SUMIFS({T('Q')},{q},{T('N')},TRUE)", fmt=USD2),
+               _c(ws, f"=SUMIFS({T('W')},{q})/SUMIFS({T('Q')},{q})", fmt=USD2),
                _c(ws, f"=SUMIFS({T('W')},{q})", fmt=USD), _c(ws, row[-1])])
         P.setdefault("drv", {})[(cn, pt)] = i
     i = w.r + 1
     w.row([_c(ws, "All cells", BOLD), _c(ws, 1, BOLD, PCT), _c(ws, f"=SUMIFS({T('Q')},{nbq})/SUMIFS({T('P')},{nbq})", BOLD, PCT),
-           _c(ws, f"=SUMIFS({T('W')},{nbq},{T('N')},TRUE)/SUMIFS({T('Q')},{nbq},{T('N')},TRUE)", BOLD, USD2), _c(ws, f"=SUMIFS({T('W')},{nbq})", BOLD, USD)])
+           _c(ws, f"=SUMIFS({T('W')},{nbq})/SUMIFS({T('Q')},{nbq})", BOLD, USD2), _c(ws, f"=SUMIFS({T('W')},{nbq})", BOLD, USD)])
     P["drv_all"] = i
-    ch = bubble_chart(ws, bk.ftitle("drivers") + " [six largest cells; bubble area = fees on failed transactions]", ref(ws, 2, d0, d0 + 5), ref(ws, 3, d0, d0 + 5),
+    ch = bubble_chart(ws, bk.ftitle("drivers"), ref(ws, 2, d0, d0 + 5), ref(ws, 3, d0, d0 + 5),
                       ref(ws, 5, d0, d0 + 5), xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of non-anomalous attempts (log scale)", ytitle="Count failure rate")
     w.chart(ch, "H", d0 - 2)
     w.blank(12)
@@ -141,7 +144,7 @@ def build_conc(bk) -> dict:
     w.row([_c(ws, "Customers with failed fees"), _c(ws, f'=COUNTIF({rngA},">0")', fmt=INT)])
     P["n_cust"] = f"{w.q}$B${w.r}"
     w.row([_c(ws, "Customers who transacted"), val(ws, int(res["customer_concentration"]["customers_transacting"]), INT)])
-    ch = scatter_chart(ws, bk.ftitle("pareto") + " [x axis: share of customers, log scale]", [(ref(ws, 2, pr0, pr1), ref(ws, 3, pr0, pr1), "All records", NAVY),
+    ch = scatter_chart(ws, bk.ftitle("pareto"), [(ref(ws, 2, pr0, pr1), ref(ws, 3, pr0, pr1), "All records", NAVY),
                        (ref(ws, 5, pr0, pr0 + len(p2) - 1), ref(ws, 6, pr0, pr0 + len(p2) - 1), "Excluding extreme-volume anomalies", SAND)],
                        xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of customers (log scale)", ytitle="Cumulative share of failed fees", lines=True)
     w.chart(ch, "H", pr0 - 3)
@@ -487,8 +490,8 @@ def charts_scale(bk, rows: dict) -> None:
                    stacked=True, yfmt="$#,##0")
     ws.add_chart(c3, "L44")
     b0 = rows["wf"]
-    c4 = bar_chart(ws, bk.ftitle("bridge") + " [Excel form: stacked columns with an invisible base]", ref(ws, 1, b0, b0 + 3), [(ref(ws, 2, b0, b0 + 3), "Base", None), (ref(ws, 3, b0, b0 + 3), "Fees on failed transactions", NAVY)],
-                   yfmt="$#,##0", point_colors=[NAVY, AMBER, AMBER, NAVY], labels=True, legend=False)
+    c4 = bar_chart(ws, bk.ftitle("bridge"), ref(ws, 1, b0, b0 + 3), [(ref(ws, 2, b0, b0 + 3), "Base", None), (ref(ws, 3, b0, b0 + 3), "Fees on failed transactions", NAVY)],
+                   yfmt="$#,##0", point_colors=[NAVY, AMBER, AMBER, NAVY], labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base")
     ws.add_chart(c4, "L64")
     v0 = rows["value"]
     c5 = bar_chart(ws, bk.ftitle("value") + " [average value per attempt]", ref(ws, 1, v0, v0 + 1), [(ref(ws, 2, v0, v0 + 1), "USD per attempt", NAVY)], point_colors=[NAVY, SAND], labels=True, legend=False, yfmt="$#,##0", h=8)
@@ -498,8 +501,8 @@ def charts_scale(bk, rows: dict) -> None:
 def charts_jan(bk, comp_first: int, n_comp: int) -> None:
     ws = bk.sheet("05_January")
     wf = bk.jan_wf
-    c = bar_chart(ws, bk.ftitle("january") + " [Excel form: stacked columns with an invisible base; red raises, green lowers]", ref(ws, 1, wf, wf + n_comp - 1),
-                  [(ref(ws, 2, wf, wf + n_comp - 1), "Base", None), (ref(ws, 3, wf, wf + n_comp - 1), "Amount", NAVY)], yfmt="$#,##0", point_colors=bk.jan_colors, labels=True, legend=False)
+    c = bar_chart(ws, bk.ftitle("january"), ref(ws, 1, wf, wf + n_comp - 1),
+                  [(ref(ws, 2, wf, wf + n_comp - 1), "Base", None), (ref(ws, 3, wf, wf + n_comp - 1), "Amount", NAVY)], yfmt="$#,##0", point_colors=bk.jan_colors, labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base; red raises, green lowers failed fees")
     ws.add_chart(c, "L4")
     c2 = bar_chart(ws, bk.ftitle("lmdi"), ref(ws, 1, comp_first + 2, comp_first + 7), [(ref(ws, 2, comp_first + 2, comp_first + 7), "Effect on failed fees", NAVY)], horizontal=True, yfmt="$#,##0",
                    point_colors=bk.lmdi_colors, labels=True, legend=False, h=8)
