@@ -1,0 +1,167 @@
+{
+  "stats": {
+    "bad_rate_days_dropped": 2,
+    "redenomination_days_rescaled": {
+      "SLL": 663
+    },
+    "spike_days_dropped": 33,
+    "spike_currencies": [
+      "MOP",
+      "MXN",
+      "THB",
+      "VEF"
+    ],
+    "records": 62684,
+    "untranslatable_records": 221,
+    "untranslatable_currencies": 30,
+    "untranslatable_attempts": 539,
+    "flag_fee_ratio": 977,
+    "flag_missing_fee": 39,
+    "flag_value": 64,
+    "fee_exceeds_value": 266,
+    "flag_value_usd": 5838888245.627562,
+    "flag_value_fees": 197957.652142466,
+    "value_total_usd": 5917996612.581656,
+    "escalation_customers": [
+      47087
+    ],
+    "stale_customer_dates": 1746,
+    "transacting_customers": 5657
+  },
+  "headline": {
+    "records": 62684,
+    "attempts": 1645892,
+    "failed": 1019793,
+    "count_rate": 0.6195989773326561,
+    "attempts_translatable": 1645353,
+    "records_translatable": 62463,
+    "fees": 3085639.706382484,
+    "failed_fees": 2779424.130334959,
+    "fee_share": 0.9007610721970766,
+    "succ_fees": 306215.5760475253,
+    "customers_with_failed_fees": 5108
+  },
+  "value": {
+    "value": 79108366.95409498,
+    "failed_value": 69852893.41228813,
+    "failed_value_share": 0.8830025963350044,
+    "avg_failed_value": 68.55440443783117,
+    "avg_success_value": 14.782787266221627,
+    "failed_fee_intensity": 0.036962160936604774,
+    "success_fee_intensity": 0.033036469140814345
+  },
+  "anomalies": {
+    "escalation_customers": [
+      47087
+    ]
+  },
+  "hard_mixed": {},
+  "customers": {
+    "persistence": {
+      "eligible": 1682,
+      "persistent": 950,
+      "share_f_att": 0.4358678955453149,
+      "share_f_fee": 0.6597883054639697,
+      "persistent_f_fee": 1288872.6765272585,
+      "one_off_elevated": 3131,
+      "fee_share_persistent": 0.9283263447370396,
+      "fee_share_other": 0.5447424514218472,
+      "lapse_persistent": 0.5905263157894737,
+      "lapse_other": 0.5136612021857924
+    },
+    "lapse": {
+      "active_before": 5451,
+      "lapsed": 4328,
+      "lapse_rate": 0.7939827554577141,
+      "count_rate_lapsed": 0.5970156616745944,
+      "count_rate_retained": 0.5155351093614929,
+      "fee_share_lapsed": 0.8998135141410666,
+      "fee_share_retained": 0.8069342220166399
+    }
+  },
+  "laney": {
+    "tests": 210,
+    "excluded_share": 0.02934893303906115
+  },
+  "january": {
+    "baseline_all": 74450.86505911507,
+    "january_all": 738523.7382355628,
+    "baseline_extreme": 25375.60382356575,
+    "january_extreme": 661931.1908876793,
+    "baseline_nonanomalous": 49075.261235549326,
+    "january_nonanomalous": 76592.54734788346,
+    "fx_effect": 419.7284009175419,
+    "lmdi": {
+      "Volume": 16823.379018833268,
+      "Mix": -2362.0862604436384,
+      "Failure rate": -2207.2098299031454,
+      "Fee yield": 14894.152274829255
+    },
+    "entry_exit": -50.67749189919414,
+    "cells_used": 18,
+    "cells_total": 24,
+    "residual": 2.546585164964199e-11,
+    "top3_card_accounts": 628578.250000004,
+    "fee_share_nonanomalous_jan": 0.7879733395195618,
+    "fee_share_nonanomalous_base": 0.8065395728619303,
+    "count_rate_nonanomalous_jan": 0.5364538395168249
+  },
+  "fx": {
+    "local_reported": 1105766.3963824797,
+    "local_constant": 1306758.1923232758,
+    "local_share_of_fees": 0.3583588823073738,
+    "flagged_avg": 40987.89865544614,
+    "flagged_end": 39555.33533269161,
+    "failed_fees_month_end": 2766616.617688543
+  },
+  "recovery": {
+    "addressable_f_fee": 1044472.1799999999,
+    "addressable_f_att": 107411,
+    "total_att": 122599,
+    "fee_per_success_overall": 7.6267908875428,
+    "breakeven": 7.538044761718539,
+    "gap_totals": {
+      "card_all": 0.8761164446692061,
+      "mm_all": 0.5173356277505142,
+      "card_same": 0.8702287938614915,
+      "mm_same": 0.5773222796563819,
+      "customers": 1332
+    },
+    "same_customer": {
+      "incremental": 200449.02135615965,
+      "card_att_share": 0.5825332996190834,
+      "top_customer_share": 0.1316334817552998
+    },
+    "offset": {
+      "removed": 13628,
+      "removed_share": 0.1268771354889164,
+      "incremental": 211725.06905581933
+    },
+    "benchmark_ex_escalation": {
+      "accounts": [
+        47087
+      ],
+      "incremental": 324134.1270301804,
+      "additional": 43429.188933305195,
+      "mm_all": 0.46973587623183055,
+      "same_card": 0.8701396965068867,
+      "same_mm": 0.4590706361813837,
+      "same_customers": 1331,
+      "same_incremental": 296341.8417756061
+    }
+  },
+  "remaining_mix": {
+    "total": 1708467.7186112744,
+    "card": 1403579.7270747002,
+    "usd_card": 1044370.44,
+    "mobilemoney": 241020.42013546958
+  },
+  "customer_concentration": {
+    "customers": 5108,
+    "customers_transacting": 5657,
+    "top10": 0.5040561666974384,
+    "top1pct_n": 51,
+    "top1pct": 0.704079378041324,
+    "top10_ex_extreme": 0.3558192544650505
+  }
+}

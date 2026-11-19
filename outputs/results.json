@@ -35,10 +35,10 @@
     "count_rate": 0.6195989773326561,
     "attempts_translatable": 1645353,
     "records_translatable": 62463,
-    "fees": 3085639.7063824837,
+    "fees": 3085639.706382484,
     "failed_fees": 2779424.130334959,
-    "fee_share": 0.9007610721970767,
-    "succ_fees": 306215.5760475248,
+    "fee_share": 0.9007610721970766,
+    "succ_fees": 306215.5760475253,
     "customers_with_failed_fees": 5108
   },
   "value": {
