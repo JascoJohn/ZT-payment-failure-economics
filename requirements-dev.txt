@@ -1,9 +1,13 @@
-# Everything in requirements.txt plus what run_all.py and the tests need
+# Everything in requirements.txt plus what the pipeline stages, the report and the tests need
 -r requirements.txt
-kaleido>=1.0        # static PNG export of the figures (uses a local Chrome/Chromium)
-markdown>=3.5        # report content
+kaleido>=1.0        # static PNG/SVG export of the figures (uses a local Chrome/Chromium)
+markdown>=3.5       # report content
 beautifulsoup4>=4.12
-latex2mathml>=3.77   # formulas as MathML
+latex2mathml>=3.77  # formulas as MathML
+pymupdf>=1.24       # reads page numbers back from the PDF for the contents and lists
+python-docx>=1.1    # the Word copy of the report
+matplotlib>=3.8     # font check and fallback equation images in the Word copy
+lxml>=5.0
 pytest>=8.0
 # PDF export of the report uses Chrome or Microsoft Edge (already needed by kaleido).
-# LibreOffice (soffice) is optional: headless recalculation of the Excel workbook.
+# Recalculating the Excel workbook (optional): LibreOffice (soffice), or Microsoft Excel on Windows.
