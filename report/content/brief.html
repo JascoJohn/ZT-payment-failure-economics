@@ -1,0 +1,109 @@
+<section class="cover">
+  <div class="band"></div>
+  <div class="inner">
+    <div class="kicker">Executive brief &middot; {{meta.prepared_for}} &middot; {{meta.date}}</div>
+    <h1>The Economics<br>of Payment Failure</h1>
+    <div class="rule"></div>
+    <div class="sub">Where {{failed_fees_m}} of fees on failed transactions comes from, what is realistically recoverable,
+      and what to do first. ZT East Africa, January 2022 – April 2024.</div>
+  </div>
+  <div class="foot">
+    <div><h4>Contact</h4>
+      <p><strong>{{meta.author}}</strong></p>
+      <p><span class="lbl">Email</span>{{meta.email}}</p>
+      <p><span class="lbl">Telephone</span>{{meta.telephone}}</p>
+      <p><span class="lbl">ORCID</span>{{meta.orcid}}</p></div>
+    <div><h4>The full study</h4>
+      <p>This five-page brief summarises the full report.</p>
+      <p><span class="lbl">Source code</span>{{meta.source_code}}</p>
+      <p><span class="lbl">Dashboard</span>{{meta.dashboard}}</p></div>
+  </div>
+</section>
+
+<section class="brief-page">
+  <h2 class="bar">Executive summary</h2>
+  <p>ZT East Africa recorded {{attempts}} payment attempts across Kenya, Uganda, Tanzania, Ghana and Zambia over 28 months.
+     {{count_rate}} of them failed, and {{fee_share}} of recorded fees, {{failed_fees_m}}, sits on failed transactions.
+     That headline mixes two different problems, and each needs its own response.</p>
+  <div class="kpis">
+    <div class="kpi"><div><div class="v">{{failed_fees_m}}</div><div class="l">Fees on failed transactions</div></div></div>
+    <div class="kpi"><div><div class="v">{{anom_share}}</div><div class="l">From a few anomalous accounts</div></div></div>
+    <div class="kpi"><div><div class="v">{{card_share}}</div><div class="l">Of failed fees on card</div></div></div>
+    <div class="kpi"><div><div class="v">{{rc_base_k0}}</div><div class="l">Base-case recovery, 28 months</div></div></div>
+  </div>
+  <div class="insight">
+    <svg viewBox="0 0 48 48" width="30" height="30" fill="none" stroke="#D99A1E" stroke-width="2.6" stroke-linecap="round" style="flex:0 0 30px">
+      <path d="M17 30c-3-2.5-5-6-5-10a12 12 0 0 1 24 0c0 4-2 7.5-5 10v4H17z"/><path d="M19 39h10M21 43h6"/></svg>
+    <div><h4>Key insight</h4>
+      <p>{{anom_m}} comes from extreme account behaviour that needs containing. The remaining {{rm_m}} is steady and spans every channel;
+         card carries {{rm_card_share}} of it, and USD card completion is where the recoverable money is.</p></div>
+  </div>
+  <h3>What the data shows</h3>
+  <ul>
+    <li><strong>A few accounts drive the spikes.</strong> Twenty extreme customer-months and one escalating account carry {{anom_m}}.
+        They explain {{jan_ex_share}} of January 2024's jump in failed fees.</li>
+    <li><strong>Underlying failure is persistent but stable.</strong> Without the anomalies and the escalation account, between {{rem_range_words}} of attempts failed in
+        every month, with no upward trend.</li>
+    <li><strong>Card is the structural problem.</strong> USD card fails {{usd_card_range}} of the time, against {{mm_mk_range}} for mobile money
+        in the same markets. The gap persists, at {{gap_gs0}} points, among customers who use both.</li>
+    <li><strong>Exchange rates distort the trend.</strong> Depreciation, mostly of the cedi, cut local-currency fees by {{fx_local_eff}} in
+        dollar terms, so constant-currency reporting is needed to see real performance.</li>
+  </ul>
+  <div class="callout amber"><p><strong>Strategic implication.</strong> Contain the anomalous accounts with monitoring, and invest in card
+     completion in Kenya, Tanzania and Uganda. Treating {{failed_fees_m}} as one problem would put management attention in the wrong place.</p></div>
+  <h3>Three actions</h3>
+  <div class="acts">
+    <div><span class="n">01</span><div><h5>Contain account anomalies</h5>
+      <p>Add a relative alert (1,000+ failed attempts, 50× the account's recent median, under 5% success) and an absolute one (5,000+ failed
+         attempts, under 5% success). Throttle and review flagged accounts in the same month.</p></div></div>
+    <div><span class="n">02</span><div><h5>Improve USD card completion in Kenya, Tanzania and Uganda</h5>
+      <p>Start with merchant-months that had zero card successes, then review acceptance, routing and currency set-up.
+         Baselines: Kenya {{rm_Kenya_r}}, Tanzania {{rm_Tanzania_r}}, Uganda {{rm_Uganda_r}} failure.</p></div></div>
+    <div><span class="n">03</span><div><h5>Report three numbers every month</h5>
+      <p>Count failure rate, failed-fee share, and fees on successful payments at constant 2022 exchange rates, each intervention against its baseline.</p></div></div>
+  </div>
+</section>
+
+<section class="brief-page">
+  <h2 class="bar">1. Two problems inside one headline</h2>
+  <p>Every failed fee falls into exactly one of three categories. Extreme-volume anomalies are sudden bursts of failures from single accounts.
+     Escalation is one account whose failures grew steadily. Remaining exposure is everything else.</p>
+  [[figure bridge]]
+  <p>Two in five failed-fee dollars come from exceptional account behaviour. Once those accounts are set aside, the failure rate
+     is steady month after month, as the trend below shows.</p>
+  [[figure trend]]
+  <div class="callout"><p><strong>Key takeaway.</strong> The spikes at the end of the period are an account problem, not a platform-wide deterioration.
+     January 2024 was an account-concentration event: three card accounts carried {{jan_top3}}.</p></div>
+</section>
+
+<section class="brief-page">
+  <h2 class="bar">2. Card fails in every market</h2>
+  <p>Card holds {{card_share}} of fees on failed transactions. The heat map shows that the problem is the channel, not a single market:
+     card fails at {{card_range}} everywhere, while mobile money stays far lower.</p>
+  [[figure heatmap]]
+  <p>The gap is not just a matter of which customers use which channel. Among the {{gap_n}} customers who use both card and mobile money,
+     card still fails {{gap_gs}} points more often ({{bx_gap_same}} points once the escalation account, which sits in Kenya's mobile money figures, is left out). That makes mobile money a credible, if not guaranteed, benchmark for what card could achieve.</p>
+  [[figure matrix]]
+  <div class="callout"><p><strong>Key takeaway.</strong> Kenya, Uganda and Tanzania card combine the largest exposure, high failure and the most
+     recoverable fees. They are the priorities; Kenya mobile money is a single-account containment case.</p></div>
+</section>
+
+<section class="brief-page">
+  <h2 class="bar">3. What recovery is worth</h2>
+  <p>If USD card failed no more often than mobile money in each market, the platform would have earned {{rc_base_k0}} more in fees on
+     successful payments over 28 months, about {{rc_base_ann0}} a year. Conservative and optimistic targets give {{rc_con_k0}} and {{rc_opt_k0}}.</p>
+  [[figure scenarios]]
+  <p>Kenya, Tanzania and Uganda hold {{rc_pri_k0}} of the base case: Kenya {{rm_Kenya_inc}}, Tanzania {{rm_Tanzania_inc}} and Uganda {{rm_Uganda_inc}}.
+     Tanzania ranks high despite small volumes because each successful card payment there earns {{rm_Tanzania_fps}} in fees.</p>
+  <div class="callout amber"><p><strong>Read with care.</strong> These are conditional scenarios, not forecasts. They use historical volumes and
+     observed fees, assume the gap is actually closed, and are before processing costs. Break-even is {{rc_be}} of cost per additional
+     successful payment. Leaving the escalation account out of the mobile money benchmark raises the base case to {{bx_inc0}}.</p></div>
+  <div class="insight" style="margin-top:10pt">
+    <div><h4>Bottom line</h4>
+      <p>A large part of the {{failed_fees_m}} comes from a small number of accounts with extreme failure volumes. The rest is a steady, long-running problem in which USD card is the main part that can be improved. Closing even
+         part of the gap with mobile money is worth real money, and most of that opportunity sits in three markets.</p></div>
+  </div>
+  <p class="src" style="margin-top:8pt">Fees on failed transactions are recorded amounts, not lost revenue or cash. Source: ZT East Africa supplied dataset;
+     author's calculations. Methods, tables and sensitivity tests are in the full report.</p>
+</section>
+

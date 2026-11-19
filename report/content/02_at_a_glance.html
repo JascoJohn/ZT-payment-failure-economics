@@ -1,0 +1,80 @@
+<section class="glance">
+  <div class="g-head">
+    <h2>THE ECONOMICS OF PAYMENT FAILURE</h2>
+    <p>Executive summary at a glance &nbsp;|&nbsp; ZT East Africa transactions, January 2022 – April 2024</p>
+  </div>
+
+  <div class="g-take">
+    <svg viewBox="0 0 48 48" width="34" height="34" fill="none" stroke="#1F3A5F" stroke-width="2.4" stroke-linecap="round">
+      <path d="M17 30c-3-2.5-5-6-5-10a12 12 0 0 1 24 0c0 4-2 7.5-5 10v4H17z"/><path d="M19 39h10M21 43h6"/>
+      <path d="M24 2v4M8 8l3 3M40 8l-3 3M2 20h4M42 20h4"/></svg>
+    <div><h4>Executive takeaway</h4>
+      <p>The {{failed_fees_m}} headline is not one problem. Separate the account-level anomalies, which need containing,
+         from the remaining exposure, where USD card completion is the credible improvement opportunity.</p></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><svg viewBox="0 0 32 32" width="24"><g fill="#1F3A5F"><ellipse cx="16" cy="8" rx="11" ry="4"/><path d="M5 11c0 2.2 4.9 4 11 4s11-1.8 11-4v4c0 2.2-4.9 4-11 4S5 17.2 5 15z"/><path d="M5 18c0 2.2 4.9 4 11 4s11-1.8 11-4v4c0 2.2-4.9 4-11 4S5 24.2 5 22z"/></g></svg>
+      <div><div class="v">{{failed_fees_m}}</div><div class="l">Fees on failed transactions</div></div></div>
+    <div class="kpi"><svg viewBox="0 0 32 32" width="24"><circle cx="16" cy="16" r="13" fill="#1F3A5F"/><path d="M16 16V3a13 13 0 0 1 3.6.5z" fill="#D99A1E"/></svg>
+      <div><div class="v">{{fee_share}}</div><div class="l">Failed-fee share</div></div></div>
+    <div class="kpi"><svg viewBox="0 0 32 32" width="24"><g fill="#1F3A5F"><rect x="3" y="20" width="5" height="9"/><rect x="11" y="15" width="5" height="14"/><rect x="19" y="10" width="5" height="19"/></g><path d="M3 14 13 7l5 4 10-8" stroke="#1F3A5F" stroke-width="2.4" fill="none"/></svg>
+      <div><div class="v">{{count_rate}}</div><div class="l">Count failure rate</div></div></div>
+    <div class="kpi"><svg viewBox="0 0 32 32" width="24"><g fill="#1F3A5F"><circle cx="16" cy="9" r="5"/><path d="M7 27c0-6 4-10 9-10s9 4 9 10z"/><circle cx="6" cy="12" r="3.4"/><circle cx="26" cy="12" r="3.4"/><path d="M0 26c0-4 2.6-7 6-7 1 0 1.8.2 2.5.6C7 21.5 6.3 23.6 6.2 26zM32 26c0-4-2.6-7-6-7-1 0-1.8.2-2.5.6 1.5 1.9 2.2 4 2.3 6.4z"/></g></svg>
+      <div><div class="v">{{attempts_short}}</div><div class="l">Payment attempts</div></div></div>
+  </div>
+  <p class="note">Count measures use all records; USD measures use records with an available exchange rate.</p>
+
+  <div class="g-label">Exposure bridge &ndash; {{failed_fees_m}}</div>
+  <div class="bridgebar">
+    <div class="a" style="width:{{anom_pct_w}}">{{anom_m}} | {{anom_share}}</div>
+    <div class="b" style="width:{{rm_pct_w}}">{{rm_m}} | {{rm_share}}</div>
+  </div>
+  <div class="bridgelab">
+    <div style="width:{{anom_pct_w}}">Anomalous-account exposure<br><span class="act teal">CONTAIN</span></div>
+    <div style="width:{{rm_pct_w}};border-left:0.8pt solid #DCD4C3">Remaining failed-fee exposure<br><span class="act amber">IMPROVE</span></div>
+  </div>
+  <p class="note">Mutually exclusive categories; anomaly labels are analytical proxies, not confirmed causes.</p>
+
+  <div class="g-label">Three key findings</div>
+  <div class="three">
+    <div><h5><span class="n">1</span>Concentrated spikes</h5>
+      <p>Twenty extreme-volume observations plus account 47087 account for {{anom_m}} ({{anom_share}}) of failed-transaction fees.
+         {{jan_ex_share}} of January 2024's rise came from extreme-volume anomalies, led by three card accounts.</p></div>
+    <div><h5><span class="n">2</span>Persistent, not deteriorating</h5>
+      <p>Excluding extreme-volume anomalies and the escalation account, monthly count failure stayed between {{rem_range_words}} for 28 months. The failed-fee share
+         declined from about 89% in 2022 to about 79% in 2024.</p></div>
+    <div><h5><span class="n">3</span>Card is the structural problem</h5>
+      <p>USD card payments fail {{usd_card_range}} across five markets, against {{mm_mk_range}} for mobile money. Among
+         {{gap_n}} customers using both channels, the gap is still {{gap_gs0}} percentage points.</p></div>
+  </div>
+
+  <div class="g-label">Where to act</div>
+  <div class="where">
+    <div class="acts">
+      <div><span class="n">01</span><div><h5>Contain account anomalies</h5>
+        <p>Introduce relative and absolute account alerts; throttle and review sudden spikes and sustained escalation in the same month.</p></div></div>
+      <div><span class="n">02</span><div><h5>Improve USD card completion</h5>
+        <p>Prioritise Kenya, Tanzania and Uganda, which hold {{rc_pri_k0}} of the {{rc_base_k0}} base case. Start with merchant-months
+           with zero card successes; investigate routing, acceptance and currency set-up.</p></div></div>
+      <div><span class="n">03</span><div><h5>Measure monthly</h5>
+        <p>Track the count failure rate, the failed-fee share and successful-transaction fees at constant currency, each
+           intervention against its baseline.</p></div></div>
+    </div>
+    <div class="prize">
+      <div class="big">{{rc_base_k0}}</div>
+      <div class="cap">Base-case incremental successful-transaction fee revenue</div>
+      <div class="range">{{rc_con_k0}}&ndash;{{rc_opt_k0}} scenario range &nbsp;|&nbsp; about {{rc_base_ann0}} a year</div>
+      <div class="fine">Conditional on USD card failure reaching the mobile money failure rate in each market. A scenario,
+        not a forecast; before processing costs.</div>
+    </div>
+  </div>
+
+  <div class="g-info">
+    <svg viewBox="0 0 32 32" width="22" height="22" style="flex:0 0 22px"><circle cx="16" cy="16" r="15" fill="#1F3A5F"/><rect x="14.4" y="13" width="3.2" height="11" fill="#fff"/><circle cx="16" cy="8.6" r="2" fill="#fff"/></svg>
+    <p>{{failed_fees_m}} is the fee amount recorded on failed transactions, not proven lost revenue or cash collected: its
+       recognition and collection cannot be established from the data. Recovery is fee revenue before processing costs. The analysis
+       corrects a Sierra Leone leone exchange-rate redenomination error that would otherwise overstate failed fees by $63.3K.
+       Source: ZT East Africa supplied dataset; author's calculations.</p>
+  </div>
+</section>

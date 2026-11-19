@@ -1,0 +1,162 @@
+/* The Economics of Payment Failure: one stylesheet for the full report and the executive brief.
+   Colours match src/payfail/figures.py so text, tables and figures read as one system. */
+
+@font-face { font-family: "Source Sans 3"; src: url("fonts/SourceSans3[wght].ttf") format("truetype"); font-weight: 200 900; font-style: normal; }
+@font-face { font-family: "Source Sans 3"; src: url("fonts/SourceSans3-Italic[wght].ttf") format("truetype"); font-weight: 200 900; font-style: italic; }
+
+:root {
+  --navy: #1F3A5F; --navy-2: #2C4E78; --teal: #2A7F7F; --amber: #D99A1E; --amber-soft: #F6E7C4;
+  --paper: #FAF7F0; --panel: #F1ECE0; --panel-2: #E9EFF3; --rule: #DCD4C3; --rule-strong: #1F3A5F;
+  --ink: #23272F; --ink-2: #4A4F57; --muted: #6B6860; --brick: #B5543C;
+}
+
+@page {
+  size: A4; margin: 19mm 18mm 20mm 18mm; background: var(--paper);
+  @bottom-left { content: "The Economics of Payment Failure"; font: 8pt "Source Sans 3", sans-serif; color: #6B6860; }
+  @bottom-right { content: counter(page); font: 8pt "Source Sans 3", sans-serif; color: #6B6860; }
+}
+@page cover { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+@page front { @bottom-left { content: "The Economics of Payment Failure  \00B7  Executive summary"; } }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: "Source Sans 3", "Segoe UI", Arial, sans-serif; font-size: 10.4pt; line-height: 1.45;
+       color: var(--ink); background: var(--paper); hyphens: auto; -webkit-hyphens: auto; }
+p, li { text-align: justify; text-justify: inter-word; }
+p { margin: 0 0 7pt 0; orphans: 3; widows: 3; }
+strong { font-weight: 650; color: #1b1f26; }
+a { color: var(--navy); text-decoration: none; }
+code { font-family: Consolas, "DejaVu Sans Mono", monospace; font-size: 9pt; background: var(--panel); padding: 0 2pt; }
+
+/* ---------- headings ---------- */
+h1, h2, h3, h4 { font-weight: 700; color: var(--navy); line-height: 1.2; text-align: left; break-after: avoid; }
+h2.section { margin: 16pt 0 10pt 0; padding: 9pt 12pt 9pt 14pt; background: var(--navy); color: #fff;
+             font-size: 17pt; border-left: 6pt solid var(--amber); }
+h2.section .num { color: var(--amber); margin-right: 6pt; }
+h3 { font-size: 12.5pt; margin: 14pt 0 5pt 0; padding-bottom: 2pt; border-bottom: 1px solid var(--rule); }
+h4 { font-size: 10.6pt; margin: 10pt 0 3pt 0; color: var(--ink); }
+
+/* ---------- lists ---------- */
+ul, ol { margin: 0 0 7pt 0; padding-left: 15pt; }
+li { margin-bottom: 3pt; }
+ul li::marker { color: var(--teal); }
+ol li::marker { color: var(--navy); font-weight: 700; }
+
+/* ---------- figures and tables ---------- */
+figure.chart { margin: 6pt 0 8pt 0; break-inside: avoid; text-align: center; }
+figure.chart img { width: 100%; height: auto; display: block; }
+.caption { font-weight: 700; color: var(--navy); font-size: 9.6pt; margin: 9pt 0 3pt 0; text-align: left; break-after: avoid; }
+.caption .lab { color: var(--navy); }
+.tbl { break-inside: avoid; margin-bottom: 9pt; }
+table { width: 100%; border-collapse: collapse; font-size: 8.6pt; line-height: 1.3; margin: 0 0 2pt 0;
+        border-top: 1.3pt solid var(--rule-strong); border-bottom: 1.3pt solid var(--rule-strong); }
+thead th { text-align: left; font-weight: 650; color: var(--navy); border-bottom: 0.8pt solid var(--rule-strong);
+           padding: 4pt 5pt; vertical-align: bottom; }
+tbody td { padding: 3.2pt 5pt; border-bottom: 0.5pt solid var(--rule); vertical-align: top; text-align: left; }
+tbody tr:last-child td { border-bottom: none; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.total td { font-weight: 650; border-top: 0.8pt solid var(--rule-strong); }
+.src { font-size: 7.8pt; color: var(--muted); margin: 1pt 0 0 0; text-align: left; }
+
+/* ---------- maths ---------- */
+.eq { margin: 6pt 0 8pt 0; padding: 5pt 10pt; background: var(--panel); border-left: 3pt solid var(--navy); break-inside: avoid; }
+.eq math { font-size: 11.5pt; margin: 3pt 0; }
+img, svg, table, .eq { max-width: 100%; }
+.eq .where { font-size: 8.8pt; color: var(--ink-2); margin: 3pt 0 0 0; text-align: left; }
+math { font-family: "Latin Modern Math", "STIX Two Math", "Cambria Math", "DejaVu Math TeX Gyre", serif; }
+
+/* ---------- call-outs and evidence tags ---------- */
+.callout { background: var(--panel-2); border-left: 4pt solid var(--teal); padding: 6pt 10pt; margin: 8pt 0 10pt 0; break-inside: avoid; }
+.callout p:last-child { margin-bottom: 0; }
+.callout.amber { background: var(--amber-soft); border-left-color: var(--amber); }
+.tag { font-size: 7.6pt; font-weight: 650; letter-spacing: .3pt; text-transform: uppercase; color: var(--teal);
+       border: 0.6pt solid var(--teal); border-radius: 2pt; padding: 0 3pt; white-space: nowrap; }
+
+/* ---------- cover ---------- */
+.cover { page: cover; height: 296mm; position: relative; overflow: hidden; background: var(--navy); color: #fff; break-after: page; }
+.cover .band { position: absolute; left: 0; right: 0; bottom: 0; height: 92mm; background: var(--paper); }
+.cover .band::before { content: ""; position: absolute; left: 0; right: 0; top: -9mm; height: 9mm; background: var(--amber); }
+.cover .inner { position: absolute; left: 22mm; right: 22mm; top: 30mm; }
+.cover .kicker { font-size: 10pt; letter-spacing: 2pt; text-transform: uppercase; color: var(--amber); font-weight: 700; }
+.cover h1 { color: #fff; font-size: 36pt; line-height: 1.05; margin: 10mm 0 6mm 0; font-weight: 750; }
+.cover .rule { width: 32mm; height: 2.4pt; background: var(--amber); margin: 0 0 6mm 0; }
+.cover .sub { font-size: 14pt; line-height: 1.35; color: #DCE5EE; max-width: 150mm; text-align: left; }
+.cover .meta { margin-top: 12mm; font-size: 10.5pt; color: #DCE5EE; }
+.cover .meta strong { color: #fff; }
+.cover .foot { position: absolute; left: 22mm; right: 22mm; bottom: 16mm; color: var(--ink); display: flex; gap: 14mm; font-size: 9.6pt; }
+.cover .foot h4 { margin: 0 0 3pt 0; color: var(--navy); font-size: 9.6pt; text-transform: uppercase; letter-spacing: .8pt; }
+.cover .foot div { flex: 1; }
+.cover .foot p { margin: 0 0 1.5pt 0; text-align: left; }
+.cover .foot .lbl { color: var(--muted); display: inline-block; min-width: 24mm; }
+
+/* ---------- written executive summary ---------- */
+.front { page: front; break-after: page; font-size: 10.5pt; line-height: 1.45; }
+.front p { margin-bottom: 6pt; }
+.front h2 { font-size: 20pt; margin: 0 0 1pt 0; color: var(--navy); }
+.front .lede { font-size: 9.6pt; color: var(--muted); margin-bottom: 9pt; text-transform: uppercase; letter-spacing: .8pt; text-align: left; }
+.front .opening { font-size: 13pt; font-weight: 600; color: var(--navy); line-height: 1.35; text-align: left; margin-bottom: 9pt; }
+.front h4 { font-size: 11.2pt; color: var(--navy); margin: 9pt 0 2pt 0; }
+.front h4 .pill { display: inline-block; font-size: 8.4pt; padding: 1pt 6pt; border-radius: 8pt; margin-left: 5pt; color: #fff; vertical-align: 1pt; }
+.pill.teal { background: var(--teal); } .pill.amber { background: var(--amber); color: #2b2005 !important; } .pill.navy { background: var(--navy); }
+
+/* ---------- infographic (summary at a glance) ---------- */
+.glance { page: front; break-after: page; font-size: 9.2pt; line-height: 1.3; }
+.glance > * + * { margin-top: 2pt; }
+.glance p { text-align: left; }
+.g-head { background: var(--navy); color: #fff; padding: 8pt 12pt 9pt 12pt; border-bottom: 4pt solid var(--amber); }
+.g-head h2 { margin: 0; color: #fff; font-size: 19pt; letter-spacing: .5pt; }
+.g-head p { margin: 2pt 0 0 0; color: #DCE5EE; font-size: 9pt; }
+.g-take { display: flex; gap: 10pt; align-items: center; background: var(--panel-2); padding: 7pt 12pt; margin: 7pt 0; border-left: 4pt solid var(--navy); }
+.g-take svg { flex: 0 0 34pt; }
+.g-take h4 { margin: 0 0 2pt 0; font-size: 10.6pt; letter-spacing: .4pt; text-transform: uppercase; }
+.g-take p { margin: 0; font-size: 10pt; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6pt; margin: 6pt 0 2pt 0; }
+.kpi { border: 0.8pt solid var(--rule); background: #fff8; padding: 8pt 8pt; display: flex; gap: 7pt; align-items: center; }
+.kpi svg { flex: 0 0 24pt; }
+.kpi .v { font-size: 21pt; font-weight: 750; color: var(--navy); line-height: 1; }
+.kpi .l { font-size: 8.4pt; color: var(--ink-2); margin-top: 2pt; }
+.note { font-size: 7.8pt; color: var(--muted); font-style: italic; text-align: center !important; margin: 3pt 0 6pt 0; }
+.g-label { display: inline-block; background: var(--navy); color: #fff; font-weight: 700; font-size: 10.4pt; padding: 3pt 9pt;
+           letter-spacing: .4pt; text-transform: uppercase; margin: 6pt 0 5pt 0; }
+.bridgebar { display: flex; height: 28pt; font-weight: 750; font-size: 14pt; }
+.bridgebar div { display: flex; align-items: center; justify-content: center; }
+.bridgebar .a { background: var(--teal); color: #fff; } .bridgebar .b { background: var(--amber); color: #2b2005; }
+.bridgelab { display: flex; text-align: center; margin-top: 4pt; }
+.bridgelab div { padding: 0 6pt; }
+.bridgelab .act { display: inline-block; margin-top: 3pt; font-size: 8pt; font-weight: 700; padding: 1pt 8pt; letter-spacing: .5pt; }
+.act.teal { background: var(--teal); color: #fff; } .act.amber { background: var(--amber); color: #2b2005; }
+.three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 2pt; }
+.three > div { padding: 0 8pt; border-left: 0.8pt solid var(--rule); }
+.three > div:first-child { border-left: none; padding-left: 0; }
+.three h5 { display: flex; gap: 6pt; align-items: center; margin: 0 0 3pt 0; font-size: 9.6pt; color: var(--navy); text-transform: uppercase; letter-spacing: .3pt; }
+.three h5 .n, .acts .n { flex: 0 0 auto; width: 17pt; height: 17pt; border-radius: 50%; background: var(--navy); color: #fff; display: inline-flex;
+                         align-items: center; justify-content: center; font-size: 9pt; }
+.where { display: grid; grid-template-columns: 1.45fr 1fr; gap: 10pt; margin-top: 2pt; }
+.acts > div { display: flex; gap: 7pt; margin-bottom: 6pt; }
+.acts .n { background: var(--amber); color: #2b2005; width: 19pt; height: 19pt; }
+.acts h5 { margin: 0 0 1pt 0; font-size: 9.4pt; color: var(--navy); text-transform: uppercase; }
+.acts p { margin: 0; }
+.prize { background: #E3EEEC; border: 0.8pt solid #BFD6D3; padding: 9pt 11pt; }
+.prize .big { font-size: 36pt; font-weight: 800; color: var(--teal); line-height: 1; }
+.prize .cap { font-weight: 700; color: var(--navy); font-size: 9.6pt; text-transform: uppercase; margin: 3pt 0 6pt 0; }
+.prize .range { border-top: 0.8pt solid var(--teal); padding-top: 5pt; font-weight: 650; color: var(--navy); }
+.prize .fine { font-size: 8pt; font-style: italic; color: var(--ink-2); margin-top: 4pt; }
+.g-info { display: flex; gap: 9pt; background: var(--panel); border: 0.8pt solid var(--rule); padding: 7pt 10pt; margin-top: 8pt; font-size: 8.4pt; }
+.g-info p { margin: 0; text-align: justify; }
+
+/* ---------- executive brief ---------- */
+.brief-page { break-after: page; }
+.brief-page:last-child { break-after: auto; }
+.brief h2.bar { margin: 0 0 9pt 0; padding: 8pt 12pt; background: var(--navy); color: #fff; font-size: 16pt; border-left: 6pt solid var(--amber); }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; }
+.insight { display: flex; gap: 9pt; background: var(--navy); color: #fff; padding: 9pt 11pt; margin: 8pt 0; }
+.insight h4 { color: var(--amber); margin: 0 0 2pt 0; }
+.insight p { color: #EEF2F6; margin: 0; text-align: left; }
+
+h2.section.appendix, .main > h2.section:first-child { break-before: page; }
+.main > h2.section:first-child { margin-top: 0; }
+
+/* wide tables (8+ columns): smaller type, text columns kept readable */
+table.wide { font-size: 7.9pt; }
+table.wide td, table.wide th { padding: 3pt 3.5pt; }
+table.wide td:not(.num) { min-width: 15mm; }
+p, li { break-inside: avoid; }
