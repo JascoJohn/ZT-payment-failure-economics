@@ -1,0 +1,10 @@
+column,dtype,missing
+total_value,float64,0
+revenue,float64,39
+total_count,int64,0
+period,datetime64[us],0
+customer_id,int64,0
+currency,str,0
+status,str,0
+paymenttype,str,0
+rev$,float64,62684

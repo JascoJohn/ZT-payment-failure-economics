@@ -343,6 +343,15 @@ def context(res: dict) -> dict[str, str]:
              nm=i0(len(m)), jan_cells_out_n=i0(j["cells_total"] - j["cells_used"]))
     c.update(rem_min=p0(m.count_rem.min()), rem_max=p0(m.count_rem.max()),
              rem_succ_month=k1((res["bridge"].f_fee.sum() * 0 + (h["succ_fees"])) / len(m)))
+    rc_ = res.get("reconciliation")
+    if rc_:                                    # report basis against the same data with the SLL fix switched off (stage 01E)
+        a_, b_ = rc_["report_basis"], rc_["no_sll_fix"]
+        lo = lambda x: ", ".join(f"{m['month']} {m['share'] * 100:.1f}%" for m in x["months_below_78"]) or "none"
+        c.update(pre_fees_d=d0(b_["fees"]), pre_ff_d=d0(b_["failed_fees"]), pre_ff_k=k1(b_["failed_fees"]), pre_fs=p1(b_["fee_share"]),
+                 pre_jan_d=d0(b_["jan_failed_fees"]), sll_effect_k=k1(rc_["sll_effect_failed_fees"]),
+                 jan_cr=p1(a_["jan_count_rate"]), jan_fs_all=p1(a_["jan_fee_share"]),
+                 lo78_n=i0(len(a_["months_below_78"])), lo78_list=lo(a_), lo78_n_pre=i0(len(b_["months_below_78"])), lo78_list_pre=lo(b_),
+                 bank_rec_share=p1(rc_["bank_transfer_record_share"]))
     return c
 
 
@@ -384,14 +393,8 @@ def numbering(texts: list[str]) -> tuple[dict, dict]:
     return figs, tabs
 
 
-def _figure_file(slug: str, fig_dir: Path) -> str:
-    hits = sorted(fig_dir.glob(f"fig*_{slug}.svg")) or sorted(fig_dir.glob(f"fig*_{slug}.png"))
-    if not hits:
-        raise FileNotFoundError(f"No exported figure for '{slug}' in {fig_dir}; run the figures stage first.")
-    return hits[0].name
-
-
-def md_to_html(md: str, fig_dir: Path, fig_rel: str, figs: dict, tabs: dict) -> str:
+def md_to_html(md: str, resolve, figs: dict, tabs: dict, idp: str = "sec-") -> str:
+    """`resolve(slug)` gives the figure file's URL relative to the HTML page (found through outputs/figure_index.csv)."""
     import markdown
     from bs4 import BeautifulSoup
 
@@ -406,7 +409,7 @@ def md_to_html(md: str, fig_dir: Path, fig_rel: str, figs: dict, tabs: dict) -> 
             slug = s[len("[[figure "):-2].strip()
             if slug not in REPORT_ORDER:
                 raise KeyError(f"Figure '{slug}' is not in REPORT_ORDER (figures.py).")
-            out += ["", f'<figure class="chart"><img src="{fig_rel}/{_figure_file(slug, fig_dir)}" alt="Figure {figs[slug]}"></figure>', ""]
+            out += ["", f'<figure class="chart" id="fig-{slug}"><img src="{resolve(slug)}" alt="Figure {figs[slug]}"></figure>', ""]
         elif TABLE_RE.match(s):
             slug, cap = TABLE_RE.match(s).groups()
             i += 1
@@ -417,7 +420,7 @@ def md_to_html(md: str, fig_dir: Path, fig_rel: str, figs: dict, tabs: dict) -> 
             if i < len(lines) and lines[i].strip().startswith(("Source:", "Note:", "Flags:")):
                 src = f'<p class="src">{_html.escape(lines[i].strip())}</p>'; i += 1
             tbl = markdown.markdown("\n".join(body), extensions=["tables"])
-            out += ["", f'<div class="tbl"><p class="caption"><span class="lab">Table {tabs[slug]}.</span> {cap}</p>{tbl}{src}</div>', ""]
+            out += ["", f'<div class="tbl" id="tab-{slug}"><p class="caption"><span class="lab">Table {tabs[slug]}.</span> {cap}</p>{tbl}{src}</div>', ""]
             continue
         elif s.startswith("$$"):
             tex = s[2:]
@@ -471,7 +474,39 @@ def md_to_html(md: str, fig_dir: Path, fig_rel: str, figs: dict, tabs: dict) -> 
             first = r.find("td")
             if first and first.find("strong") and first.get_text().strip().lower().startswith(("total", "all ")):
                 r["class"] = "total"
+    for k, h in enumerate(soup.find_all(["h2", "h3"]), start=1):
+        h["id"] = f"{idp}{k}"
+    _keep_together(soup)
     return str(soup)
+
+
+def _wrap(soup, first, *rest):
+    w = soup.new_tag("div", attrs={"class": "keep"})
+    first.insert_before(w)
+    w.append(first.extract())
+    for r in rest:
+        w.append(r.extract())
+    return w
+
+
+def _keep_together(soup) -> None:
+    """A figure stays with the sentence that discusses it, and a table with the sentence that introduces it."""
+    for fig in soup.find_all("figure", class_="chart"):
+        nxt = fig.find_next_sibling()
+        if nxt is not None and nxt.name == "p" and "keep" not in (fig.parent.get("class") or []):
+            _wrap(soup, fig, nxt)
+    for t in soup.find_all("div", class_="tbl"):
+        prv = t.find_previous_sibling()
+        if prv is None or prv.name != "p":
+            continue
+        if prv.parent is not None and "keep" in (prv.parent.get("class") or []):
+            continue
+        _wrap(soup, prv, t)
+    # a paragraph already grouped with a figure that is also followed by a table: extend that group
+    for t in soup.find_all("div", class_="tbl"):
+        prv = t.find_previous_sibling()
+        if prv is not None and "keep" in (prv.get("class") or []) and t.parent is not prv:
+            prv.append(t.extract())
 
 
 def _fill(template: str, ctx: dict, meta: dict) -> str:
@@ -479,9 +514,24 @@ def _fill(template: str, ctx: dict, meta: dict) -> str:
     return render(template, ctx)
 
 
-def _page(title: str, css_rel: str, body: str) -> str:
+def _css_str(t: str) -> str:
+    return t.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def footer_css(meta: dict) -> str:
+    """Centred two-line footer on every page except the cover, built from meta.yaml."""
+    l1 = f"{meta['author_line']} · {meta['email']} · {meta['telephone']} · ORCID {meta['orcid']}"
+    l2 = f"{meta['title']} · "
+    nl = chr(92) + "A"          # CSS escape for a line break inside content:
+    return ("<style>@page { @bottom-center { content: \"" + _css_str(l1) + "\" \"" + nl + "\" \"" + _css_str(l2) + "\" counter(page);"
+            " white-space: pre; text-align: center; font: 7.6pt/1.5 \"Source Sans 3\", sans-serif; color: #6B6860; } }"
+            " @page cover { @bottom-center { content: none; } }</style>")
+
+
+def _page(title: str, css_rel: str, body: str, meta: dict | None = None) -> str:
+    extra = footer_css(meta) if meta else ""
     return (f'<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>{_html.escape(title)}</title>'
-            f'<link rel="stylesheet" href="{css_rel}/report.css"></head><body>{body}</body></html>')
+            f'<link rel="stylesheet" href="{css_rel}/report.css">{extra}</head><body>{body}</body></html>')
 
 
 def find_browser() -> str | None:
@@ -508,27 +558,113 @@ def print_pdf(html_path: Path, pdf_path: Path) -> Path | None:
     return pdf_path
 
 
-def build_report(res: dict, root: Path, fig_dir: Path, out_dir: Path) -> dict:
-    """Full report and executive brief: HTML and PDF in out_dir."""
+def author_line(meta: dict) -> str:
+    return f"{meta['author']}, {meta['credentials']}" if meta.get("credentials") else meta["author"]
+
+
+def collect_entries(main_html: str, fig_titles: dict) -> dict:
+    """Headings, figures and tables of the main report in reading order, for the contents and the two lists."""
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(main_html, "html.parser")
+    out = {"contents": [], "figures": [], "tables": []}
+    for el in soup.find_all(["h2", "h3", "figure", "div"]):
+        if el.name == "h2" and el.get("id"):
+            num = el.find("span", class_="num")
+            text = (num.get_text() + " " if num else "") + el.get_text()[len(num.get_text()) if num else 0:].strip()
+            out["contents"].append({"id": el["id"], "level": 1, "text": text.strip()})
+        elif el.name == "h3" and el.get("id"):
+            sub = el.find("span", class_="subnum")
+            text = el.get_text().strip()
+            out["contents"].append({"id": el["id"], "level": 2, "text": text if sub else text})
+        elif el.name == "figure" and el.get("id"):
+            slug = el["id"][len("fig-"):]
+            out["figures"].append({"id": el["id"], "level": 1, "text": fig_titles.get(slug, slug)})
+        elif el.name == "div" and "tbl" in (el.get("class") or []):
+            cap = el.find("p", class_="caption")
+            out["tables"].append({"id": el["id"], "level": 1, "text": " ".join(cap.get_text().split())})
+    return out
+
+
+def _toc_section(title: str, entries: list, pages: dict | None, cls: str) -> str:
+    li = []
+    for e in entries:
+        pg = pages.get(e["id"], "00") if pages else "00"
+        li.append(f'<li class="l{e["level"]}"><a href="#{e["id"]}"><span class="t">{_html.escape(e["text"])}</span>'
+                  f'<span class="dots"></span><span class="pg">{pg}</span></a></li>')
+    return f'<section class="toc {cls}"><h2 class="toc-title">{title}</h2><ul class="toc-list">{"".join(li)}</ul></section>'
+
+
+def read_pages(pdf: Path, ids: list[str]) -> dict[str, int]:
+    """Page (1-based) of every contents target, read from the PDF's internal links (Chrome writes them as named destinations)."""
+    import fitz
+    doc = fitz.open(pdf)
+    got: dict[str, int] = {}
+    for page in doc:
+        for l in page.get_links():
+            if l.get("nameddest"):
+                got[l["nameddest"]] = l["page"] + 1
+    missing = [i for i in ids if i not in got]
+    if missing:
+        raise RuntimeError(f"No target page found in the PDF for: {missing[:5]}")
+    return {i: got[i] for i in ids}
+
+
+def build_report(res: dict, root: Path, out_dir: Path) -> dict:
+    """Full report (HTML, PDF with contents and lists of figures and tables) and the executive brief."""
+    import os
+
     import yaml
+
+    from .figures import label
+    from .pipeline import figure_file, load_figure_index
     content = root / "report" / "content"
     meta = yaml.safe_load((content / "meta.yaml").read_text(encoding="utf-8"))
+    meta["author_line"] = author_line(meta)
     ctx = context(res)
     out_dir.mkdir(parents=True, exist_ok=True)
-    css_rel = Path("../../report/assets").as_posix()
-    fig_rel = Path("../figures").as_posix()
+    css_rel = os.path.relpath(root / "report" / "assets", out_dir).replace("\\", "/")
+    resolve = lambda slug: os.path.relpath(figure_file(slug), out_dir).replace("\\", "/")
+    idx = load_figure_index()
+    fig_titles = dict(zip(idx.slug, idx.title))
     summary = (content / "01_summary.md").read_text(encoding="utf-8")
     main = (content / "03_main_report.md").read_text(encoding="utf-8")
     figs, tabs = numbering([main])
-    body = (_fill((content / "00_cover.html").read_text(encoding="utf-8"), ctx, meta)
-            + '<section class="front">' + md_to_html(_fill(summary, ctx, meta), fig_dir, fig_rel, figs, tabs) + "</section>"
-            + _fill((content / "02_at_a_glance.html").read_text(encoding="utf-8"), ctx, meta)
-            + '<main class="main">' + md_to_html(render(main, ctx), fig_dir, fig_rel, figs, tabs) + "</main>")
+    front = md_to_html(_fill(summary, ctx, meta), resolve, figs, tabs, idp="front-")
+    main_html = md_to_html(render(main, ctx), resolve, figs, tabs)
+    entries = collect_entries(main_html, fig_titles)
+    flat = entries["contents"] + entries["figures"] + entries["tables"]
+
+    def compose(pages: dict | None) -> str:
+        toc = (_toc_section("Contents", entries["contents"], pages, "c-contents")
+               + _toc_section("List of figures", entries["figures"], pages, "c-figures")
+               + _toc_section("List of tables", entries["tables"], pages, "c-tables"))
+        body = (_fill((content / "00_cover.html").read_text(encoding="utf-8"), ctx, meta)
+                + '<section class="front">' + front + "</section>"
+                + _fill((content / "02_at_a_glance.html").read_text(encoding="utf-8"), ctx, meta)
+                + toc + '<main class="main">' + main_html + "</main>")
+        return _page(meta["title"], css_rel, body, meta)
+
     full = out_dir / "The_Economics_of_Payment_Failure.html"
-    full.write_text(_page(meta["title"], css_rel, body), encoding="utf-8")
-    brief_body = _fill((content / "brief.html").read_text(encoding="utf-8"), ctx, meta)
-    brief_body = re.sub(r"\[\[figure (\w+)\]\]", lambda m: f'<figure class="chart"><img src="{fig_rel}/{_figure_file(m.group(1), fig_dir)}"></figure>', brief_body)
+    pages, passes = None, 0
+    pdf = None
+    while True:
+        passes += 1
+        full.write_text(compose(pages), encoding="utf-8")
+        pdf = print_pdf(full, full.with_suffix(".pdf"))
+        if pdf is None:
+            break
+        new = read_pages(pdf, [e["id"] for e in flat])
+        if new == pages:
+            break
+        if passes >= 5:
+            raise RuntimeError("Contents page numbers do not settle after 5 passes")
+        pages = new
+    brief_body = _fill((content / "brief.html").read_text(encoding="utf-8"), ctx, {**meta, "author": meta["author_line"]})
+    brief_body = re.sub(r"\[\[figure (\w+)\]\]", lambda m: f'<figure class="chart"><img src="{resolve(m.group(1))}"></figure>', brief_body)
     brief = out_dir / "Executive_Brief.html"
-    brief.write_text(_page(meta["title"] + " - Executive brief", css_rel, '<div class="brief">' + brief_body + "</div>"), encoding="utf-8")
-    return {"html": full, "pdf": print_pdf(full, full.with_suffix(".pdf")),
-            "brief_html": brief, "brief_pdf": print_pdf(brief, brief.with_suffix(".pdf"))}
+    brief.write_text(_page(meta["title"] + " - Executive brief", css_rel, '<div class="brief">' + brief_body + "</div>", meta), encoding="utf-8")
+    brief_pdf = print_pdf(brief, brief.with_suffix(".pdf"))
+    import json
+    (out_dir / "contents.json").write_text(json.dumps({"passes": passes, "pages": pages, **entries}, indent=1), encoding="utf-8")
+    return {"html": full, "pdf": pdf, "brief_html": brief, "brief_pdf": brief_pdf, "entries": entries, "pages": pages,
+            "meta": meta, "passes": passes, "figures": figs, "tables": tabs}

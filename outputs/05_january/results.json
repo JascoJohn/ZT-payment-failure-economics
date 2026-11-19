@@ -1,0 +1,25 @@
+{
+  "january": {
+    "baseline_all": 74450.86505911507,
+    "january_all": 738523.7382355628,
+    "baseline_extreme": 25375.60382356575,
+    "january_extreme": 661931.1908876793,
+    "baseline_nonanomalous": 49075.261235549326,
+    "january_nonanomalous": 76592.54734788346,
+    "fx_effect": 419.7284009175419,
+    "lmdi": {
+      "Volume": 16823.379018833268,
+      "Mix": -2362.0862604436384,
+      "Failure rate": -2207.2098299031454,
+      "Fee yield": 14894.152274829255
+    },
+    "entry_exit": -50.67749189919414,
+    "cells_used": 18,
+    "cells_total": 24,
+    "residual": 2.546585164964199e-11,
+    "top3_card_accounts": 628578.250000004,
+    "fee_share_nonanomalous_jan": 0.7879733395195618,
+    "fee_share_nonanomalous_base": 0.8065395728619303,
+    "count_rate_nonanomalous_jan": 0.5364538395168249
+  }
+}

@@ -163,5 +163,40 @@
     "top1pct_n": 51,
     "top1pct": 0.704079378041324,
     "top10_ex_extreme": 0.3558192544650505
+  },
+  "reconciliation": {
+    "report_basis": {
+      "fees": 3085639.7063824832,
+      "failed_fees": 2779424.1303349584,
+      "fee_share": 0.9007610721970767,
+      "count_rate": 0.6195989773326561,
+      "jan_failed_fees": 738523.7382355628,
+      "jan_fee_share": 0.9728040016211655,
+      "jan_count_rate": 0.7981682739759262,
+      "months_below_78": [
+        {
+          "month": "Oct 2023",
+          "share": 0.7788974276954704
+        },
+        {
+          "month": "Nov 2023",
+          "share": 0.7759307708384584
+        }
+      ]
+    },
+    "no_sll_fix": {
+      "fees": 3148996.1192265414,
+      "failed_fees": 2842780.5431790166,
+      "fee_share": 0.902757715648523,
+      "count_rate": 0.6195989773326561,
+      "jan_failed_fees": 744744.0244271992,
+      "jan_fee_share": 0.9730250220181959,
+      "jan_count_rate": 0.7981682739759262,
+      "months_below_78": []
+    },
+    "sll_effect_failed_fees": 63356.412844058126,
+    "sll_effect_fees": 63356.412844058126,
+    "bank_transfer_record_share": 0.01638376619232978,
+    "bank_transfer_attempt_share": 0.007366218439606001
   }
 }

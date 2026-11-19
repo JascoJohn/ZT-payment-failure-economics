@@ -50,7 +50,7 @@ def fig01_kpis(res, **_):
     h = res["headline"]
     tiles = [("Payment attempts", f"{h['attempts'] / 1e6:.2f}M", "Jan 2022 – Apr 2024"),
              ("Failed by count", f"{h['count_rate']:.1%}", f"{h['failed']:,} attempts"),
-             ("Fees on failed payments", f"${h['failed_fees'] / 1e6:.2f}M", "Recorded amounts, not cash"),
+             ("Fees on failed transactions", f"${h['failed_fees'] / 1e6:.2f}M", "Recorded amounts, not cash"),
              ("Successful-transaction fees", f"${h['succ_fees'] / 1e3:,.0f}K", "Recorded amounts, not cash")]
     fig = go.Figure()
     for i, (lab, val, sub) in enumerate(tiles):
@@ -91,7 +91,7 @@ def fig03_trend(res, **_):
         fig.add_vline(x=pd.Timestamp(d).timestamp() * 1000, line=dict(color=SUB, dash="dot"))
     fig.update_yaxes(tickformat=".0%")
     lo, hi = m.count_rem.min(), m.count_rem.max()
-    return _style(fig, "Figure 3. Strip out the anomalies and failure is persistent but steady",
+    return _style(fig, "Figure 3. Excluding extreme-volume anomalies and the escalation account, failure is persistent but steady",
                   f"Monthly; excluding anomalies the count failure rate stays between {lo:.0%} and {hi:.0%}", 560)
 
 
@@ -104,7 +104,7 @@ def fig04_composition(res, **_):
         fig.add_trace(go.Bar(x=m.period, y=m[col], name=name, marker_color=color))
     fig.update_layout(barmode="stack")
     fig.update_yaxes(title="USD", tickformat="$,.0f")
-    return _style(fig, "Figure 4. Two anomaly types drive the Dec 2023 – Apr 2024 surge",
+    return _style(fig, "Figure 4. Extreme-volume anomalies and the escalation account drive the Dec 2023 – Apr 2024 surge",
                   "Monthly fees on failed transactions by exposure category")
 
 
@@ -489,6 +489,23 @@ DASHBOARD_ONLY = [slug for _, slug, _, _ in FIGURES if slug not in REPORT_ORDER]
 SECTION = {slug: sec for _, slug, sec, _ in FIGURES}
 
 
+# Which numbered stage (and so which outputs/<number>_<name>/ folder) owns each figure.
+FIG_CHAPTER = {"kpis": "02", "bridge": "02", "trend": "02", "composition": "02", "value": "02",
+               "channels": "03", "heatmap": "03", "pareto": "03", "drivers": "03", "quintiles": "03",
+               "anomalies": "04", "escalation": "04", "hard_mixed": "04", "persistence": "04", "patterns": "04",
+               "january": "05", "lmdi": "05",
+               "fx_currency": "06", "reported_constant": "06", "ias_screen": "06",
+               "recovery_market": "07", "scenarios": "07", "costs": "07",
+               "matrix": "08", "roadmap": "08", "flow": "01G"}
+_FN = {slug: fn for _, slug, _, fn in FIGURES}
+
+
+def figure_stem(slug: str) -> str:
+    """File stem for a figure: fig07_heatmap for report figure 7, figd2_composition for dashboard figure D2."""
+    num = label(slug).split()[1]
+    return f"fig{num.zfill(2) if num.isdigit() else num.lower()}_{slug}"
+
+
 def label(slug: str) -> str:
     """The figure's number as printed: 'Figure 4' in the report, 'Figure D2' for dashboard-only figures."""
     if slug in REPORT_ORDER:
@@ -496,11 +513,13 @@ def label(slug: str) -> str:
     return f"Figure D{DASHBOARD_ONLY.index(slug) + 1}"
 
 
-def build_all(res, prep=None) -> dict[str, go.Figure]:
-    """Every figure, keyed by slug, titled with its report or dashboard number."""
+def build_figures(res, prep=None, slugs=None) -> dict[str, go.Figure]:
+    """Figures keyed by slug (all of them, or just `slugs`), titled with their report or dashboard number."""
     import re
     out = {}
     for n, slug, _, fn in FIGURES:
+        if slugs is not None and slug not in slugs:
+            continue
         try:
             fig = fn(res, prep=prep)
             fig.layout.title.text = re.sub(r"Figure \d+\.", label(slug) + ".", fig.layout.title.text, count=1)
@@ -511,3 +530,13 @@ def build_all(res, prep=None) -> dict[str, go.Figure]:
             fig.update_xaxes(visible=False); fig.update_yaxes(visible=False)
             out[slug] = fig
     return out
+
+
+def build_all(res, prep=None) -> dict[str, go.Figure]:
+    """Every figure, keyed by slug, titled with its report or dashboard number."""
+    return build_figures(res, prep)
+
+
+def plain_title(fig: go.Figure) -> str:
+    """The figure's title without markup or subtitle."""
+    return fig.layout.title.text.split("<br>")[0].replace("<b>", "").replace("</b>", "")

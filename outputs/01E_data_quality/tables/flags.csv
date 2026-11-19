@@ -1,0 +1,4 @@
+flag,records,note
+Fee-ratio anomaly,977,266 of them have a fee above the value
+Missing fee,39,zero in fee sums; kept in counts
+Transaction-value anomaly,64,"value $5,838,888,246; excluded from value measures only"

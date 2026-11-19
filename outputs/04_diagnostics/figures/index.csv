@@ -1,0 +1,6 @@
+label,slug,section,chapter,in_report,title,file,dir
+Figure D4,anomalies,4. Diagnostics,04,False,Figure D4. The four largest account-months carry $764.2K of $826.0K anomaly exposure,figd4_anomalies,04_diagnostics/figures
+Figure 8,escalation,4. Diagnostics,04,True,"Figure 8. One account escalated to 88,152 failed attempts in April 2024",fig08_escalation,04_diagnostics/figures
+Figure 9,hard_mixed,4. Diagnostics,04,True,Figure 9. 35% of card exposure comes from months with no card success,fig09_hard_mixed,04_diagnostics/figures
+Figure D5,persistence,4. Diagnostics,04,False,Figure D5. Persistent customers lose more fee value to failure and lapse more,figd5_persistence,04_diagnostics/figures
+Figure D6,patterns,4. Diagnostics,04,False,Figure D6. Card cells are structural; flags overlap,figd6_patterns,04_diagnostics/figures

@@ -1,0 +1,479 @@
+{
+ "passes": 2,
+ "pages": {
+  "sec-1": 7,
+  "sec-2": 8,
+  "sec-3": 8,
+  "sec-4": 9,
+  "sec-5": 9,
+  "sec-6": 10,
+  "sec-7": 10,
+  "sec-8": 11,
+  "sec-9": 11,
+  "sec-10": 13,
+  "sec-11": 14,
+  "sec-12": 14,
+  "sec-13": 14,
+  "sec-14": 15,
+  "sec-15": 16,
+  "sec-16": 16,
+  "sec-17": 18,
+  "sec-18": 21,
+  "sec-19": 22,
+  "sec-20": 23,
+  "sec-21": 23,
+  "sec-22": 23,
+  "sec-23": 25,
+  "sec-24": 26,
+  "sec-25": 27,
+  "sec-26": 27,
+  "sec-27": 29,
+  "sec-28": 29,
+  "sec-29": 29,
+  "sec-30": 30,
+  "sec-31": 30,
+  "sec-32": 31,
+  "sec-33": 31,
+  "sec-34": 32,
+  "sec-35": 32,
+  "sec-36": 33,
+  "sec-37": 33,
+  "sec-38": 33,
+  "sec-39": 34,
+  "fig-bridge": 8,
+  "fig-trend": 9,
+  "fig-channels": 10,
+  "fig-heatmap": 10,
+  "fig-pareto": 11,
+  "fig-drivers": 12,
+  "fig-quintiles": 13,
+  "fig-escalation": 15,
+  "fig-hard_mixed": 16,
+  "fig-january": 18,
+  "fig-lmdi": 19,
+  "fig-fx_currency": 21,
+  "fig-recovery_market": 24,
+  "fig-scenarios": 25,
+  "fig-matrix": 28,
+  "fig-flow": 30,
+  "tab-bridge": 8,
+  "tab-perspectives": 9,
+  "tab-drivers": 11,
+  "tab-quintiles": 13,
+  "tab-anomalies": 14,
+  "tab-hardmixed": 15,
+  "tab-tenure": 16,
+  "tab-laney": 17,
+  "tab-january": 19,
+  "tab-fxmeasures": 21,
+  "tab-ias": 22,
+  "tab-gap": 23,
+  "tab-recovery": 24,
+  "tab-scenarios": 25,
+  "tab-recsens": 25,
+  "tab-costs": 26,
+  "tab-matrix": 28,
+  "tab-actions": 29,
+  "tab-triggers": 29,
+  "tab-populations": 30,
+  "tab-brief": 31,
+  "tab-flags": 31,
+  "tab-sensitivity": 33
+ },
+ "contents": [
+  {
+   "id": "sec-1",
+   "level": 1,
+   "text": "1. Introduction"
+  },
+  {
+   "id": "sec-2",
+   "level": 1,
+   "text": "2. Scale: separating exceptional from persistent exposure"
+  },
+  {
+   "id": "sec-3",
+   "level": 2,
+   "text": "2.1 The exposure bridge"
+  },
+  {
+   "id": "sec-4",
+   "level": 2,
+   "text": "2.2 The trend once anomalies are removed"
+  },
+  {
+   "id": "sec-5",
+   "level": 2,
+   "text": "2.3 Three ways to measure the same failures"
+  },
+  {
+   "id": "sec-6",
+   "level": 1,
+   "text": "3. Where failure concentrates"
+  },
+  {
+   "id": "sec-7",
+   "level": 2,
+   "text": "3.1 By payment type and market"
+  },
+  {
+   "id": "sec-8",
+   "level": 2,
+   "text": "3.2 By customer"
+  },
+  {
+   "id": "sec-9",
+   "level": 2,
+   "text": "3.3 What drives each cell: volume, failure rate or fee yield"
+  },
+  {
+   "id": "sec-10",
+   "level": 2,
+   "text": "3.4 By payment size"
+  },
+  {
+   "id": "sec-11",
+   "level": 1,
+   "text": "4. Failure diagnostics"
+  },
+  {
+   "id": "sec-12",
+   "level": 2,
+   "text": "4.1 Extreme-volume anomalies"
+  },
+  {
+   "id": "sec-13",
+   "level": 2,
+   "text": "4.2 Sustained escalation"
+  },
+  {
+   "id": "sec-14",
+   "level": 2,
+   "text": "4.3 Hard and mixed failures"
+  },
+  {
+   "id": "sec-15",
+   "level": 2,
+   "text": "4.4 Persistent customers, tenure and lapse"
+  },
+  {
+   "id": "sec-16",
+   "level": 2,
+   "text": "4.5 Structural or episodic: control charts by cell"
+  },
+  {
+   "id": "sec-17",
+   "level": 1,
+   "text": "5. January 2024 investigation"
+  },
+  {
+   "id": "sec-18",
+   "level": 1,
+   "text": "6. Foreign exchange analysis"
+  },
+  {
+   "id": "sec-19",
+   "level": 2,
+   "text": "6.1 Is a monthly average rate appropriate?"
+  },
+  {
+   "id": "sec-20",
+   "level": 1,
+   "text": "7. Recovery opportunity"
+  },
+  {
+   "id": "sec-21",
+   "level": 2,
+   "text": "7.1 Why USD card, and why the mobile money benchmark"
+  },
+  {
+   "id": "sec-22",
+   "level": 2,
+   "text": "7.2 The calculation"
+  },
+  {
+   "id": "sec-23",
+   "level": 2,
+   "text": "7.3 Scenarios and sensitivities"
+  },
+  {
+   "id": "sec-24",
+   "level": 2,
+   "text": "7.4 Fee revenue is not profit"
+  },
+  {
+   "id": "sec-25",
+   "level": 1,
+   "text": "8. Management recommendations"
+  },
+  {
+   "id": "sec-26",
+   "level": 2,
+   "text": "8.1 Failure-to-Revenue Prioritisation Matrix"
+  },
+  {
+   "id": "sec-27",
+   "level": 2,
+   "text": "8.2 Actions, owners and measures"
+  },
+  {
+   "id": "sec-28",
+   "level": 2,
+   "text": "8.3 Monitoring triggers"
+  },
+  {
+   "id": "sec-29",
+   "level": 2,
+   "text": "8.4 Conclusion"
+  },
+  {
+   "id": "sec-30",
+   "level": 1,
+   "text": "Appendix A. Data and methodology"
+  },
+  {
+   "id": "sec-31",
+   "level": 2,
+   "text": "A.1 Two analytical populations"
+  },
+  {
+   "id": "sec-32",
+   "level": 2,
+   "text": "A.2 Reconciliation with the challenge brief"
+  },
+  {
+   "id": "sec-33",
+   "level": 2,
+   "text": "A.3 Data-quality flags"
+  },
+  {
+   "id": "sec-34",
+   "level": 2,
+   "text": "A.4 Exchange-rate corrections"
+  },
+  {
+   "id": "sec-35",
+   "level": 2,
+   "text": "A.5 Translation and preparation rules"
+  },
+  {
+   "id": "sec-36",
+   "level": 1,
+   "text": "Appendix B. Sensitivity, validation and limitations"
+  },
+  {
+   "id": "sec-37",
+   "level": 2,
+   "text": "B.1 Headline sensitivity"
+  },
+  {
+   "id": "sec-38",
+   "level": 2,
+   "text": "B.2 Limitations"
+  },
+  {
+   "id": "sec-39",
+   "level": 2,
+   "text": "B.3 Reproducibility"
+  }
+ ],
+ "figures": [
+  {
+   "id": "fig-bridge",
+   "level": 1,
+   "text": "Figure 1. 38.5% of the exposure sits in exceptional account behaviour"
+  },
+  {
+   "id": "fig-trend",
+   "level": 1,
+   "text": "Figure 2. Excluding extreme-volume anomalies and the escalation account, failure is persistent but steady"
+  },
+  {
+   "id": "fig-channels",
+   "level": 1,
+   "text": "Figure 3. Card payments hold 79% of fees on failed transactions"
+  },
+  {
+   "id": "fig-heatmap",
+   "level": 1,
+   "text": "Figure 4. Card fails at 79%\u201393% in every market"
+  },
+  {
+   "id": "fig-pareto",
+   "level": 1,
+   "text": "Figure 5. The top 10 of 5,108 customers with failed fees hold 50% of it"
+  },
+  {
+   "id": "fig-drivers",
+   "level": 1,
+   "text": "Figure 6. Card: high failure, small volume; Uganda mobile money: scale"
+  },
+  {
+   "id": "fig-quintiles",
+   "level": 1,
+   "text": "Figure 7. Mobile money fails mainly on high-value records; card at every size"
+  },
+  {
+   "id": "fig-escalation",
+   "level": 1,
+   "text": "Figure 8. One account escalated to 88,152 failed attempts in April 2024"
+  },
+  {
+   "id": "fig-hard_mixed",
+   "level": 1,
+   "text": "Figure 9. 35% of card exposure comes from months with no card success"
+  },
+  {
+   "id": "fig-january",
+   "level": 1,
+   "text": "Figure 10. Anomalies explain 96% of January's rise in failed-transaction fees"
+  },
+  {
+   "id": "fig-lmdi",
+   "level": 1,
+   "text": "Figure 11. Outside anomalies, volume and fee yield drove January"
+  },
+  {
+   "id": "fig-fx_currency",
+   "level": 1,
+   "text": "Figure 12. The Ghanaian cedi drives 81% of the translation effect"
+  },
+  {
+   "id": "fig-recovery_market",
+   "level": 1,
+   "text": "Figure 13. Kenya, Tanzania and Uganda hold $227.9K of the $253.7K base case"
+  },
+  {
+   "id": "fig-scenarios",
+   "level": 1,
+   "text": "Figure 14. Base case: 33,655 more successful card payments, worth $253.7K"
+  },
+  {
+   "id": "fig-matrix",
+   "level": 1,
+   "text": "Figure 15. Card cells: largest exposure, high failure, most recoverable fees"
+  },
+  {
+   "id": "fig-flow",
+   "level": 1,
+   "text": "Figure 16. Two populations: counts use every record, dollars translatable ones"
+  }
+ ],
+ "tables": [
+  {
+   "id": "tab-bridge",
+   "level": 1,
+   "text": "Table 1. Exposure bridge: fees on failed transactions by category"
+  },
+  {
+   "id": "tab-perspectives",
+   "level": 1,
+   "text": "Table 2. Three exposure perspectives, whole period"
+  },
+  {
+   "id": "tab-drivers",
+   "level": 1,
+   "text": "Table 3. Drivers of failed fees by cell, excluding extreme-volume anomalies"
+  },
+  {
+   "id": "tab-quintiles",
+   "level": 1,
+   "text": "Table 4. Top-quintile failure under alternative exclusions"
+  },
+  {
+   "id": "tab-anomalies",
+   "level": 1,
+   "text": "Table 5. Largest extreme-volume anomaly observations"
+  },
+  {
+   "id": "tab-hardmixed",
+   "level": 1,
+   "text": "Table 6. Hard and mixed failures"
+  },
+  {
+   "id": "tab-tenure",
+   "level": 1,
+   "text": "Table 7. Failure by customer tenure at the month of attempt"
+  },
+  {
+   "id": "tab-laney",
+   "level": 1,
+   "text": "Table 8. Pattern flags by cell"
+  },
+  {
+   "id": "tab-january",
+   "level": 1,
+   "text": "Table 9. January 2024 bridge against the July\u2013December 2023 monthly average"
+  },
+  {
+   "id": "tab-fxmeasures",
+   "level": 1,
+   "text": "Table 10. Reported fees against 2022 constant currency"
+  },
+  {
+   "id": "tab-ias",
+   "level": 1,
+   "text": "Table 11. Rate-volatility screen for the six main currencies"
+  },
+  {
+   "id": "tab-gap",
+   "level": 1,
+   "text": "Table 12. USD card against mobile money failure, all activity and the same customers"
+  },
+  {
+   "id": "tab-recovery",
+   "level": 1,
+   "text": "Table 13. Base-case recovery by market"
+  },
+  {
+   "id": "tab-scenarios",
+   "level": 1,
+   "text": "Table 14. Recovery scenarios"
+  },
+  {
+   "id": "tab-recsens",
+   "level": 1,
+   "text": "Table 15. Base case under alternative benchmarks"
+  },
+  {
+   "id": "tab-costs",
+   "level": 1,
+   "text": "Table 16. Illustrative fee revenue remaining after assumed processing costs"
+  },
+  {
+   "id": "tab-matrix",
+   "level": 1,
+   "text": "Table 17. Failure-to-Revenue Prioritisation Matrix"
+  },
+  {
+   "id": "tab-actions",
+   "level": 1,
+   "text": "Table 18. Actions, measures and baselines"
+  },
+  {
+   "id": "tab-triggers",
+   "level": 1,
+   "text": "Table 19. Monitoring triggers"
+  },
+  {
+   "id": "tab-populations",
+   "level": 1,
+   "text": "Table 20. Analytical populations"
+  },
+  {
+   "id": "tab-brief",
+   "level": 1,
+   "text": "Table 21. Reconciliation with the challenge brief"
+  },
+  {
+   "id": "tab-flags",
+   "level": 1,
+   "text": "Table 22. Independent data-quality flags"
+  },
+  {
+   "id": "tab-sensitivity",
+   "level": 1,
+   "text": "Table 23. Headline measures under alternative treatments"
+  }
+ ]
+}

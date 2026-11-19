@@ -1,0 +1,4 @@
+label,slug,section,chapter,in_report,title,file,dir
+Figure 13,recovery_market,7. Recovery,07,True,"Figure 13. Kenya, Tanzania and Uganda hold $227.9K of the $253.7K base case",fig13_recovery_market,07_recovery/figures
+Figure 14,scenarios,7. Recovery,07,True,"Figure 14. Base case: 33,655 more successful card payments, worth $253.7K",fig14_scenarios,07_recovery/figures
+Figure D9,costs,7. Recovery,07,False,"Figure D9. At an assumed 60% processing cost, $101.5K of base-case fee revenue remains",figd9_costs,07_recovery/figures

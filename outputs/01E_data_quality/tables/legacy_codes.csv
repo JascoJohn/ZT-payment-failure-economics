@@ -1,0 +1,9 @@
+legacy_code,mapped_to,code,role,records,median_value_per_attempt
+GHC,GHS,GHC,legacy code,1,80.88888888888889
+GHC,GHS,GHS,mapped to,5674,50.0
+ZMK,ZMW,ZMK,legacy code,44,128.94
+ZMK,ZMW,ZMW,mapped to,4731,76.38297872340425
+XAF/CFA,XAF,XAF/CFA,legacy code,0,
+XAF/CFA,XAF,XAF,mapped to,547,4343.0
+CFA,XAF,CFA,legacy code,0,
+CFA,XAF,XAF,mapped to,547,4343.0

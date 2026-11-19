@@ -1,0 +1,46 @@
+assumption,value
+data.workbook,data/raw/ZT_EA_Regional_Data.xlsx
+data.currency_aliases.GHC,GHS
+data.currency_aliases.ZMK,ZMW
+data.currency_aliases.XAF/CFA,XAF
+data.currency_aliases.CFA,XAF
+"data.country_aliases.Tanzania, United Republic Of",Tanzania
+data.sector_aliases.ecommerce,eCommerce
+fx.redenomination_fixes,"[{""currency"": ""SLL"", ""rate_above"": 0.001, ""divide_by"": 1000}]"
+fx.spike_ratio,5
+fx.constant_currency_year,2022
+fx.volatility_screen,0.1
+flags.fee_ratio_low,0.005
+flags.fee_ratio_high,0.2
+flags.value_per_attempt_limit,10000
+anomalies.relative.min_failed,1000
+anomalies.relative.multiple_of_prior_median,50
+anomalies.relative.max_success_rate,0.05
+anomalies.relative.lookback_months,6
+anomalies.escalation.min_failed,5000
+anomalies.escalation.max_success_rate,0.05
+anomalies.sensitivity.loose.min_failed,500
+anomalies.sensitivity.loose.multiple_of_prior_median,25
+anomalies.sensitivity.loose.max_success_rate,0.1
+anomalies.sensitivity.strict.min_failed,2000
+anomalies.sensitivity.strict.multiple_of_prior_median,100
+anomalies.sensitivity.strict.max_success_rate,0.02
+customers.elevated_rate,0.75
+customers.persistent_share_of_months,0.5
+customers.min_active_months,6
+customers.lapse_window_start,2024-02-01
+customers.tenure_bands,"[-1, 3, 12, 24, 10000]"
+patterns.min_month_attempts,500
+patterns.min_eligible_months,12
+patterns.high_confidence_months,18
+patterns.structural_median,0.7
+patterns.deteriorating_pp,0.1
+patterns.unstable_sd,0.15
+january.baseline_start,2023-07-01
+january.baseline_end,2023-12-01
+january.target,2024-01-01
+recovery.optimistic_margin,0.1
+recovery.best_window_months,3
+recovery.best_window_min_attempts,500
+recovery.min_successes_for_local_fee,100
+recovery.cost_ratios,"[0, 0.2, 0.4, 0.6, 1.0]"

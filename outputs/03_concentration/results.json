@@ -1,0 +1,10 @@
+{
+  "customer_concentration": {
+    "customers": 5108,
+    "customers_transacting": 5657,
+    "top10": 0.5040561666974384,
+    "top1pct_n": 51,
+    "top1pct": 0.704079378041324,
+    "top10_ex_extreme": 0.3558192544650505
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "recovery": {
+    "addressable_f_fee": 1044472.1799999999,
+    "addressable_f_att": 107411,
+    "total_att": 122599,
+    "fee_per_success_overall": 7.6267908875428,
+    "breakeven": 7.538044761718539,
+    "gap_totals": {
+      "card_all": 0.8761164446692061,
+      "mm_all": 0.5173356277505142,
+      "card_same": 0.8702287938614915,
+      "mm_same": 0.5773222796563819,
+      "customers": 1332
+    },
+    "same_customer": {
+      "incremental": 200449.02135615965,
+      "card_att_share": 0.5825332996190834,
+      "top_customer_share": 0.1316334817552998
+    },
+    "offset": {
+      "removed": 13628,
+      "removed_share": 0.1268771354889164,
+      "incremental": 211725.06905581933
+    },
+    "benchmark_ex_escalation": {
+      "accounts": [
+        47087
+      ],
+      "incremental": 324134.1270301804,
+      "additional": 43429.188933305195,
+      "mm_all": 0.46973587623183055,
+      "same_card": 0.8701396965068867,
+      "same_mm": 0.4590706361813837,
+      "same_customers": 1331,
+      "same_incremental": 296341.8417756061
+    }
+  }
+}

@@ -1,0 +1,4 @@
+label,slug,section,chapter,in_report,title,file,dir
+Figure 12,fx_currency,6. Foreign exchange,06,True,Figure 12. The Ghanaian cedi drives 81% of the translation effect,fig12_fx_currency,06_fx/figures
+Figure D7,reported_constant,6. Foreign exchange,06,False,Figure D7. Depreciation trims both measures by about 6% in USD terms,figd7_reported_constant,06_fx/figures
+Figure D8,ias_screen,6. Foreign exchange,06,False,Figure D8. Naira and cedi months most often fail the average-rate screen,figd8_ias_screen,06_fx/figures

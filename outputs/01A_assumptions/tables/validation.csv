@@ -1,0 +1,16 @@
+check,passed
+Raw workbook path exists,True
+Spike ratio is above 1,True
+Constant-currency year is a calendar year,True
+Volatility screen between 0 and 1,True
+Fee-ratio limits ordered (low < high),True
+Value-per-attempt limit is positive,True
+Redenomination fixes name a currency and a divisor,True
+"Relative rule: minimum failed attempts, multiple and look-back are positive",True
+Success-rate limits lie between 0 and 1,True
+Loose < agreed < strict thresholds,True
+January baseline precedes the target month,True
+Cost ratios are between 0 and 1 and increasing,True
+Optimistic margin between 0 and 1,True
+Tenure bands are increasing,True
+Pattern thresholds are valid,True

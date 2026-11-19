@@ -473,12 +473,52 @@ def sensitivity(tx: pd.DataFrame) -> pd.DataFrame:
 
 
 # --------------------------------------------------------------------------- orchestration
-def analyse(prep: Prepared, cfg: dict, tx: pd.DataFrame | None = None) -> dict:
-    """Run every block. Pass `tx` (a filtered copy of prep.tx) to analyse a subset."""
+def remaining_mix(tx: pd.DataFrame) -> dict:
+    rem = tx[tx.category == "Remaining"]
+    return {"total": rem.f_fee.sum(), "card": rem.loc[rem.pt == "card", "f_fee"].sum(),
+            "usd_card": rem.loc[(rem.pt == "card") & (rem.ccy == "USD"), "f_fee"].sum(),
+            "mobilemoney": rem.loc[rem.pt == "mobilemoney", "f_fee"].sum()}
+
+
+def customer_concentration(tx: pd.DataFrame) -> dict:
+    nb = tx[~tx.extreme]
+    allc = tx.groupby("customer_id").f_fee.sum()
+    top = allc[allc > 0].sort_values(ascending=False)          # ranked population: customers with failed fees
+    topn = nb.groupby("customer_id").f_fee.sum().sort_values(ascending=False)
+    n1 = max(1, round(len(top) * 0.01))
+    return {"customers": int(len(top)), "customers_transacting": int(len(allc)),
+            "top10": top.head(10).sum() / top.sum(),
+            "top1pct_n": n1, "top1pct": top.head(n1).sum() / top.sum(),
+            "top10_ex_extreme": topn.head(10).sum() / topn.sum()}
+
+
+# Which chapter owns each block. Chapter scripts (scripts/02_scale.py ...) run only their own blocks.
+# "01E" is Data quality and sensitivity (Appendix B); the SLL-off reconciliation lives in payfail.dq.
+BLOCK_CHAPTER = {
+    "headline": "02", "bridge": "02", "monthly": "02", "value": "02", "remaining_mix": "02",
+    "channels": "03", "countries": "03", "currencies": "03", "sectors": "03", "heat": "03", "pareto": "03",
+    "drivers": "03", "quintiles": "03", "quintile_versions": "03", "customer_concentration": "03",
+    "anomalies": "04", "hard_mixed": "04", "customers": "04", "laney": "04",
+    "january": "05", "fx": "06", "recovery": "07", "matrix": "08", "sensitivity": "01E",
+}
+BLOCK_DEPS = {"matrix": ["laney"]}          # blocks another block needs as input
+BLOCK_ORDER = ["headline", "bridge", "monthly", "value", "channels", "countries", "currencies", "sectors", "heat",
+               "pareto", "drivers", "quintiles", "quintile_versions", "anomalies", "hard_mixed", "customers", "laney",
+               "january", "fx", "recovery", "sensitivity", "matrix", "remaining_mix", "customer_concentration"]
+
+
+def analyse(prep: Prepared, cfg: dict, tx: pd.DataFrame | None = None, only=None) -> dict:
+    """Run every block (or just those named in `only`, plus their inputs).
+    Pass `tx` (a filtered copy of prep.tx) to analyse a subset."""
     tx = prep.tx if tx is None else tx
     tx.attrs["escalation_customers"] = prep.stats["escalation_customers"]
+    want = None
+    if only is not None:
+        want = set(only)
+        for b in list(want):
+            want.update(BLOCK_DEPS.get(b, []))
     res = {"stats": prep.stats}
-    blocks = {
+    fns = {
         "headline": lambda: headline(tx), "bridge": lambda: bridge(tx), "monthly": lambda: monthly(tx),
         "value": lambda: value_block(tx[~tx.value_excluded]),
         "channels": lambda: concentration(tx, "pt"), "countries": lambda: concentration(tx, "country"),
@@ -490,23 +530,14 @@ def analyse(prep: Prepared, cfg: dict, tx: pd.DataFrame | None = None) -> dict:
         "customers": lambda: customers(tx, cfg), "laney": lambda: laney_patterns(tx, cfg),
         "january": lambda: january(tx, cfg), "fx": lambda: fx_analysis(prep, tx, cfg),
         "recovery": lambda: recovery(prep, tx, cfg), "sensitivity": lambda: sensitivity(tx),
+        "remaining_mix": lambda: remaining_mix(tx), "customer_concentration": lambda: customer_concentration(tx),
     }
-    for k, fn in blocks.items():
-        res[k] = _safe(fn)()
-    lp = res["laney"] or {"patterns": pd.DataFrame(), "signals": pd.DataFrame()}
-    res["matrix"] = _safe(prioritisation)(prep, tx, cfg, lp["patterns"], lp["signals"])
-    nb = tx[~tx.extreme]
-    rem = tx[tx.category == "Remaining"]
-    rf = rem.f_fee.sum()
-    res["remaining_mix"] = {"total": rf, "card": rem.loc[rem.pt == "card", "f_fee"].sum(),
-                            "usd_card": rem.loc[(rem.pt == "card") & (rem.ccy == "USD"), "f_fee"].sum(),
-                            "mobilemoney": rem.loc[rem.pt == "mobilemoney", "f_fee"].sum()}
-    allc = tx.groupby("customer_id").f_fee.sum()
-    top = allc[allc > 0].sort_values(ascending=False)          # ranked population: customers with failed fees
-    topn = nb.groupby("customer_id").f_fee.sum().sort_values(ascending=False)
-    n1 = max(1, round(len(top) * 0.01))
-    res["customer_concentration"] = {"customers": int(len(top)), "customers_transacting": int(len(allc)),
-                                     "top10": top.head(10).sum() / top.sum(),
-                                     "top1pct_n": n1, "top1pct": top.head(n1).sum() / top.sum(),
-                                     "top10_ex_extreme": topn.head(10).sum() / topn.sum()}
+    for k in BLOCK_ORDER:
+        if want is not None and k not in want:
+            continue
+        if k == "matrix":
+            lp = res.get("laney") or {"patterns": pd.DataFrame(), "signals": pd.DataFrame()}
+            res[k] = _safe(prioritisation)(prep, tx, cfg, lp["patterns"], lp["signals"])
+        else:
+            res[k] = _safe(fns[k])()
     return res

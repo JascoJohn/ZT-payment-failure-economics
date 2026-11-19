@@ -1,0 +1,30 @@
+{
+  "headline": {
+    "records": 62684,
+    "attempts": 1645892,
+    "failed": 1019793,
+    "count_rate": 0.6195989773326561,
+    "attempts_translatable": 1645353,
+    "records_translatable": 62463,
+    "fees": 3085639.706382484,
+    "failed_fees": 2779424.130334959,
+    "fee_share": 0.9007610721970766,
+    "succ_fees": 306215.5760475253,
+    "customers_with_failed_fees": 5108
+  },
+  "value": {
+    "value": 79108366.95409498,
+    "failed_value": 69852893.41228813,
+    "failed_value_share": 0.8830025963350044,
+    "avg_failed_value": 68.55440443783117,
+    "avg_success_value": 14.782787266221627,
+    "failed_fee_intensity": 0.036962160936604774,
+    "success_fee_intensity": 0.033036469140814345
+  },
+  "remaining_mix": {
+    "total": 1708467.7186112744,
+    "card": 1403579.7270747002,
+    "usd_card": 1044370.44,
+    "mobilemoney": 241020.42013546958
+  }
+}

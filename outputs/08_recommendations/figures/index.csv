@@ -1,0 +1,3 @@
+label,slug,section,chapter,in_report,title,file,dir
+Figure 15,matrix,8. Recommendations,08,True,"Figure 15. Card cells: largest exposure, high failure, most recoverable fees",fig15_matrix,08_recommendations/figures
+Figure D10,roadmap,8. Recommendations,08,False,"Figure D10. Three workstreams: contain, fix card, manage persistent accounts",figd10_roadmap,08_recommendations/figures

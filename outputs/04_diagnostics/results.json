@@ -1,0 +1,35 @@
+{
+  "anomalies": {
+    "escalation_customers": [
+      47087
+    ]
+  },
+  "hard_mixed": {},
+  "customers": {
+    "persistence": {
+      "eligible": 1682,
+      "persistent": 950,
+      "share_f_att": 0.4358678955453149,
+      "share_f_fee": 0.6597883054639697,
+      "persistent_f_fee": 1288872.6765272585,
+      "one_off_elevated": 3131,
+      "fee_share_persistent": 0.9283263447370396,
+      "fee_share_other": 0.5447424514218472,
+      "lapse_persistent": 0.5905263157894737,
+      "lapse_other": 0.5136612021857924
+    },
+    "lapse": {
+      "active_before": 5451,
+      "lapsed": 4328,
+      "lapse_rate": 0.7939827554577141,
+      "count_rate_lapsed": 0.5970156616745944,
+      "count_rate_retained": 0.5155351093614929,
+      "fee_share_lapsed": 0.8998135141410666,
+      "fee_share_retained": 0.8069342220166399
+    }
+  },
+  "laney": {
+    "tests": 210,
+    "excluded_share": 0.02934893303906115
+  }
+}
