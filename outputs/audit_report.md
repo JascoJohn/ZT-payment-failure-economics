@@ -1,15 +1,17 @@
 # Audit report
 
-98 checks: **84 pass**, **0 fail**, **14 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
+102 checks: **86 pass**, **0 fail**, **16 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
 
 ## Flagged for you
 
 - **[2. Every number in the text] No typed number outside the allow-list (computed numbers must be {{tokens}}).** 88 typed numbers not on the allow-list {'03_main_report.md': 76, '02_at_a_glance.html': 6, 'brief.html': 3, '01_summary.md': 2, '00_cover.html': 1}. Full list: outputs/audit_typed_numbers.csv. First: 03_main_report.md:17 Six in ten; 03_main_report.md:17 nine in ten; 03_main_report.md:34 20; 03_main_report.md:46 89%; 03_main_report.md:46 79%; 03_main_report.md:79 10; 03_main_report.md:79 1%; 03_main_report.md:79 10
-- **[3. Terminology] One term for: Extreme-volume anomalies.** 56 variant uses. 03_main_report.md: 'values ( +  +  = ). The anomaly categories are prox' | 03_main_report.md: 'ies]* ### The trend once anomalies are removed  compar' | 03_main_report.md: 'the period belong to the anomaly categories. Without' | 03_main_report.md: 'n causes. It defines the anomaly categories used in'
-- **[3. Terminology] One term for: The escalation account (47087).** 7 variant uses. 01_summary.md: '-months and one steadily escalating account (47087) drove most' | brief.html: 'customer-months and one escalating account carry .         The' | figures.py (titles, legends): 'flagged observations and escalation account(s) Extreme failed-atte' | figures.py (titles, legends): 'Extreme-volume anomalies Escalation account(s) Remaining exposure'
-- **[3. Terminology] One term for: Remaining exposure.** 2 variant uses. 03_main_report.md: 'o about 79% in 2024. The remaining problem is chronic, but it' | README.md: 'he remaining $1.71M is a persistent card-completion problem. If USD card failur'
+- **[3. Terminology] One term for: Extreme-volume anomalies.** 52 variant uses. 03_main_report.md: 'values ( +  +  = ). The anomaly categories are prox' | 03_main_report.md: 'ies]* ### The trend once anomalies are removed  compar' | 03_main_report.md: 'the period belong to the anomaly categories. Without' | 03_main_report.md: 'n causes. It defines the anomaly categories used in'
+- **[3. Terminology] One term for: The escalation account (47087).** 6 variant uses. 01_summary.md: '-months and one steadily escalating account (47087) drove most' | brief.html: 'customer-months and one escalating account carry .         The' | figures.py (titles, legends): 'flagged observations and escalation account(s) Extreme failed-atte' | figures.py (titles, legends): 'Extreme-volume anomalies Escalation account(s) Remaining exposure'
+- **[3. Terminology] One term for: Remaining exposure.** 1 variant uses. 03_main_report.md: 'o about 79% in 2024. The remaining problem is chronic, but it'
 - **[3. Terminology] One term for: Fees on failed transactions.** 4 variant uses. 02_at_a_glance.html: '47087 account for  () of failed-transaction fees.           of Janua' | figure titles: '96% of January's rise in failed-transaction fees Figure 11. Outside' | figures.py (titles, legends): 'treme-volume anomaly All failed-transaction fees Extreme-volume anom' | figures.py (titles, legends): '0%} of January's rise in failed-transaction fees Baseline = Jul–Dec'
 - **[3. Terminology] One term for: Successful-transaction fees.** 7 variant uses. 03_main_report.md: 'ot better completion. On successful fees, depreciation erase' | 03_main_report.md: 'e measures monthly, with successful fees at constant currenc' | 01_summary.md: 've earned about  more in fees on successful payments over the 28 months,' | 01_summary.md: 'he failed-fee share, and fees on successful payments at constant 2022 ex'
+- **[4. Denominators] Fee per failed attempt (Table 3): numerator and denominator cover the same records.** The report divides USD fees (translatable records only) by failed attempts of all records, so records without an exchange rate sit in the denominator with no fee. Largest effect among the cells over $15K: Kenya alternative channels $2.22 as printed vs $2.23 on translatable records only (0.39%). Not changed.
+- **[4. Denominators] Sector table covers all fees on failed transactions.** 5,215 records (customers with no sector label) hold $71,766 (2.6%) of fees on failed transactions and are not in the sector table, which sums to $2,707,658 against the headline $2,779,424. The sector table is not printed in the report.
 - **[4. Denominators] Every sentence with a percentage states or implies its population.** 87 sentences with a percentage; 19 without any population cue (list in outputs/audit_percentages.csv): It covers every channel, but card carries 82% of it ($1.40M) and USD card alone 61% ($1.04M). | USD card payments fail 78–96% of the time across the five markets, while mobile money fails 43–69% of the time in the same markets. | Bank transfer works well, failing only 5.7% of the time, but it is too small to make a difference.
 - **[4. Denominators] No comparison sets two different populations without saying so.** 2 to read: Base case under alternative benchmarks Benchmark Treatment Base-case incremental fees, 28 months Base Mobile money failure rate in each market, as observed $253 | Monitoring triggers Indicator Definition Trigger Account anomaly alert, relative Failed attempts ≥ 1,000, more than 50× the 6-month median, success under 5% Sam
 - **[5. Units and periods] No sentence compares an annual figure with a 28-month figure.** 1 to read: What recovery is worth If USD card failed no more often than mobile money in each market, the platform would have earned $254K more in fees on successful payments over 28
@@ -37,6 +39,7 @@
 | PASS | Customer concentration: 5,108 ranked; top 1% is 51 customers | 5,108 customers, top 1% = 51 customers holding 70.4%, top 10 50.4% |
 | PASS | Every [[figure]] in the content resolves through outputs/figure_index.csv to an exported file | 16 distinct figures referenced; unresolved []; files missing [] |
 | PASS | Report figures appear in REPORT_ORDER order, numbered 1-16 |  |
+| PASS | figure_index.csv (read by the report, dashboard and Doc sync) agrees with figures.label() |  |
 | PASS | Ten dashboard-only figures, labelled D1-D10 |  |
 
 ## B. Baseline
@@ -85,9 +88,9 @@
 
 | Result | Check | Detail |
 | --- | --- | --- |
-| FLAG | One term for: Extreme-volume anomalies | 56 variant uses. 03_main_report.md: 'values ( +  +  = ). The anomaly categories are prox' / 03_main_report.md: 'ies]* ### The trend once anomalies are removed  compar' / 03_main_report.md: 'the period belong to the anomaly categories. Without' / 03_main_report.md: 'n causes. It defines the anomaly categories used in' |
-| FLAG | One term for: The escalation account (47087) | 7 variant uses. 01_summary.md: '-months and one steadily escalating account (47087) drove most' / brief.html: 'customer-months and one escalating account carry .         The' / figures.py (titles, legends): 'flagged observations and escalation account(s) Extreme failed-atte' / figures.py (titles, legends): 'Extreme-volume anomalies Escalation account(s) Remaining exposure' |
-| FLAG | One term for: Remaining exposure | 2 variant uses. 03_main_report.md: 'o about 79% in 2024. The remaining problem is chronic, but it' / README.md: 'he remaining $1.71M is a persistent card-completion problem. If USD card failur' |
+| FLAG | One term for: Extreme-volume anomalies | 52 variant uses. 03_main_report.md: 'values ( +  +  = ). The anomaly categories are prox' / 03_main_report.md: 'ies]* ### The trend once anomalies are removed  compar' / 03_main_report.md: 'the period belong to the anomaly categories. Without' / 03_main_report.md: 'n causes. It defines the anomaly categories used in' |
+| FLAG | One term for: The escalation account (47087) | 6 variant uses. 01_summary.md: '-months and one steadily escalating account (47087) drove most' / brief.html: 'customer-months and one escalating account carry .         The' / figures.py (titles, legends): 'flagged observations and escalation account(s) Extreme failed-atte' / figures.py (titles, legends): 'Extreme-volume anomalies Escalation account(s) Remaining exposure' |
+| FLAG | One term for: Remaining exposure | 1 variant uses. 03_main_report.md: 'o about 79% in 2024. The remaining problem is chronic, but it' |
 | FLAG | One term for: Fees on failed transactions | 4 variant uses. 02_at_a_glance.html: '47087 account for  () of failed-transaction fees.           of Janua' / figure titles: '96% of January's rise in failed-transaction fees Figure 11. Outside' / figures.py (titles, legends): 'treme-volume anomaly All failed-transaction fees Extreme-volume anom' / figures.py (titles, legends): '0%} of January's rise in failed-transaction fees Baseline = Jul–Dec' |
 | FLAG | One term for: Successful-transaction fees | 7 variant uses. 03_main_report.md: 'ot better completion. On successful fees, depreciation erase' / 03_main_report.md: 'e measures monthly, with successful fees at constant currenc' / 01_summary.md: 've earned about  more in fees on successful payments over the 28 months,' / 01_summary.md: 'he failed-fee share, and fees on successful payments at constant 2022 ex' |
 
@@ -95,6 +98,8 @@
 
 | Result | Check | Detail |
 | --- | --- | --- |
+| FLAG | Fee per failed attempt (Table 3): numerator and denominator cover the same records | The report divides USD fees (translatable records only) by failed attempts of all records, so records without an exchange rate sit in the denominator with no fee. Largest effect among the cells over $15K: Kenya alternative channels $2.22 as printed vs $2.23 on translatable records only (0.39%). Not changed. |
+| FLAG | Sector table covers all fees on failed transactions | 5,215 records (customers with no sector label) hold $71,766 (2.6%) of fees on failed transactions and are not in the sector table, which sums to $2,707,658 against the headline $2,779,424. The sector table is not printed in the report. |
 | FLAG | Every sentence with a percentage states or implies its population | 87 sentences with a percentage; 19 without any population cue (list in outputs/audit_percentages.csv): It covers every channel, but card carries 82% of it ($1.40M) and USD card alone 61% ($1.04M). / USD card payments fail 78–96% of the time across the five markets, while mobile money fails 43–69% of the time in the same markets. / Bank transfer works well, failing only 5.7% of the time, but it is too small to make a difference. |
 | FLAG | No comparison sets two different populations without saying so | 2 to read: Base case under alternative benchmarks Benchmark Treatment Base-case incremental fees, 28 months Base Mobile money failure rate in each market, as observed $253 / Monitoring triggers Indicator Definition Trigger Account anomaly alert, relative Failed attempts ≥ 1,000, more than 50× the 6-month median, success under 5% Sam |
 
@@ -157,6 +162,7 @@
 | PASS | The_Economics_of_Payment_Failure.pdf: the page number follows the title on line 2 |  |
 | PASS | Executive_Brief.pdf: centred footer (author line, contact, ORCID) on every page except the cover | pages without it: [] |
 | PASS | Executive_Brief.pdf: the page number follows the title on line 2 |  |
+| PASS | Excel 99_Checks: every row reads OK (recalculated copy) | 93 of 93 OK |
 | PASS | Dashboard at default settings: says every figure matches the report |  |
 | PASS | Dashboard figure titles equal the figure index titles | 26 charts; titles missing from the dashboard: [] |
 

@@ -491,7 +491,7 @@ def charts_scale(bk, rows: dict) -> None:
     ws.add_chart(c3, "L44")
     b0 = rows["wf"]
     c4 = bar_chart(ws, bk.ftitle("bridge"), ref(ws, 1, b0, b0 + 3), [(ref(ws, 2, b0, b0 + 3), "Base", None), (ref(ws, 3, b0, b0 + 3), "Fees on failed transactions", NAVY)],
-                   yfmt="$#,##0", point_colors=[NAVY, AMBER, AMBER, NAVY], labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base")
+                   yfmt="$#,##0", stacked=True, point_colors=[NAVY, AMBER, AMBER, NAVY], labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base")
     ws.add_chart(c4, "L64")
     v0 = rows["value"]
     c5 = bar_chart(ws, bk.ftitle("value") + " [average value per attempt]", ref(ws, 1, v0, v0 + 1), [(ref(ws, 2, v0, v0 + 1), "USD per attempt", NAVY)], point_colors=[NAVY, SAND], labels=True, legend=False, yfmt="$#,##0", h=8)
@@ -502,7 +502,7 @@ def charts_jan(bk, comp_first: int, n_comp: int) -> None:
     ws = bk.sheet("05_January")
     wf = bk.jan_wf
     c = bar_chart(ws, bk.ftitle("january"), ref(ws, 1, wf, wf + n_comp - 1),
-                  [(ref(ws, 2, wf, wf + n_comp - 1), "Base", None), (ref(ws, 3, wf, wf + n_comp - 1), "Amount", NAVY)], yfmt="$#,##0", point_colors=bk.jan_colors, labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base; red raises, green lowers failed fees")
+                  [(ref(ws, 2, wf, wf + n_comp - 1), "Base", None), (ref(ws, 3, wf, wf + n_comp - 1), "Amount", NAVY)], yfmt="$#,##0", stacked=True, point_colors=bk.jan_colors, labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base; red raises, green lowers failed fees")
     ws.add_chart(c, "L4")
     c2 = bar_chart(ws, bk.ftitle("lmdi"), ref(ws, 1, comp_first + 2, comp_first + 7), [(ref(ws, 2, comp_first + 2, comp_first + 7), "Effect on failed fees", NAVY)], horizontal=True, yfmt="$#,##0",
                    point_colors=bk.lmdi_colors, labels=True, legend=False, h=8)

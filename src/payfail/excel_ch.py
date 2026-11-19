@@ -54,6 +54,7 @@ def bar_chart(ws, title, cats, series, *, horizontal=False, stacked=False, yfmt=
     ch = BarChart()
     ch.type = "bar" if horizontal else "col"
     ch.title = title
+    ch.title.overlay = False
     if stacked:
         ch.grouping, ch.overlap = "stacked", 100
     for ref, name, color in series:
@@ -89,6 +90,7 @@ def bar_chart(ws, title, cats, series, *, horizontal=False, stacked=False, yfmt=
 def line_chart(ws, title, cats, series, *, yfmt=None, w=20, h=9.5):
     ch = LineChart()
     ch.title = title
+    ch.title.overlay = False
     for ref, name, color in series:
         s = Series(ref, title=name)
         color_series(s, color, line=True)
@@ -106,6 +108,7 @@ def scatter_chart(ws, title, series, *, xlog=False, xfmt=None, yfmt=None, xtitle
     """series = [(x Reference, y Reference, title, colour)]."""
     ch = ScatterChart()
     ch.title = title
+    ch.title.overlay = False
     ch.style = 13
     for xr, yr, name, color in series:
         s = Series(yr, xr, title=name)
@@ -121,6 +124,7 @@ def scatter_chart(ws, title, series, *, xlog=False, xfmt=None, yfmt=None, xtitle
         ch.series.append(s)
     if xlog:
         ch.x_axis.scaling.logBase = 10
+    ch.y_axis.crosses = "min"
     _ax(ch, xfmt=xfmt, yfmt=yfmt, xtitle=xtitle, ytitle=ytitle)
     ch.width, ch.height = w, h
     ch.legend.position = "b"
@@ -130,12 +134,14 @@ def scatter_chart(ws, title, series, *, xlog=False, xfmt=None, yfmt=None, xtitle
 def bubble_chart(ws, title, x, y, z, *, xlog=False, xfmt=None, yfmt=None, xtitle=None, ytitle=None, color=NAVY, w=20, h=10):
     ch = BubbleChart()
     ch.title = title
+    ch.title.overlay = False
     ch.style = 18
     s = Series(values=y, xvalues=x, zvalues=z, title="Cells")
     s.graphicalProperties.solidFill = color
     ch.series.append(s)
     if xlog:
         ch.x_axis.scaling.logBase = 10
+    ch.y_axis.crosses = "min"
     _ax(ch, xfmt=xfmt, yfmt=yfmt, xtitle=xtitle, ytitle=ytitle)
     ch.width, ch.height = w, h
     ch.legend = None
