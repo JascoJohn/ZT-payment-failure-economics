@@ -1,0 +1,106 @@
+# Numbers that may be typed in the report text instead of coming from the pipeline as {{tokens}}.
+# stage 11 flags every other typed number in report/content/. Each entry says why it is fixed.
+#   literal:  the number as written (matched after trimming punctuation)
+#   near:     optional text that must be close by, to keep the entry specific
+#   config:   optional path in config/assumptions.yaml; stage 11 checks the written value equals it
+#   why:      the reason it is a definition, a date or a quoted input rather than a result
+patterns:
+  - {re: '^20(22|23|24|26)$', why: calendar years of the study period and the report date}
+  - {re: '^\d{5,8}$', why: customer account numbers (verified against the data by stage 11)}
+  - {re: '^[0-9]$', near: '|', why: single digits that label table rows, counts of 0 or 1 in table cells (checked separately)}
+literals:
+  # thresholds and rules defined in config/assumptions.yaml
+  - {literal: '1,000', near: 'failed attempts', config: anomalies.relative.min_failed, why: extreme-volume rule threshold}
+  - {literal: '1,000', near: '1 SLE', why: Sierra Leone redenomination ratio (1 SLE = 1,000 SLL)}
+  - {literal: '1,000', near: 'fold', why: Sierra Leone redenomination ratio}
+  - {literal: '1,000', near: 'divided by', config: fx.redenomination_fixes.0.divide_by, why: redenomination divisor}
+  - {literal: '1,000', near: 'F_{c,m}', why: formula}
+  - {literal: '50×', config: anomalies.relative.multiple_of_prior_median, why: extreme-volume rule multiple}
+  - {literal: '5,000', config: anomalies.escalation.min_failed, why: escalation trigger threshold}
+  - {literal: '5%', near: 'success', config: anomalies.relative.max_success_rate, why: success-rate limit}
+  - {literal: '2,000', near: 'strict', config: anomalies.sensitivity.strict.min_failed, why: strict sensitivity threshold}
+  - {literal: '100×', near: 'strict', config: anomalies.sensitivity.strict.multiple_of_prior_median, why: strict sensitivity threshold}
+  - {literal: '2%', near: 'success', config: anomalies.sensitivity.strict.max_success_rate, why: strict sensitivity threshold}
+  - {literal: '500', near: 'loose', config: anomalies.sensitivity.loose.min_failed, why: loose sensitivity threshold}
+  - {literal: '25×', near: 'loose', config: anomalies.sensitivity.loose.multiple_of_prior_median, why: loose sensitivity threshold}
+  - {literal: '10%', near: 'loose', config: anomalies.sensitivity.loose.max_success_rate, why: loose sensitivity threshold}
+  - {literal: '75%', config: customers.elevated_rate, why: persistence rule}
+  - {literal: '500', near: 'attempts', config: patterns.min_month_attempts, why: Laney eligibility rule}
+  - {literal: '12', near: 'months', config: patterns.min_eligible_months, why: Laney eligibility rule}
+  - {literal: '70%', near: 'structural', config: patterns.structural_median, why: pattern flag definition}
+  - {literal: '10', near: 'points', why: pattern flag and optimistic-case definition (10 points)}
+  - {literal: '15', near: 'points', config: patterns.unstable_sd, scale: 0.01, why: pattern flag definition}
+  - {literal: '10%', near: 'screen', config: fx.volatility_screen, why: volatility screen}
+  - {literal: '10%', near: 'range', config: fx.volatility_screen, why: volatility screen}
+  - {literal: '10%', near: 'average', config: fx.volatility_screen, why: volatility screen}
+  - {literal: '5×', config: fx.spike_ratio, why: spike screen ratio}
+  - {literal: '0.5%', config: flags.fee_ratio_low, why: fee-ratio flag}
+  - {literal: '20%', near: 'transaction value', config: flags.fee_ratio_high, why: fee-ratio flag}
+  - {literal: '$10,000', config: flags.value_per_attempt_limit, why: value flag}
+  - {literal: '99.9th', why: description of the value flag limit}
+  - {literal: '60%', near: 'processing cost', why: illustrative cost ratio in config recovery.cost_ratios}
+  - {literal: '0%', near: '|', why: illustrative cost ratios (config recovery.cost_ratios)}
+  - {literal: '20%', near: '|', why: illustrative cost ratios (config recovery.cost_ratios)}
+  - {literal: '40%', near: '|', why: illustrative cost ratios (config recovery.cost_ratios)}
+  - {literal: '60%', near: '|', why: illustrative cost ratios (config recovery.cost_ratios)}
+  - {literal: '100%', why: a total of a distribution}
+  - {literal: '3', near: 'month', why: best 3-month window (config recovery.best_window_months)}
+  - {literal: '6', near: 'month', why: 6-month look-back and first/last six months (config)}
+  - {literal: '3', near: 'months running', why: monitoring trigger definition}
+  # tenure bands (config customers.tenure_bands)
+  - {literal: '0', near: 'months', why: tenure band label}
+  - {literal: '3', near: 'months', why: tenure band label}
+  - {literal: '4', near: 'months', why: tenure band label}
+  - {literal: '12', near: 'months', why: tenure band label}
+  - {literal: '13', near: 'months', why: tenure band label}
+  - {literal: '24', near: 'months', why: tenure band label}
+  - {literal: '25', near: 'months', why: tenure band label}
+  # standards, definitions, period facts
+  - {literal: '21', near: 'IAS', why: name of the standard (IAS 21)}
+  - {literal: '1', near: 'July 2022', why: date of the Sierra Leone redenomination}
+  - {literal: '1', near: 'SLE', why: Sierra Leone redenomination ratio}
+  - {literal: '1.128', why: Laney constant d2}
+  - {literal: '28', near: 'month', why: the 28 months of the study period (Jan 2022 - Apr 2024)}
+  - {literal: '28', near: 'of 28', why: the 28 months of the study period}
+  # figures quoted from the challenge brief (inputs, not results)
+  - {literal: '1.65M', why: quoted from the brief}
+  - {literal: '1.02M', why: quoted from the brief}
+  - {literal: '62%', near: '1.02M', why: quoted from the brief}
+  - {literal: '$3.15M', why: quoted from the brief}
+  - {literal: '$2.85M', why: quoted from the brief}
+  - {literal: '90%', near: '$2.85M', why: quoted from the brief}
+  - {literal: '97%', near: 'failure rate', why: quoted from the brief}
+  - {literal: '78%', near: 'Months below', why: threshold used in the brief}
+  - {literal: '$745K', why: quoted from the brief}
+  - {literal: '94%', why: quoted from the brief}
+  - {literal: '77%', near: '94%', why: quoted from the brief}
+  - {literal: '3%', near: '94%', why: quoted from the brief}
+  - {literal: '2%', near: 'Bank transfer share', why: quoted from the brief}
+  - {literal: '93%', near: 'Kenya failed-fee share', why: quoted from the brief}
+  # structure of the document
+  - {literal: '1', near: 'Anomaly containment', why: priority number in the actions table}
+  - {literal: '2', near: 'USD card completion', why: priority number in the actions table}
+  - {literal: '3', near: 'Persistent customers', why: priority number in the actions table}
+  - {literal: '4', near: 'High-value mobile money', why: priority number in the actions table}
+  - {literal: '5', near: 'Financial monitoring', why: priority number in the actions table}
+  - {literal: '2022–2024', why: period of the other extreme-volume observations}
+# number words that describe the structure of the document or a fixed set, not a result
+words:
+  - '^three ways$'
+  - '^three measures$'
+  - '^three mutually exclusive categories$'
+  - '^three categories$'
+  - '^three actions$'
+  - '^three conclusions$'
+  - '^three headline measures$'
+  - '^three core measures$'
+  - '^three flags$'
+  - '^three markets$'
+  - '^three card cells$'
+  - '^five actions$'
+  - '^six largest cells$'
+  - '^six main currencies$'
+  - '^six active months$'
+  - '^six months$'
+  - '^two problems$'
+  - '^two different problems$'

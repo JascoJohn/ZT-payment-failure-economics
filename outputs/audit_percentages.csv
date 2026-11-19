@@ -1,0 +1,88 @@
+sentence,percentages,population_cues
+"Extreme account behaviour: $1.07M (38.5%) Contain A small number of accounts produced sudden, massive bursts of failed attempts, most of all in December 2023 and January 2024.",1,"attempts, customers"
+Remaining exposure: $1.71M (61.5%) Improve This is everything left once the extreme-volume anomalies and the escalation account's other observations are set aside.,1,customers
+"It covers every channel, but card carries 82% of it ($1.40M) and USD card alone 61% ($1.04M).",2,
+The picture is steady and stubborn: between 48% and 61% of payment attempts failed in every one of the 28 months.,2,attempts
+"USD card payments fail 78–96% of the time across the five markets, while mobile money fails 43–69% of the time in the same markets.",2,
+Where the money sits Card carries 79% of all fees on failed transactions.,1,fees
+"Bank transfer works well, failing only 5.7% of the time, but it is too small to make a difference.",1,
+$2.78M Fees on failed transactions 90.1% Failed-fee share 62.0% Count failure rate 1.65M Payment attempts Count measures use all records; USD measures use records with an available exchange rate.,2,"all, attempts, fees, records"
+"Exposure bridge – $2.78M $1.07M | 38.5% $1.71M | 61.5% Anomalous-account exposure CONTAIN Remaining failed-fee exposure IMPROVE Mutually exclusive categories; anomaly labels are analytical proxies, not confirmed causes.",2,"customers, fees"
+Three key findings 1 Concentrated spikes Twenty extreme-volume observations plus account 47087 account for $1.07M (38.5%) of failed-transaction fees.,1,"customers, fees"
+"96% of January 2024's rise came from extreme-volume anomalies, led by three card accounts.",1,customers
+"2 Persistent, not deteriorating Excluding extreme-volume anomalies and the escalation account, monthly count failure stayed between 48% and 61% for 28 months.",2,"attempts, customers, non-anomalous"
+The failed-fee share declined from about 89% in 2022 to about 79% in 2024.,2,fees
+"3 Card is the structural problem USD card payments fail 78–96% across five markets, against 43–69% for mobile money.",2,
+38.5% of the exposure sits in exceptional account behaviour 8 Figure 2.,1,customers
+Card payments hold 79% of fees on failed transactions 10 Figure 4.,1,fees
+Card fails at 79%–93% in every market 10 Figure 5.,2,
+"The top 10 of 5,108 customers with failed fees hold 50% of it 11 Figure 6.",1,"customers, fees"
+35% of card exposure comes from months with no card success 16 Figure 10.,1,
+Anomalies explain 96% of January's rise in failed-transaction fees 18 Figure 11.,1,fees
+The Ghanaian cedi drives 81% of the translation effect 21 Figure 13.,1,
+"Scale: separating exceptional from persistent exposure Fees recorded on failed transactions total $2.78M, 90.1% of all recorded fees.",1,fees
+"Six in ten attempts fail by count (62.0%), and nine in ten fee dollars sit on failed transactions.",1,"attempts, fees"
+"Figure 1 shows that 38.5% of the exposure, $1.07M, sits in exceptional account behaviour.",1,customers
+Exposure bridge: fees on failed transactions by category Category Definition Failed attempts Fees on failed transactions Share Extreme-volume anomalies 20 customer-month-channel observations meeting the relative rule (Se,4,"attempts, customers, fees"
+"Remaining exposure is not a single channel or customer group: card carries 82% of it ($1.40M), USD card alone 61%, and mobile money 14%.",3,customers
+"Without them, the count failure rate stays between 48% and 61% in every month, and the failed-fee share drifts down from about 89% in 2022 to about 79% in 2024.",4,"attempts, fees"
+"Three exposure perspectives, whole period Perspective Measure Whole period Population Operational Count failure rate 62.0% All records Financial Failed-fee share 90.1% Translatable records Commercial Failed-value share 8",3,"all, attempts, fees, non-anomalous, records, translatable"
+Fees are charged at a similar rate on both: 3.70% of value on failed attempts and 3.30% on successful ones.,2,"attempts, fees"
+3.1 By payment type and market Figure 3 shows that card holds 79% of fees on failed transactions and mobile money 18%.,2,fees
+"Bank transfer is the one reliable channel, failing 5.7% of the time.",1,
+"It carries only 0.7% of attempts at $0.26 per failed attempt, however, so moving volume towards it is not a meaningful lever.",1,attempts
+"Card failure is high in every market (79–93%), while mobile money ranges from 43% in Uganda to 70% in Kenya, where account 47087 inflates the rate.",3,customers
+"Among currencies, USD records fail 93.7% of the time and hold 67.0% of failed fees ($1,861.9K); GHS ($323.6K) and UGX ($211.8K) follow.",2,"fees, records"
+"The top 10 hold 50.4% of failed fees, and the top 1% (51 customers) hold 70.4%.",3,"customers, fees"
+"Excluding extreme-volume anomalies, the top 10 still hold 35.6%.",1,non-anomalous
+"Drivers of failed fees by cell, excluding extreme-volume anomalies Cell Share of attempts Failure rate Fee per failed attempt Fees on failed transactions Dominant driver Kenya card 9.3% 88.5% $5.42 $664.5K Reliability, a",14,"attempts, customers, fees, non-anomalous"
+Card fails at 78–96% in every band.,1,
+Mobile money fails 13–50% below the top band and 85% within it.,2,
+Top-quintile failure under alternative exclusions Version Mobile money Q5 failure Mobile money Q1–Q4 failure Mobile money Q5 failed fees Largest customer's share of Q5 failed fees Card Q5 / Q1–Q4 failure All translatable,27,"customers, fees, non-anomalous, records, translatable"
+"The result is not sensitive to the thresholds: the anomalies' share of failed fees is 28.6% under strict rules (2,000 attempts, 100×, under 2% success), 29.7% under the agreed ones and 32.0% under loose ones (500, 25×, u",5,"attempts, fees"
+"Hard and mixed failures Classification Customer-month-channels Failed attempts Share Fees on failed transactions Share Extreme-volume anomaly 20 152,661 15.0% $826.0K 29.7% Hard: no successes that month 18,073 102,350 10",6,"attempts, customers, fees"
+"Hard failures make up 35% of card's non-anomalous failed fees, against 5% for mobile money.",2,"fees, non-anomalous"
+"Proxy; causes are hypotheses 4.4 Persistent customers, tenure and lapse Of 1,682 customers with at least six active months, 950 (56%) are persistent: their monthly failure rate is 75% or higher in at least half of their ",2,customers
+"They hold 43.6% of failed attempts but 66.0% of failed fees outside the anomalies, so they matter financially, not only in number.",2,"attempts, fees, non-anomalous"
+Failure by customer tenure at the month of attempt Tenure Count failure rate Failed-fee share Share of failed fees 0–3 months 61.6% 87.5% 20.5% 4–12 months 53.7% 85.7% 24.6% 13–24 months 52.8% 85.1% 20.6% 25+ months 62.7,13,"attempts, customers, fees"
+"4,328 of the 5,451 customers active before February 2024 (79%) made no attempts in February–April 2024.",1,"attempts, customers"
+"Before February, these lapsed customers had failed more than retained ones: 59.7% against 51.6% by count.",2,"attempts, customers"
+"Among customers with six or more active months, 59% of persistent customers lapsed against 51% of the rest.",2,customers
+For month with attempts: Ten cells have at least 12 months with 500 or more attempts; the excluded cells hold 2.9% of failed fees.,1,"attempts, fees"
+"Pattern flags by cell Cell Eligible months Median monthly failure First 6 → last 6 months Flags Months above the control limit (largest customer's share) Kenya card 28 92.8% 91.3% → 90.5% Structural, episodic Dec 2023 (7",37,customers
+"Kenya mobile money's April ""deterioration"" is 90% one account (47087), and Ghana card's May 2023 signal is 87% one account.",2,customers
+"The structural problems are the card cells, which fail at 84–93% in a typical month, spikes or not.",1,
+Figure 10 shows that extreme-volume anomalies account for $636.6K (96%) of the increase.,1,customers
+"The failure-rate effect is slightly favourable, led by Uganda card, which improved from 74.0% to 59.5% failing.",2,
+"Outside the extreme-volume anomalies, January's failed-fee share was 78.8% against an 80.7% baseline.",2,"fees, non-anomalous"
+"Foreign exchange analysis 35.8% of recorded fees are in local currencies, and several of them fell sharply against the US dollar during the period.",1,fees
+"Figure 12 shows that depreciation cut reported local-currency fees by $201.0K (−15.4%) against 2022 rates, and that the Ghanaian cedi accounts for 81% of the effect.",2,"customers, fees"
+"Reported fees against 2022 constant currency Measure Reported At 2022 constant currency Difference Fees on failed transactions $2,779.4K $2,961.1K −$181.6K (−6.1%) Successful-transaction fees $306.2K $325.6K −$19.3K (−5.",3,fees
+"To test that condition, currency-months whose daily high–low range exceeds 10% of the average were flagged; the 10% threshold is an analytical choice, not an IAS 21 rule.",2,
+Rate-volatility screen for the six main currencies Currency Months above the 10% screen (of 28) Average monthly range Widest month NGN 10 10.9% 60.0% GHS 7 9.5% 54.9% ZMW 5 7.3% 20.8% KES 3 2.7% 11.9% TZS 1 2.3% 11.8% UG,13,
+"Fees in those months move from $41.0K to $39.6K (−3.5%), and all fees on failed transactions from $2,779.4K to $2,766.6K (−0.5%).",2,fees
+"7.1 Why USD card, and why the mobile money benchmark Outside the extreme-volume anomalies, USD card holds $1,044.5K of fees on failed transactions, 53.5% of the total, and it has a natural benchmark: mobile money in the ",1,"fees, non-anomalous"
+"USD card against mobile money failure, all activity and the same customers Market USD card, all Mobile money, all Gap (pp) USD card, same customers Mobile money, same customers Gap (pp) Customers using both Kenya 89.0% 6",24,"all, customers"
+"Without it, Kenya's mobile money failure rate falls from 68.6% to 56.3%, and the five-market gap is 40.6 points across all activity and 41.1 points among the 1,331 customers using both.",2,"all, customers"
+"Base-case recovery by market Market Attempts (A) Failed attempts Current failure Target (mobile money) Reduction (pp) Additional successes Fee per success Incremental fees Kenya 79,582 70,804 89.0% 68.6% 20.4 16,223 $7.2",11,"attempts, fees"
+"Recovery scenarios Scenario Target failure rate Additional successes Incremental fees, 28 months Annual run-rate Share of recorded fees Share of addressable failed fees Conservative Card's own best 3-month rate 9,373 $80",6,fees
+The base case would add 83% to that figure.,1,
+"Base case under alternative benchmarks Benchmark Treatment Base-case incremental fees, 28 months Base Mobile money failure rate in each market, as observed $253.7K Mobile money without account 47087 Escalation account re",4,"attempts, customers, fees"
+"Illustrative fee revenue remaining after assumed processing costs Processing cost as a share of incremental fees 0% 20% 40% 60% 100% Base-case fee revenue remaining, 28 months $253.7K $203.0K $152.2K $101.5K $0 Even at a",6,fees
+"Uganda alternative channels, for example, fails 89% of the time but holds only $19K.",1,
+Failure-to-Revenue Prioritisation Matrix Cell Failure rate Fees on failed transactions Failed value Internal potential Cross-channel potential Persistence Data confidence Diagnostic confidence Action Kenya card 88.5% $66,9,"customers, fees"
+"USD card completion Investigate merchant-months with zero card successes, then routing, acceptance and currency set-up in Kenya, Tanzania and Uganda USD card count failure rate by market Kenya 89.0%, Tanzania 85.9%, Ugan",3,attempts
+Persistent customers Review the 950 accounts with recurring elevated failure Persistent-customer failed fees $1.29M (66.0% of non-anomalous failed fees) 4.,1,"customers, fees, non-anomalous"
+High-value mobile money Investigate the top-quintile result; do not change limits yet Top-quintile mobile money failure rate 85.2% (74.8% after exclusions) 5.,2,
+"Financial monitoring Report the three core measures monthly, with successful fees at constant currency Monthly financial performance 54.8% count failure, 84.8% failed-fee share (excluding anomalies) Each intervention sho",2,"attempts, fees, non-anomalous"
+"For Kenya card, for example: track the current failure rate against 89.0%, convert the improvement into additional successful payments (attempts × the fall in the failure rate), value them at $7.21 each, and check on the",1,attempts
+"Monitoring triggers Indicator Definition Trigger Account anomaly alert, relative Failed attempts ≥ 1,000, more than 50× the 6-month median, success under 5% Same month: throttle, then review Account anomaly alert, absolu",3,"attempts, customers, fees"
+About 38.5% of it comes from 15 accounts that need detecting and containing.,1,customers
+"The remaining $1.71M is steady and spans every channel; card carries 82% of it, and USD card completion is the clearest improvement opportunity.",1,
+"Reconciliation with the challenge brief Measure Brief Recalculated Population Status Transaction attempts 1.65M 1,645,892 All records Reconciles Failed attempts 1.02M (62%) 1,019,793 (62.0%) All records Reconciles Record",21,"all, attempts, fees, records, translatable"
+"Independent data-quality flags Flag Rule Records Treatment Fee-ratio anomaly Fee below 0.5% or above 20% of transaction value 977, including 266 where the fee exceeds the value Kept in fee measures; reviewed Missing fee ",2,"attempts, fees, records"
+"By contrast, the recurring UGX 500 million records of customer 1039721 are valid monthly aggregates of 3,000–4,300 attempts at a consistent 3.0% fee, and are kept.",1,"attempts, customers, fees, records"
+"Customer table: for 1,746 of 5,108 transacting customers (31%), the table's last transaction date precedes their last observed transaction, so lapse is measured from the transactions.",1,customers
+"Headline measures under alternative treatments Treatment Fees on failed transactions Failed-fee share Count failure rate Report basis (SLL corrected, monthly-average rates) $2,779.4K 90.1% 62.0% Before the SLL correction",15,"attempts, customers, fees, non-anomalous, records, translatable"
+"Only removing the anomaly categories moves it, and then to 85%.",1,
+"Tanzania card has only 12 eligible months and Zambia card 9, below the 12 needed, so Zambia card is not pattern-classified; the excluded cells hold 2.9% of failed fees.",1,fees
