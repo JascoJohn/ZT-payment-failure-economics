@@ -54,3 +54,4 @@ recovery:
   best_window_min_attempts: 500
   min_successes_for_local_fee: 100
   cost_ratios: [0, 0.2, 0.4, 0.6, 1.0]
+  bootstrap: {replicates: 1000, seed: 2026, interval: 0.90}   # customer-resampling interval for the base case

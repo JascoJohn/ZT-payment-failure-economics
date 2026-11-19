@@ -9,6 +9,9 @@ patterns:
   - {re: '^\d{5,8}$', why: customer account numbers (verified against the data by stage 11)}
   - {re: '^[0-9]$', near: '|', why: single digits that label table rows, counts of 0 or 1 in table cells (checked separately)}
 literals:
+  - {literal: '10', near: 'top', why: the ten largest customers (a definition of the ranking shown)}
+  - {literal: '1%', near: 'top', why: the top 1% of ranked customers}
+  - {literal: '1,000', near: 'Failed attempts', config: anomalies.relative.min_failed, why: extreme-volume rule threshold}
   # thresholds and rules defined in config/assumptions.yaml
   - {literal: '1,000', near: 'failed attempts', config: anomalies.relative.min_failed, why: extreme-volume rule threshold}
   - {literal: '1,000', near: '1 SLE', why: Sierra Leone redenomination ratio (1 SLE = 1,000 SLL)}
@@ -86,6 +89,10 @@ literals:
   - {literal: '2022–2024', why: period of the other extreme-volume observations}
 # number words that describe the structure of the document or a fixed set, not a result
 words:
+  - '^six in ten$'
+  - '^nine in ten$'
+  - '^two anomaly categories$'
+  - '^two anomaly category$'
   - '^three ways$'
   - '^three measures$'
   - '^three mutually exclusive categories$'

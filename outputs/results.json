@@ -39,7 +39,9 @@
     "failed_fees": 2779424.130334959,
     "fee_share": 0.9007610721970766,
     "succ_fees": 306215.5760475253,
-    "customers_with_failed_fees": 5108
+    "customers_with_failed_fees": 5108,
+    "failed_records": 39570,
+    "successful_records": 23114
   },
   "value": {
     "value": 79108366.95409498,
@@ -53,7 +55,13 @@
   "anomalies": {
     "escalation_customers": [
       47087
-    ]
+    ],
+    "escalation_profile": {
+      "mobilemoney_attempts": 106761,
+      "usd_card_attempts": 49,
+      "mobilemoney_ghs_share": 0.9921225915830687
+    },
+    "top_n": 4
   },
   "hard_mixed": {},
   "customers": {
@@ -76,7 +84,11 @@
       "count_rate_lapsed": 0.5970156616745944,
       "count_rate_retained": 0.5155351093614929,
       "fee_share_lapsed": 0.8998135141410666,
-      "fee_share_retained": 0.8069342220166399
+      "fee_share_retained": 0.8069342220166399,
+      "few_months_share": 0.46210720887245843,
+      "few_months_n": 2000,
+      "gap3_share": 0.32786506469500926,
+      "gap3_n": 1419
     }
   },
   "laney": {
@@ -101,6 +113,7 @@
     "cells_used": 18,
     "cells_total": 24,
     "residual": 2.546585164964199e-11,
+    "top_n_card": 3,
     "top3_card_accounts": 628578.250000004,
     "fee_share_nonanomalous_jan": 0.7879733395195618,
     "fee_share_nonanomalous_base": 0.8065395728619303,
@@ -148,6 +161,29 @@
       "same_mm": 0.4590706361813837,
       "same_customers": 1331,
       "same_incremental": 296341.8417756061
+    },
+    "no_rejections": {
+      "incremental": 158819.3475503606,
+      "additional": 18532.13153022389,
+      "share_of_failed_attempts": 0.33345746711230695,
+      "customer_months": 3959,
+      "failed_attempts": 35817
+    },
+    "interval": {
+      "low": 140084.48612969578,
+      "median": 265697.06785646407,
+      "high": 418066.95635620184,
+      "replicates": 1000,
+      "seed": 2026,
+      "level": 0.9,
+      "point": 253694.0224671539,
+      "customers": {
+        "Ghana": 738,
+        "Kenya": 1590,
+        "Tanzania": 238,
+        "Uganda": 2228,
+        "Zambia": 597
+      }
     }
   },
   "remaining_mix": {
@@ -198,5 +234,22 @@
     "sll_effect_fees": 63356.412844058126,
     "bank_transfer_record_share": 0.01638376619232978,
     "bank_transfer_attempt_share": 0.007366218439606001
+  },
+  "examples": {
+    "largest": {
+      "ccy": "NGN",
+      "value": 2356073196490.0,
+      "attempts": 24,
+      "fee": 314.3
+    },
+    "recurring": {
+      "customer": 1039721,
+      "records": 21,
+      "value_min": 261602328.0,
+      "value_max": 519914100.0,
+      "att_min": 2649,
+      "att_max": 4310,
+      "fee_ratio": 0.03
+    }
   }
 }

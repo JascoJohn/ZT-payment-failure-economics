@@ -1,3 +1,3 @@
 label,slug,section,chapter,in_report,title,file,dir
-Figure 10,january,5. January 2024,05,True,Figure 10. Anomalies explain 96% of January's rise in failed-transaction fees,fig10_january,05_january/figures
-Figure 11,lmdi,5. January 2024,05,True,"Figure 11. Outside anomalies, volume and fee yield drove January",fig11_lmdi,05_january/figures
+Figure 10,january,5. January 2024,05,True,Figure 10. Extreme-volume anomalies explain 96% of January's rise in fees on failed transactions,fig10_january,05_january/figures
+Figure 11,lmdi,5. January 2024,05,True,"Figure 11. Outside extreme-volume anomalies, volume and fee yield drove January",fig11_lmdi,05_january/figures

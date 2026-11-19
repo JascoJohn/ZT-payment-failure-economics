@@ -10,7 +10,9 @@
     "failed_fees": 2779424.130334959,
     "fee_share": 0.9007610721970766,
     "succ_fees": 306215.5760475253,
-    "customers_with_failed_fees": 5108
+    "customers_with_failed_fees": 5108,
+    "failed_records": 39570,
+    "successful_records": 23114
   },
   "value": {
     "value": 79108366.95409498,

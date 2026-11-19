@@ -33,6 +33,29 @@
       "same_mm": 0.4590706361813837,
       "same_customers": 1331,
       "same_incremental": 296341.8417756061
+    },
+    "no_rejections": {
+      "incremental": 158819.3475503606,
+      "additional": 18532.13153022389,
+      "share_of_failed_attempts": 0.33345746711230695,
+      "customer_months": 3959,
+      "failed_attempts": 35817
+    },
+    "interval": {
+      "low": 140084.48612969578,
+      "median": 265697.06785646407,
+      "high": 418066.95635620184,
+      "replicates": 1000,
+      "seed": 2026,
+      "level": 0.9,
+      "point": 253694.0224671539,
+      "customers": {
+        "Ghana": 738,
+        "Kenya": 1590,
+        "Tanzania": 238,
+        "Uganda": 2228,
+        "Zambia": 597
+      }
     }
   }
 }

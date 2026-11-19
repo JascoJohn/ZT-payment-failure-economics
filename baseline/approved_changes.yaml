@@ -1,0 +1,12 @@
+# Differences from the baseline that the author approved. Stage 11 fails on any other difference.
+# Items refer to the author's numbered instructions of 2026-11-20.
+changes:
+  - item: "5  Fee per failed attempt computed on translatable records only (numerator and denominator)"
+    tokens: ['dr_[a-z]+_fpf', 'dr_all_fpf', 'bank_fpf', 'fee_per_failed']
+    tables: ['drivers\.csv']
+    json: []
+  - item: "6  Sector table gains an 'Unlabelled sector' row"
+    tokens: []
+    tables: ['sectors\.csv']
+    json: []
+# Items 2, 3, 12 and 14, 19-24 change wording or add values (new tokens, new keys in results.json); they alter no baseline value.

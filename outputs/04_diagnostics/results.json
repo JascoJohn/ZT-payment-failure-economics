@@ -2,7 +2,13 @@
   "anomalies": {
     "escalation_customers": [
       47087
-    ]
+    ],
+    "escalation_profile": {
+      "mobilemoney_attempts": 106761,
+      "usd_card_attempts": 49,
+      "mobilemoney_ghs_share": 0.9921225915830687
+    },
+    "top_n": 4
   },
   "hard_mixed": {},
   "customers": {
@@ -25,7 +31,11 @@
       "count_rate_lapsed": 0.5970156616745944,
       "count_rate_retained": 0.5155351093614929,
       "fee_share_lapsed": 0.8998135141410666,
-      "fee_share_retained": 0.8069342220166399
+      "fee_share_retained": 0.8069342220166399,
+      "few_months_share": 0.46210720887245843,
+      "few_months_n": 2000,
+      "gap3_share": 0.32786506469500926,
+      "gap3_n": 1419
     }
   },
   "laney": {

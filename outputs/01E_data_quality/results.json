@@ -33,5 +33,22 @@
     "sll_effect_fees": 63356.412844058126,
     "bank_transfer_record_share": 0.01638376619232978,
     "bank_transfer_attempt_share": 0.007366218439606001
+  },
+  "examples": {
+    "largest": {
+      "ccy": "NGN",
+      "value": 2356073196490.0,
+      "attempts": 24,
+      "fee": 314.3
+    },
+    "recurring": {
+      "customer": 1039721,
+      "records": 21,
+      "value_min": 261602328.0,
+      "value_max": 519914100.0,
+      "att_min": 2649,
+      "att_max": 4310,
+      "fee_ratio": 0.03
+    }
   }
 }

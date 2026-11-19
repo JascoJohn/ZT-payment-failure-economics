@@ -27,7 +27,7 @@
      That headline mixes two different problems, and each needs its own response.</p>
   <div class="kpis">
     <div class="kpi"><div><div class="v">$2.78M</div><div class="l">Fees on failed transactions</div></div></div>
-    <div class="kpi"><div><div class="v">38.5%</div><div class="l">From a few anomalous accounts</div></div></div>
+    <div class="kpi"><div><div class="v">38.5%</div><div class="l">From the two anomaly categories</div></div></div>
     <div class="kpi"><div><div class="v">79%</div><div class="l">Of failed fees on card</div></div></div>
     <div class="kpi"><div><div class="v">$254K</div><div class="l">Base-case recovery, 28 months</div></div></div>
   </div>
@@ -35,41 +35,42 @@
     <svg viewBox="0 0 48 48" width="30" height="30" fill="none" stroke="#D99A1E" stroke-width="2.6" stroke-linecap="round" style="flex:0 0 30px">
       <path d="M17 30c-3-2.5-5-6-5-10a12 12 0 0 1 24 0c0 4-2 7.5-5 10v4H17z"/><path d="M19 39h10M21 43h6"/></svg>
     <div><h4>Key insight</h4>
-      <p>$1.07M comes from extreme account behaviour that needs containing. The remaining $1.71M is steady and spans every channel;
+      <p>$1.07M comes from the two anomaly categories, which need containing. The remaining $1.71M is steady and spans every channel;
          card carries 82% of it, and USD card completion is where the recoverable money is.</p></div>
   </div>
   <h3>What the data shows</h3>
   <ul>
-    <li><strong>A few accounts drive the spikes.</strong> Twenty extreme customer-months and one escalating account carry $1.07M.
+    <li><strong>A few accounts account for the spikes.</strong> 20 extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry $1.07M.
         They explain 96% of January 2024's jump in failed fees.</li>
-    <li><strong>Underlying failure is persistent but stable.</strong> Without the anomalies and the escalation account, between 48% and 61% of attempts failed in
+    <li><strong>Underlying failure is persistent but stable.</strong> Excluding the two anomaly categories, between 48% and 61% of attempts failed in
         every month, with no upward trend.</li>
-    <li><strong>Card is the structural problem.</strong> USD card fails 78–96% of the time, against 43–69% for mobile money
+    <li><strong>Card is the structural problem.</strong> Excluding extreme-volume anomalies, USD card fails 78–96% of the time, against 43–69% for mobile money
         in the same markets. The gap persists, at 29 points, among customers who use both.</li>
     <li><strong>Exchange rates distort the trend.</strong> Depreciation, mostly of the cedi, cut local-currency fees by $201.0K in
         dollar terms, so constant-currency reporting is needed to see real performance.</li>
   </ul>
-  <div class="callout amber"><p><strong>Strategic implication.</strong> Contain the anomalous accounts with monitoring, and invest in card
+  <div class="callout amber"><p><strong>Strategic implication.</strong> Contain the accounts in the two anomaly categories with monitoring, and invest in card
      completion in Kenya, Tanzania and Uganda. Treating $2.78M as one problem would put management attention in the wrong place.</p></div>
   <h3>Three actions</h3>
   <div class="acts">
-    <div><span class="n">01</span><div><h5>Contain account anomalies</h5>
+    <div><span class="n">01</span><div><h5>Contain the two anomaly categories</h5>
       <p>Add a relative alert (1,000+ failed attempts, 50× the account's recent median, under 5% success) and an absolute one (5,000+ failed
          attempts, under 5% success). Throttle and review flagged accounts in the same month.</p></div></div>
     <div><span class="n">02</span><div><h5>Improve USD card completion in Kenya, Tanzania and Uganda</h5>
       <p>Start with merchant-months that had zero card successes, then review acceptance, routing and currency set-up.
          Baselines: Kenya 89.0%, Tanzania 85.9%, Uganda 77.6% failure.</p></div></div>
     <div><span class="n">03</span><div><h5>Report three numbers every month</h5>
-      <p>Count failure rate, failed-fee share, and fees on successful payments at constant 2022 exchange rates, each intervention against its baseline.</p></div></div>
+      <p>Count failure rate, failed-fee share, and successful-transaction fees at constant 2022 exchange rates, each intervention against its baseline.</p></div></div>
   </div>
 </section>
 
 <section class="brief-page">
   <h2 class="bar">1. Two problems inside one headline</h2>
-  <p>Every failed fee falls into exactly one of three categories. Extreme-volume anomalies are sudden bursts of failures from single accounts.
-     Escalation is one account whose failures grew steadily. Remaining exposure is everything else.</p>
+  <p>Every fee on a failed transaction falls into exactly one of three categories. Extreme-volume anomalies are sudden bursts of failures from single accounts.
+     The escalation account (47087) is one account whose failures grew steadily; together they are the two anomaly categories. Remaining exposure is everything else.</p>
   <figure class="chart"><img src="../02_scale/figures/fig01_bridge.svg"></figure>
-  <p>Two in five failed-fee dollars come from exceptional account behaviour. Once those accounts are set aside, the failure rate
+  <p class="src">Figure numbers refer to the full report.</p>
+  <p>Two in five dollars of fees on failed transactions come from the two anomaly categories. Once those are set aside, the failure rate
      is steady month after month, as the trend below shows.</p>
   <figure class="chart"><img src="../02_scale/figures/fig02_trend.svg"></figure>
   <div class="callout"><p><strong>Key takeaway.</strong> The spikes at the end of the period are an account problem, not a platform-wide deterioration.
@@ -79,7 +80,7 @@
 <section class="brief-page">
   <h2 class="bar">2. Card fails in every market</h2>
   <p>Card holds 79% of fees on failed transactions. The heat map shows that the problem is the channel, not a single market:
-     card fails at 79–93% everywhere, while mobile money stays far lower.</p>
+     card fails at 79–93% by count everywhere, while mobile money stays far lower.</p>
   <figure class="chart"><img src="../03_concentration/figures/fig04_heatmap.svg"></figure>
   <p>The gap is not just a matter of which customers use which channel. Among the 1,332 customers who use both card and mobile money,
      card still fails 29.3 points more often (41.1 points once the escalation account, which sits in Kenya's mobile money figures, is left out). That makes mobile money a credible, if not guaranteed, benchmark for what card could achieve.</p>
@@ -90,8 +91,8 @@
 
 <section class="brief-page">
   <h2 class="bar">3. What recovery is worth</h2>
-  <p>If USD card failed no more often than mobile money in each market, the platform would have earned $254K more in fees on
-     successful payments over 28 months, about $109K a year. Conservative and optimistic targets give $81K and $346K.</p>
+  <p>If USD card failed no more often than mobile money in each market, the platform would have earned $254K more in successful-transaction
+     fees over 28 months, about $109K a year. Conservative and optimistic targets give $81K and $346K.</p>
   <figure class="chart"><img src="../07_recovery/figures/fig14_scenarios.svg"></figure>
   <p>Kenya, Tanzania and Uganda hold $228K of the base case: Kenya $116.9K, Tanzania $81.2K and Uganda $29.8K.
      Tanzania ranks high despite small volumes because each successful card payment there earns $20.79 in fees.</p>
@@ -100,7 +101,7 @@
      successful payment. Leaving the escalation account out of the mobile money benchmark raises the base case to $324K.</p></div>
   <div class="insight" style="margin-top:10pt">
     <div><h4>Bottom line</h4>
-      <p>A large part of the $2.78M comes from a small number of accounts with extreme failure volumes. The rest is a steady, long-running problem in which USD card is the main part that can be improved. Closing even
+      <p>A large part of the $2.78M comes from a small number of accounts in the two anomaly categories. The rest is a steady, long-running problem in which USD card is the main part that can be improved. Closing even
          part of the gap with mobile money is worth real money, and most of that opportunity sits in three markets.</p></div>
   </div>
   <p class="src" style="margin-top:8pt">Fees on failed transactions are recorded amounts, not lost revenue or cash. Source: ZT East Africa supplied dataset;

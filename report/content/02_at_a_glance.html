@@ -9,7 +9,7 @@
       <path d="M17 30c-3-2.5-5-6-5-10a12 12 0 0 1 24 0c0 4-2 7.5-5 10v4H17z"/><path d="M19 39h10M21 43h6"/>
       <path d="M24 2v4M8 8l3 3M40 8l-3 3M2 20h4M42 20h4"/></svg>
     <div><h4>Executive takeaway</h4>
-      <p>The {{failed_fees_m}} headline is not one problem. Separate the account-level anomalies, which need containing,
+      <p>The {{failed_fees_m}} headline is not one problem. Separate the two anomaly categories, which need containing,
          from the remaining exposure, where USD card completion is the credible improvement opportunity.</p></div>
   </div>
 
@@ -31,28 +31,28 @@
     <div class="b" style="width:{{rm_pct_w}}">{{rm_m}} | {{rm_share}}</div>
   </div>
   <div class="bridgelab">
-    <div style="width:{{anom_pct_w}}">Anomalous-account exposure<br><span class="act teal">CONTAIN</span></div>
-    <div style="width:{{rm_pct_w}};border-left:0.8pt solid #DCD4C3">Remaining failed-fee exposure<br><span class="act amber">IMPROVE</span></div>
+    <div style="width:{{anom_pct_w}}">The two anomaly categories<br><span class="act teal">CONTAIN</span></div>
+    <div style="width:{{rm_pct_w}};border-left:0.8pt solid #DCD4C3">Remaining exposure<br><span class="act amber">IMPROVE</span></div>
   </div>
-  <p class="note">Mutually exclusive categories; anomaly labels are analytical proxies, not confirmed causes.</p>
+  <p class="note">Mutually exclusive categories; the two anomaly categories are analytical proxies, not confirmed causes.</p>
 
   <div class="g-label">Three key findings</div>
   <div class="three">
     <div><h5><span class="n">1</span>Concentrated spikes</h5>
-      <p>Twenty extreme-volume observations plus account 47087 account for {{anom_m}} ({{anom_share}}) of failed-transaction fees.
-         {{jan_ex_share}} of January 2024's rise came from extreme-volume anomalies, led by three card accounts.</p></div>
+      <p>{{an_obs}} extreme-volume observations, including one from account 47087, and that account's continuing escalation, account for {{anom_m}} ({{anom_share}}) of fees on failed transactions.
+         {{jan_ex_share}} of January 2024's rise came from extreme-volume anomalies, led by {{jan_card_n_words}} card accounts.</p></div>
     <div><h5><span class="n">2</span>Persistent, not deteriorating</h5>
-      <p>Excluding extreme-volume anomalies and the escalation account, monthly count failure stayed between {{rem_range_words}} for 28 months. The failed-fee share
-         declined from about 89% in 2022 to about 79% in 2024.</p></div>
+      <p>Excluding the two anomaly categories, monthly count failure stayed between {{rem_range_words}} for {{nm}} months. The failed-fee share of remaining exposure, averaged over the months of each year,
+         declined from {{fs_rem_2022}} in 2022 to {{fs_rem_2024}} in 2024.</p></div>
     <div><h5><span class="n">3</span>Card is the structural problem</h5>
-      <p>USD card payments fail {{usd_card_range}} across five markets, against {{mm_mk_range}} for mobile money. Among
+      <p>Excluding extreme-volume anomalies, USD card payments fail {{usd_card_range}} across {{n_markets_words}} markets, against {{mm_mk_range}} for mobile money. Among
          {{gap_n}} customers using both channels, the gap is still {{gap_gs0}} percentage points.</p></div>
   </div>
 
   <div class="g-label">Where to act</div>
   <div class="where">
     <div class="acts">
-      <div><span class="n">01</span><div><h5>Contain account anomalies</h5>
+      <div><span class="n">01</span><div><h5>Contain the two anomaly categories</h5>
         <p>Introduce relative and absolute account alerts; throttle and review sudden spikes and sustained escalation in the same month.</p></div></div>
       <div><span class="n">02</span><div><h5>Improve USD card completion</h5>
         <p>Prioritise Kenya, Tanzania and Uganda, which hold {{rc_pri_k0}} of the {{rc_base_k0}} base case. Start with merchant-months
@@ -74,7 +74,7 @@
     <svg viewBox="0 0 32 32" width="22" height="22" style="flex:0 0 22px"><circle cx="16" cy="16" r="15" fill="#1F3A5F"/><rect x="14.4" y="13" width="3.2" height="11" fill="#fff"/><circle cx="16" cy="8.6" r="2" fill="#fff"/></svg>
     <p>{{failed_fees_m}} is the fee amount recorded on failed transactions, not proven lost revenue or cash collected: its
        recognition and collection cannot be established from the data. Recovery is fee revenue before processing costs. The analysis
-       corrects a Sierra Leone leone exchange-rate redenomination error that would otherwise overstate failed fees by $63.3K.
+       corrects a Sierra Leone leone exchange-rate redenomination error that would otherwise overstate fees on failed transactions by {{sll_effect_k}}.
        Source: ZT East Africa supplied dataset; author's calculations.</p>
   </div>
 </section>

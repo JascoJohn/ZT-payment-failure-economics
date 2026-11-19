@@ -181,9 +181,9 @@ def stage_01E() -> dict:
          .sort_values("val", ascending=False))
     rec = dq.reconciliation(prep, cfg, raw)
     sens = analyse(prep, cfg, only=["sensitivity"])["sensitivity"]
-    res = {"sensitivity": sens, "reconciliation": rec}
+    res = {"sensitivity": sens, "reconciliation": rec, "examples": dq.value_examples(prep)}
     save_res("01E", res)
-    scal = write_tables({"sensitivity": sens, "reconciliation": rec}, chapter_dir("01E") / "tables")
+    scal = write_tables(res, chapter_dir("01E") / "tables")
     (chapter_dir("01E") / "results.json").write_text(json.dumps(scal, indent=2), encoding="utf-8")
     rb, ns = rec["report_basis"], rec["no_sll_fix"]
     return {"untranslatable records": int((~tx.fx_ok).sum()), "failed fees, report basis": f"${rb['failed_fees']:,.0f}",

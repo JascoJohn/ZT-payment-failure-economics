@@ -17,6 +17,7 @@
     "cells_used": 18,
     "cells_total": 24,
     "residual": 2.546585164964199e-11,
+    "top_n_card": 3,
     "top3_card_accounts": 628578.250000004,
     "fee_share_nonanomalous_jan": 0.7879733395195618,
     "fee_share_nonanomalous_base": 0.8065395728619303,

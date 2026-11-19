@@ -979,7 +979,7 @@ class Book:
             row, d = c3["drv"][cell], dr.loc[cell]
             items += [(f"Drivers: {cell[0]} {cell[1]} fees on failed transactions", f"{conc}$E${row}", d.f_fee, USD),
                       (f"Drivers: {cell[0]} {cell[1]} failure rate", f"{conc}$C${row}", d.fail_rate, PCT),
-                      (f"Drivers: {cell[0]} {cell[1]} fee per failed attempt", f"{conc}$D${row}", d.f_fee / d.f_att, USD2)]
+                      (f"Drivers: {cell[0]} {cell[1]} fee per failed attempt", f"{conc}$D${row}", d.fee_per_failed_attempt, USD2)]
         items.append(("Drivers: all cells fees on failed transactions", f"{conc}$E${c3['drv_all']}", dr.f_fee.sum(), USD))
         hm0 = c3["heat"][0]
         hh = res["heat"].set_index(["country", "pt"])

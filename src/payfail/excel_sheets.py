@@ -78,14 +78,12 @@ def build_conc(bk) -> dict:
     # ---- sector (values from Python)
     sec = res["sectors"]
     w.row([_c(ws, "By sector", BOLD)])
-    w.pynote("scripts/03_concentration.py", "Sector comes from the customer table's sector label.")
+    w.pynote("scripts/03_concentration.py", "Sector comes from the customer table's sector label; customers without one are the 'Unlabelled sector' row.")
     w.head(["Sector", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Failed fees (USD)", "Failed-fee share"])
     s0 = w.r + 1
     for r in sec.itertuples():
         w.row([_c(ws, r.sector), val(ws, int(r.att), INT), val(ws, int(r.f_att), INT), val(ws, float(r.fail_rate), PCT), val(ws, float(r.fee), USD),
                val(ws, float(r.f_fee), USD), val(ws, float(r.fee_share), PCT)])
-    nos = float(bk.prep.tx.loc[bk.prep.tx.sector.isna(), "f_fee"].sum())
-    w.row([_c(ws, "No sector label (customers without one; not in the table above)"), val(ws, int(bk.prep.tx.loc[bk.prep.tx.sector.isna(), "att"].sum()), INT), None, None, None, val(ws, nos, USD)])
     i = w.r + 1
     w.row([_c(ws, "Check: sector failed fees less headline", BOLD), None, None, None, None,
            _c(ws, f"=SUM(F{s0}:F{w.r})-{S['failed_fees']}", fmt=USD2), _c(ws, f'=IF(ABS(F{i})<1,"OK","CHECK")', BOLD)])
@@ -94,7 +92,7 @@ def build_conc(bk) -> dict:
     # ---- Table 3 drivers
     w.caption("drivers")
     dr = static_table(bk.root, bk.ctx, "drivers")
-    w.text("Fee per failed attempt = fees on failed transactions / all failed attempts in the cell, as the report prints it (attempts of records without an exchange rate stay in the denominator).", note=True)
+    w.text("Fee per failed attempt = fees on failed transactions / failed attempts, both on records with an exchange rate.", note=True)
     w.head(["Cell", "Share of attempts", "Failure rate", "Fee per failed attempt", "Fees on failed transactions", "Dominant driver"])
     d0 = w.r + 1
     cells = [("Kenya", "card"), ("Kenya", "mobilemoney"), ("Uganda", "card"), ("Tanzania", "card"), ("Ghana", "card"), ("Uganda", "mobilemoney")]
@@ -104,12 +102,12 @@ def build_conc(bk) -> dict:
         q = f'{T("J")},"{cn}",{T("E")},"{pt}",{nbq}'
         w.row([_c(ws, f"{cn} {'mobile money' if pt == 'mobilemoney' else pt}"), _c(ws, f"=SUMIFS({T('P')},{q})/SUMIFS({T('P')},{nbq})", fmt=PCT),
                _c(ws, f"=SUMIFS({T('Q')},{q})/SUMIFS({T('P')},{q})", fmt=PCT),
-               _c(ws, f"=SUMIFS({T('W')},{q})/SUMIFS({T('Q')},{q})", fmt=USD2),
+               _c(ws, f"=SUMIFS({T('W')},{q},{T('N')},TRUE)/SUMIFS({T('Q')},{q},{T('N')},TRUE)", fmt=USD2),
                _c(ws, f"=SUMIFS({T('W')},{q})", fmt=USD), _c(ws, row[-1])])
         P.setdefault("drv", {})[(cn, pt)] = i
     i = w.r + 1
     w.row([_c(ws, "All cells", BOLD), _c(ws, 1, BOLD, PCT), _c(ws, f"=SUMIFS({T('Q')},{nbq})/SUMIFS({T('P')},{nbq})", BOLD, PCT),
-           _c(ws, f"=SUMIFS({T('W')},{nbq})/SUMIFS({T('Q')},{nbq})", BOLD, USD2), _c(ws, f"=SUMIFS({T('W')},{nbq})", BOLD, USD)])
+           _c(ws, f"=SUMIFS({T('W')},{nbq},{T('N')},TRUE)/SUMIFS({T('Q')},{nbq},{T('N')},TRUE)", BOLD, USD2), _c(ws, f"=SUMIFS({T('W')},{nbq})", BOLD, USD)])
     P["drv_all"] = i
     ch = bubble_chart(ws, bk.ftitle("drivers"), ref(ws, 2, d0, d0 + 5), ref(ws, 3, d0, d0 + 5),
                       ref(ws, 5, d0, d0 + 5), xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of non-anomalous attempts (log scale)", ytitle="Count failure rate")

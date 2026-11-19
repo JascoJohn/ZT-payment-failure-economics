@@ -1,6 +1,6 @@
 label,slug,section,chapter,in_report,title,file,dir
 Figure D1,kpis,Executive summary,02,False,"Figure D1. Headline figures, Jan 2022 – Apr 2024",figd1_kpis,02_scale/figures
 Figure 1,bridge,Executive summary,02,True,Figure 1. 38.5% of the exposure sits in exceptional account behaviour,fig01_bridge,02_scale/figures
-Figure 2,trend,2. Scale,02,True,"Figure 2. Excluding extreme-volume anomalies and the escalation account, failure is persistent but steady",fig02_trend,02_scale/figures
-Figure D2,composition,2. Scale,02,False,Figure D2. Extreme-volume anomalies and the escalation account drive the Dec 2023 – Apr 2024 surge,figd2_composition,02_scale/figures
+Figure 2,trend,2. Scale,02,True,"Figure 2. Excluding the two anomaly categories, failure is persistent but steady",fig02_trend,02_scale/figures
+Figure D2,composition,2. Scale,02,False,Figure D2. The two anomaly categories account for the Dec 2023 – Apr 2024 surge,figd2_composition,02_scale/figures
 Figure D3,value,2. Scale,02,False,"Figure D3. Failed attempts are 4.6× larger, but carry similar fee rates",figd3_value,02_scale/figures

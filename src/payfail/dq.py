@@ -74,3 +74,14 @@ def reconciliation(prep, cfg: dict, raw: dict) -> dict:
             "sll_effect_fees": pre["fees"] - post["fees"],
             "bank_transfer_record_share": float((tx.pt == "bank transfer").mean()),
             "bank_transfer_attempt_share": float(tx.loc[tx.pt == "bank transfer", "att"].sum() / tx.att.sum())}
+
+
+def value_examples(prep) -> dict:
+    """The records Appendix A.3 describes: the largest value anomaly, and customer 1039721's recurring UGX records."""
+    tx = prep.tx
+    v = tx[tx.flag_value & tx.failed].sort_values("val", ascending=False).iloc[0]
+    u = tx[(tx.customer_id == 1039721) & (tx.ccy == "UGX") & tx.failed & (tx.att >= 2000)]
+    return {"largest": {"ccy": str(v.ccy), "value": float(v.total_value), "attempts": int(v.att), "fee": float(v.revenue)},
+            "recurring": {"customer": 1039721, "records": int(len(u)), "value_min": float(u.total_value.min()), "value_max": float(u.total_value.max()),
+                          "att_min": int(u.att.min()), "att_max": int(u.att.max()),
+                          "fee_ratio": float((u.revenue / u.total_value).median())}}

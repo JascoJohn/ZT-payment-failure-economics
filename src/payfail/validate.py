@@ -100,18 +100,38 @@ def integrity(au: Audit, res: dict, prep, cfg: dict) -> None:
 
 
 # ------------------------------------------------------------------------------------------ B. baseline
+def _approved() -> list[dict]:
+    import yaml
+    f = ROOT / "baseline" / "approved_changes.yaml"
+    return yaml.safe_load(f.read_text(encoding="utf-8")).get("changes", []) if f.exists() else []
+
+
+def _which(kind: str, name: str, groups: list[dict]) -> str | None:
+    for g in groups:
+        if any(re.fullmatch(p, name) for p in g.get(kind, [])):
+            return g["item"]
+    return None
+
+
 def against_baseline(au: Audit, res: dict, ctx: dict) -> None:
+    """Every difference from baseline/ must belong to a change you approved (baseline/approved_changes.yaml)."""
     S = "B. Baseline"
     base = ROOT / "baseline"
     f = base / "results_baseline.json"
     if not f.exists():
         au.add(S, "baseline/results_baseline.json exists", False, "missing")
         return
+    groups = _approved()
+    changes: list[str] = []
     new = json.loads((OUT / "results.json").read_text(encoding="utf-8"))
     d = _diff_json(json.loads(f.read_text(encoding="utf-8")), new)
-    au.add(S, "results.json matches the baseline (ints exact, floats to 1e-9)", not d, "; ".join(d[:5]) if d else f"{len(json.loads(f.read_text()))} blocks identical")
+    bad = [x for x in d if _which("json", x.split(":")[0], groups) is None]
+    for x in d:
+        changes.append(f"| results.json | `{x.split(':')[0]}` | {x.split(':', 1)[1].strip() if ':' in x else ''} | {_which('json', x.split(':')[0], groups) or '**NOT APPROVED**'} |")
+    au.add(S, "results.json matches the baseline except approved changes (ints exact, floats to 1e-9)", not bad,
+           "; ".join(bad[:5]) if bad else f"{len(d)} approved differences; every other value identical")
     tdir = base / "tables"
-    mism, n = [], 0
+    mism, n, ok_changed = [], 0, []
     for bf in sorted(tdir.glob("*.csv")) if tdir.exists() else []:
         hits = list(OUT.glob(f"*/tables/{bf.name}"))
         if not hits:
@@ -119,22 +139,39 @@ def against_baseline(au: Audit, res: dict, ctx: dict) -> None:
             continue
         a_, b_ = pd.read_csv(bf), pd.read_csv(hits[0])
         n += 1
+        diff = None
         if list(a_.columns) != list(b_.columns) or a_.shape != b_.shape:
-            mism.append(f"{bf.name}: shape/columns differ")
-            continue
-        for col in a_.columns:
-            if pd.api.types.is_numeric_dtype(a_[col]) and pd.api.types.is_numeric_dtype(b_[col]):
-                if not np.allclose(a_[col], b_[col], rtol=1e-9, atol=1e-9, equal_nan=True):
-                    mism.append(f"{bf.name}.{col}")
-            elif not a_[col].astype(str).equals(b_[col].astype(str)):
-                mism.append(f"{bf.name}.{col}")
-    au.add(S, "Every baseline table (CSV) matches", not mism, "; ".join(mism[:6]) if mism else f"{n} tables identical")
+            diff = "shape/columns differ"
+        else:
+            for col in a_.columns:
+                if pd.api.types.is_numeric_dtype(a_[col]) and pd.api.types.is_numeric_dtype(b_[col]):
+                    if not np.allclose(a_[col], b_[col], rtol=1e-9, atol=1e-9, equal_nan=True):
+                        diff = f"{col} differs"
+                elif not a_[col].astype(str).equals(b_[col].astype(str)):
+                    diff = f"{col} differs"
+        if diff:
+            item = _which("tables", bf.name, groups)
+            changes.append(f"| table {bf.name} | {diff} | | {item or '**NOT APPROVED**'} |")
+            if item is None:
+                mism.append(f"{bf.name}: {diff}")
+    au.add(S, "Every baseline table (CSV) matches except approved changes", not mism, "; ".join(mism[:6]) if mism else f"{n} tables compared")
     tf = base / "report_tokens_baseline.json"
     if tf.exists():
         old = json.loads(tf.read_text(encoding="utf-8"))
-        bad = [k for k, v in old.items() if ctx.get(k) != v]
-        au.add(S, "Every rendered report value matches the baseline (exact text)", not bad,
-               "; ".join(f"{k}: {old[k]} -> {ctx.get(k)}" for k in bad[:5]) if bad else f"{len(old)} values identical; {len(ctx) - len(old)} new")
+        diffs = [k for k, v in old.items() if ctx.get(k) != v]
+        unappr = [k for k in diffs if _which("tokens", k, groups) is None]
+        for k in diffs:
+            changes.append(f"| rendered value `{k}` | {old[k]} | {ctx.get(k)} | {_which('tokens', k, groups) or '**NOT APPROVED**'} |")
+        au.add(S, "Every rendered report value matches the baseline except approved changes (exact text)", not unappr,
+               "; ".join(f"{k}: {old[k]} -> {ctx.get(k)}" for k in unappr[:5]) if unappr else
+               f"{len(old) - len(diffs)} identical, {len(diffs)} approved changes, {len(set(ctx) - set(old))} new values")
+        new_keys = sorted(set(ctx) - set(old))
+        for k in new_keys:
+            changes.append(f"| new value `{k}` | | {ctx[k]} | {_which('tokens', k, groups) or 'new'} |")
+    NL = chr(10)
+    head = ("# Changes from the baseline" + NL + NL + "Every rendered value, table or results.json entry that differs from `baseline/`, and the approved item that covers it." + NL + NL
+            + "| What | Baseline | Now | Approved item |" + NL + "| --- | --- | --- | --- |" + NL)
+    (OUT / "changes_from_baseline.md").write_text(head + NL.join(changes) + NL, encoding="utf-8")
 
 
 def run_validate() -> dict:

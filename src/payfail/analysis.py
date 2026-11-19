@@ -22,6 +22,10 @@ def _safe(fn):
     return wrap
 
 
+TOP_N_OBSERVATIONS = 4        # "the four largest account-months" (Figure 11 and Section 4.1)
+TOP_N_JAN_CARD = 3            # "the three January card accounts" (Section 5)
+
+
 # --------------------------------------------------------------------------- headline
 def headline(tx: pd.DataFrame) -> dict:
     t = agg(tx.assign(_k=1), "_k").iloc[0]
@@ -29,7 +33,8 @@ def headline(tx: pd.DataFrame) -> dict:
     return {"records": int(len(tx)), "attempts": int(t.att), "failed": int(t.f_att), "count_rate": t.fail_rate,
             "attempts_translatable": int(fxok.att.sum()), "records_translatable": int(len(fxok)),
             "fees": t.fee, "failed_fees": t.f_fee, "fee_share": t.fee_share, "succ_fees": t.fee - t.f_fee,
-            "customers_with_failed_fees": int((tx.groupby("customer_id").f_fee.sum() > 0).sum())}
+            "customers_with_failed_fees": int((tx.groupby("customer_id").f_fee.sum() > 0).sum()),
+            "failed_records": int(tx.failed.sum()), "successful_records": int((~tx.failed).sum())}
 
 
 def bridge(tx: pd.DataFrame) -> pd.DataFrame:
@@ -88,6 +93,7 @@ def drivers(tx: pd.DataFrame) -> pd.DataFrame:
     c = agg(nb, ["country", "pt"])
     c["share_of_attempts"] = c.att / c.att.sum()
     ok = nb[nb.fx_ok].groupby(["country", "pt"])
+    c["f_att_ok"] = ok.f_att.sum()                       # failed attempts of translatable records: the denominator of the fee per failed attempt
     c["fee_per_failed_attempt"] = ok.f_fee.sum() / ok.f_att.sum()
     return c.sort_values("f_fee", ascending=False).reset_index()
 
@@ -139,8 +145,12 @@ def anomaly_tables(prep: Prepared, tx: pd.DataFrame, cfg: dict) -> dict:
     esc = sorted(set(prep.stats["escalation_customers"]) & set(tx.customer_id))
     esc_series = (tx[tx.customer_id.isin(esc)].groupby("period").agg(f_att=("f_att", "sum"), s_att=("s_att", "sum"),
                                                                      f_fee=("f_fee", "sum")).reset_index())
+    nb_esc = tx[tx.customer_id.isin(esc) & ~tx.extreme]
+    profile = {"mobilemoney_attempts": int(nb_esc[nb_esc.pt == "mobilemoney"].att.sum()),
+               "usd_card_attempts": int(nb_esc[(nb_esc.pt == "card") & (nb_esc.ccy == "USD")].att.sum()),
+               "mobilemoney_ghs_share": float(nb_esc[(nb_esc.pt == "mobilemoney") & (nb_esc.ccy == "GHS")].att.sum() / max(nb_esc[nb_esc.pt == "mobilemoney"].att.sum(), 1))}
     return {"observations": obs.reset_index(drop=True), "sensitivity": pd.DataFrame(sens),
-            "escalation_customers": esc, "escalation_series": esc_series}
+            "escalation_customers": esc, "escalation_series": esc_series, "escalation_profile": profile, "top_n": TOP_N_OBSERVATIONS}
 
 
 def hard_mixed(prep: Prepared, tx: pd.DataFrame) -> dict:
@@ -200,6 +210,18 @@ def customers(tx: pd.DataFrame, cfg: dict) -> dict:
              "count_rate_retained": hist.loc[False, "fail_rate"] if False in hist.index else np.nan,
              "fee_share_lapsed": hist.loc[True, "fee_share"] if True in hist.index else np.nan,
              "fee_share_retained": hist.loc[False, "fee_share"] if False in hist.index else np.nan}
+    # who is counted as lapsed: how many were active in only one or two months, and how many had an earlier gap of three months or more
+    months_act = tx[tx.customer_id.isin(lapsed)].groupby("customer_id").period.nunique()
+
+    def longest_gap(p):
+        q = sorted(p.unique())
+        pos = [(x.year - q[0].year) * 12 + x.month - q[0].month for x in q]
+        return max((b - a - 1 for a, b in zip(pos, pos[1:])), default=0)
+    gaps = tx[tx.customer_id.isin(lapsed)].groupby("customer_id").period.apply(longest_gap)
+    lapse["few_months_share"] = float((months_act <= 2).mean()) if len(months_act) else np.nan
+    lapse["few_months_n"] = int((months_act <= 2).sum())
+    lapse["gap3_share"] = float((gaps >= 3).mean()) if len(gaps) else np.nan
+    lapse["gap3_n"] = int((gaps >= 3).sum())
     return {"persistence": persist, "tenure": tb.reset_index(), "lapse": lapse, "table": pc.reset_index()}
 
 
@@ -291,7 +313,7 @@ def january(tx: pd.DataFrame, cfg: dict) -> dict:
             "baseline_nonanomalous": b_nb, "january_nonanomalous": j_nb, "fx_effect": fx_effect, "lmdi": eff,
             "entry_exit": entry_exit, "cells_used": int(len(both)), "cells_total": int(len(c)),
             "residual": float(j_all - b_all - (j_ex - b_ex) - fx_effect - sum(eff.values()) - entry_exit),
-            "top3_card_accounts": float(jan_anoms.xs("card", level="pt").head(3).sum()) if "card" in jan_anoms.index.get_level_values("pt") else 0.0,
+            "top_n_card": TOP_N_JAN_CARD, "top3_card_accounts": float(jan_anoms.xs("card", level="pt").head(TOP_N_JAN_CARD).sum()) if "card" in jan_anoms.index.get_level_values("pt") else 0.0,
             "fee_share_nonanomalous_jan": nb[nb.period == tgt].f_fee.sum() / nb[nb.period == tgt].fee.sum(),
             "fee_share_nonanomalous_base": nb[nb.period.isin(basep)].f_fee.sum() / nb[nb.period.isin(basep)].fee.sum(),
             "count_rate_nonanomalous_jan": nb[nb.period == tgt].f_att.sum() / nb[nb.period == tgt].att.sum(),
@@ -333,6 +355,41 @@ def _best_window(df: pd.DataFrame, periods, k: int, min_att: int) -> float:
     ra, rf = d.att.rolling(k).sum(), d.f_att.rolling(k).sum()
     ok = ra >= min_att
     return float((rf[ok] / ra[ok]).min()) if ok.any() else np.nan
+
+
+def bootstrap_interval(uc: pd.DataFrame, nb: pd.DataFrame, r: dict, point: float) -> dict:
+    """Customer-resampling interval for the base case. Within each market, customers (those with USD card or mobile money
+    activity) are drawn with replacement, and the base case is recomputed from the resampled card and mobile money totals,
+    fee per successful payment included. Fixed seed; settings in config recovery.bootstrap."""
+    b = r.get("bootstrap", {"replicates": 1000, "seed": 2026, "interval": 0.90})
+    card = uc.groupby(["country", "customer_id"]).agg(att=("att", "sum"), f=("f_att", "sum"), s=("s_att", "sum"), fee=("fee", "sum"), ff=("f_fee", "sum"))
+    mmx = nb[nb.pt == "mobilemoney"].groupby(["country", "customer_id"]).agg(att=("att", "sum"), f=("f_att", "sum"))
+    markets = sorted(card.index.get_level_values(0).unique())
+    cg = {k: card.xs(k, level=0) for k in markets}
+    mg = {k: mmx.xs(k, level=0) for k in markets if k in mmx.index.get_level_values(0)}
+    ids = {k: np.union1d(cg[k].index.values, mg[k].index.values if k in mg else []) for k in markets}
+    rng = np.random.default_rng(b["seed"])
+    out, tz_share = [], []
+    for _ in range(int(b["replicates"])):
+        crow, mrow = [], []
+        for k in markets:
+            pick = rng.choice(ids[k], len(ids[k]), replace=True)
+            crow.append(cg[k].reindex(pick).dropna().assign(country=k))
+            if k in mg:
+                mrow.append(mg[k].reindex(pick).dropna().assign(country=k))
+        C = pd.concat(crow).groupby("country")[["att", "f", "s", "fee", "ff"]].sum()
+        M = pd.concat(mrow).groupby("country")[["att", "f"]].sum()
+        sfee = C.fee - C.ff
+        overall = sfee.sum() / C.s.sum()
+        fps = np.where(C.s >= r["min_successes_for_local_fee"], sfee / C.s.replace(0, np.nan), overall)
+        mm_rate = (M.f / M.att).reindex(C.index)
+        add = (C.att * (C.f / C.att - mm_rate).clip(lower=0)).fillna(0)
+        out.append(float((add * fps).sum()))
+    a = np.array(out)
+    lo, hi = (1 - b["interval"]) / 2 * 100, (1 + b["interval"]) / 2 * 100
+    return {"low": float(np.percentile(a, lo)), "median": float(np.percentile(a, 50)), "high": float(np.percentile(a, hi)),
+            "replicates": int(b["replicates"]), "seed": int(b["seed"]), "level": float(b["interval"]), "point": float(point),
+            "customers": {k: int(len(ids[k])) for k in markets}}
 
 
 def recovery(prep: Prepared, tx: pd.DataFrame, cfg: dict) -> dict:
@@ -400,7 +457,15 @@ def recovery(prep: Prepared, tx: pd.DataFrame, cfg: dict) -> dict:
     adj_att, adj_rate = t.att - off, (t.f_att - off) / (t.att - off)
     rec_off = ((adj_att * (adj_rate - t.mm_rate).clip(lower=0)).fillna(0) * t.fee_per_success).sum()
 
+    # sensitivity: some zero-success USD card customer-months may be correct rejections (including card testing), so leave them out
+    cm_ = uc.groupby(["customer_id", "period", "country"]).agg(att=("att", "sum"), f=("f_att", "sum"), s=("s_att", "sum")).reset_index()
+    keep_ = cm_[cm_.s > 0].groupby("country")[["att", "f"]].sum().reindex(t.index)
+    add_h = (keep_.att * (keep_.f / keep_.att - t.mm_rate).clip(lower=0)).fillna(0)
+    no_rej = {"incremental": float((add_h * t.fee_per_success).sum()), "additional": float(add_h.sum()),
+              "share_of_failed_attempts": float(cm_[cm_.s == 0].f.sum() / cm_.f.sum()), "customer_months": int((cm_.s == 0).sum()),
+              "failed_attempts": int(cm_[cm_.s == 0].f.sum())}
     base = by_mkt["Base"].sum()
+    interval = bootstrap_interval(uc, nb, r, base)
     return {"markets": t.reset_index(), "scenarios": pd.DataFrame(scen), "by_market": pd.DataFrame(by_mkt).reset_index(),
             "addressable_f_fee": t.f_fee.sum(), "addressable_f_att": int(t.f_att.sum()), "total_att": int(t.att.sum()),
             "fee_per_success_overall": overall, "breakeven": base / max(t.additional_base.sum(), 1),
@@ -411,7 +476,7 @@ def recovery(prep: Prepared, tx: pd.DataFrame, cfg: dict) -> dict:
             "same_customer": {"incremental": rec_same.sum(), "card_att_share": dual.card_att.sum() / t.att.sum(),
                               "top_customer_share": dual.card_att.max() / dual.card_att.sum()},
             "offset": {"removed": int(off.sum()), "removed_share": off.sum() / t.f_att.sum(), "incremental": rec_off},
-            "benchmark_ex_escalation": bench_x,
+            "benchmark_ex_escalation": bench_x, "no_rejections": no_rej, "interval": interval,
             "contribution": pd.DataFrame({"cost_ratio": r["cost_ratios"], "contribution": [base * (1 - c) for c in r["cost_ratios"]]})}
 
 
@@ -522,7 +587,7 @@ def analyse(prep: Prepared, cfg: dict, tx: pd.DataFrame | None = None, only=None
         "headline": lambda: headline(tx), "bridge": lambda: bridge(tx), "monthly": lambda: monthly(tx),
         "value": lambda: value_block(tx[~tx.value_excluded]),
         "channels": lambda: concentration(tx, "pt"), "countries": lambda: concentration(tx, "country"),
-        "currencies": lambda: concentration(tx, "ccy"), "sectors": lambda: concentration(tx, "sector"),
+        "currencies": lambda: concentration(tx, "ccy"), "sectors": lambda: concentration(tx.assign(sector=tx.sector.fillna("Unlabelled sector")), "sector"),
         "heat": lambda: agg(tx, ["country", "pt"]).reset_index(),
         "pareto": lambda: pareto(tx), "drivers": lambda: drivers(tx),
         "quintiles": lambda: quintiles(tx), "quintile_versions": lambda: quintile_versions(tx),

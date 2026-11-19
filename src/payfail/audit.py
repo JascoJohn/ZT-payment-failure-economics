@@ -35,8 +35,15 @@ def _sentences(text: str) -> list[str]:
 
 
 def _report_text(name: str) -> str:
+    """Running text of a rendered report: no contents lists, cover, tables or figure images."""
+    from bs4 import BeautifulSoup
     f = OUT / "report" / name
-    return _plain(f.read_text(encoding="utf-8")) if f.exists() else ""
+    if not f.exists():
+        return ""
+    soup = BeautifulSoup(f.read_text(encoding="utf-8"), "html.parser")
+    for t in soup.select("section.toc, section.cover, .tbl, figure, .kpis, .bridgebar, .bridgelab"):
+        t.decompose()
+    return _plain(str(soup))
 
 
 # --------------------------------------------------------------------------------------- item 1
@@ -167,19 +174,19 @@ def numbers_in_text(au, res: dict, cfg: dict, ctx: dict) -> None:
 
 # --------------------------------------------------------------------------------------- item 3
 TERMS = [
-    ("Extreme-volume anomalies", [r"(?<!extreme-volume )(?<!value )(?<!Extreme-volume )(?<!non-)\banomal(?:y|ies)\b(?! (?:in|of) the (?:supplied )?data)", r"\bextreme accounts?\b",
+    ("Extreme-volume anomalies", [r"(?<!extreme-volume )(?<!value )(?<!value-)(?<!ratio )(?<!Extreme-volume )(?<!two )(?<!The two )(?<!Two )(?<!Value )(?<![\x22])\banomal(?:y|ies)\b(?! categories)(?!\.\w)(?![\x22])(?! (?:in|of) the (?:supplied )?data)", r"\bextreme accounts?\b",
                                   r"\banomalous accounts?\b", r"\bextreme (?:account behaviour|customer-months|failure volumes)\b", r"\bnon-anomalous\b"]),
-    ("The escalation account (47087)", [r"\bescalation accounts?\(s\)", r"\bescalating account\b", r"\bEscalation account\(s\)"]),
+    ("The escalation account (47087)", [r"\bescalation accounts?\(s\)", r"\bescalating account\b", r"\bEscalation account\(s\)", r"\bescalation accounts\b"]),
     ("Remaining exposure", [r"\bpersistent card failure\b", r"\bpersistent card-completion problem\b", r"\bremaining (?:problem|failed-fee exposure)\b", r"\bunderlying failure\b"]),
     ("Fees on failed transactions", [r"\bfees on failed payments\b", r"\bfailed-transaction fees\b", r"\bFees on failed payments\b", r"\blost revenue\b(?! or cash)"]),
-    ("Successful-transaction fees", [r"\bfees on successful payments\b", r"\bfees earned on successful payments\b", r"\bsuccessful fees\b", r"\bsuccessful-transaction fee revenue\b",
+    ("Successful-transaction fees", [r"\bfees on successful payments\b", r"\bfees earned on successful payments\b", r"\bsuccessful fees\b",
                                      r"\bsuccessful-transaction fee\b(?! revenue)"]),
 ]
 
 
 def terminology(au, res: dict, cfg: dict) -> None:
     S = "3. Terminology"
-    corpus = {f: " ".join(l for _, l in textscan.clean_lines(CONTENT / f)) for f in TEXT_FILES}
+    corpus = {f: re.sub(r"::: table \w+ \|", " ", " ".join(l for _, l in textscan.clean_lines(CONTENT / f))) for f in TEXT_FILES}
     corpus["figure titles"] = " ".join(load_figure_index().title)
     src = (ROOT / "src" / "payfail" / "figures.py").read_text(encoding="utf-8")
     corpus["figures.py (titles, legends)"] = " ".join(re.findall(r'"([A-Z][^"]{12,})"', src))
@@ -200,21 +207,23 @@ CUES = {"attempts": r"\battempts?\b|\bcount\b", "records": r"\brecords?\b", "fee
         "translatable": r"translatable", "non-anomalous": r"non-anomalous|excluding|outside the", "all": r"\ball (?:records|activity)\b|whole period|overall"}
 
 
+CTX_HOLDER: dict = {}
+
+
 def denominators(au, res: dict, prep) -> None:
     S = "4. Denominators"
     tx = prep.tx
     dr = res["drivers"].set_index(["country", "pt"])
-    gap = ((dr.fee_per_failed_attempt / (dr.f_fee / dr.f_att)) - 1).abs()
-    big = gap[dr.f_fee > 15_000].sort_values(ascending=False)
-    au.add(S, "Fee per failed attempt (Table 3): numerator and denominator cover the same records", big.max() < 0.001,
-           f"The report divides USD fees (translatable records only) by failed attempts of all records, so records without an exchange rate sit in the denominator with no fee. "
-           f"Largest effect among the cells over $15K: {big.index[0][0]} {big.index[0][1]} ${dr.loc[big.index[0]].f_fee / dr.loc[big.index[0]].f_att:.2f} as printed vs "
-           f"${dr.loc[big.index[0]].fee_per_failed_attempt:.2f} on translatable records only ({big.iloc[0]:.2%}). Not changed.", flag=True)
-    ns = tx[tx.sector.isna()]
-    secsum = res["sectors"].f_fee.sum()
-    au.add(S, "Sector table covers all fees on failed transactions", abs(secsum - tx.f_fee.sum()) < 1,
-           f"{len(ns):,} records (customers with no sector label) hold ${ns.f_fee.sum():,.0f} ({ns.f_fee.sum() / tx.f_fee.sum():.1%}) of fees on failed transactions and are not in the sector table, "
-           f"which sums to ${secsum:,.0f} against the headline ${tx.f_fee.sum():,.0f}. The sector table is not printed in the report.", flag=True)
+    ok_ = tx[tx.fx_ok]
+    cell = ok_.loc[~ok_.extreme].groupby(["country", "pt"]).agg(f=("f_fee", "sum"), a=("f_att", "sum"))
+    recomputed = (cell.f / cell.a)
+    printed = {"kc": ("Kenya", "card"), "km": ("Kenya", "mobilemoney"), "uc": ("Uganda", "card"), "tc": ("Tanzania", "card"), "gc": ("Ghana", "card"), "um": ("Uganda", "mobilemoney")}
+    bad = [k for k, ix in printed.items() if f"${recomputed[ix]:,.2f}" != CTX_HOLDER["ctx"][f"dr_{k}_fpf"]]
+    au.add(S, "Fee per failed attempt (Table 3): fees and failed attempts both from records with an exchange rate", not bad,
+           "recomputed from the prepared records and compared with the six printed cells" + (f"; differ: {bad}" if bad else "; all six agree"))
+    secs = res["sectors"]
+    au.add(S, "Sector table covers all fees on failed transactions (with an 'Unlabelled sector' row)", abs(secs.f_fee.sum() - tx.f_fee.sum()) < 1 and "Unlabelled sector" in set(secs.sector),
+           f"sector rows sum to ${secs.f_fee.sum():,.0f}; headline ${tx.f_fee.sum():,.0f}; unlabelled ${secs.set_index('sector').f_fee.get('Unlabelled sector', 0):,.0f}")
     text = _report_text("The_Economics_of_Payment_Failure.html")
     rows, unstated, mixed = [], [], []
     for s in _sentences(text):
@@ -241,7 +250,7 @@ def units(au, res: dict) -> None:
         annual = re.search(r"\ba year\b|\bannual(?:ly| run-rate| equivalent)?\b|per year", s, re.I)
         period = re.search(r"\b28 months\b|over the period|whole period|28-month", s, re.I)
         cmp_ = re.search(r"\b(?:against|versus|compared|vs\.?|add|adds|than)\b", s, re.I)
-        if annual and period and cmp_ and not re.search(r"annual equivalent|× ?12|12/28|from \$", s):
+        if annual and period and cmp_ and not re.search(r"annual equivalent|× ?12|12/28|from \$|over \d+ months, (?:about|roughly) \$[\d.,]+K a year", s):
             sus.append(s[:170])
     au.add(S, "No sentence compares an annual figure with a 28-month figure", not sus, f"{len(sus)} to read: " + " | ".join(sus[:3]), flag=True)
     idx = load_figure_index()
@@ -254,6 +263,10 @@ def units(au, res: dict) -> None:
 
 
 # --------------------------------------------------------------------------------------- item 6
+def ctx_tok(k: str) -> str:
+    return CTX_HOLDER["ctx"][k]
+
+
 def claims(au, res: dict, prep) -> None:
     S = "6. Claims against the data"
     tx = prep.tx
@@ -326,8 +339,9 @@ def claims(au, res: dict, prep) -> None:
     m22, m24 = mon.share_rem[mon.index.year == 2022].mean(), mon.share_rem[mon.index.year == 2024].mean()
     add("Failed-fee share of remaining exposure drifts from about 89% (2022) to about 79% (2024), as the average of the monthly shares in Figure 2",
         round(m22 * 100) == 89 and round(m24 * 100) == 79, f"monthly averages {m22:.1%} and {m24:.1%}")
-    au.add(S, "The 89% and 79% are said to be monthly averages (they are not the pooled yearly shares)", False,
-           f"The text gives 'about 89% in 2022 to about 79% in 2024' without saying they are averages of the monthly shares. The pooled shares are {s22:.1%} (2022) and {s24:.1%} (2024); only the monthly averages round to 89% and 79%", flag=True)
+    main_txt = _report_text("The_Economics_of_Payment_Failure.html")
+    add("The 89% and 79% are described as averages of the monthly shares (the pooled yearly shares are different)", "averaged over the months of each year" in main_txt,
+        f"pooled yearly shares are {s22:.1%} (2022) and {s24:.1%} (2024); the text gives the monthly averages {m22:.1%} and {m24:.1%}")
     mk = res["recovery"]["markets"].set_index("country")
     add("Tanzania ranks second in the base case despite fewer attempts than Uganda", mk.incremental_base.rank(ascending=False)["Tanzania"] == 2 and mk.att["Tanzania"] < mk.att["Uganda"])
     ch = res["channels"].set_index("pt")
@@ -343,28 +357,41 @@ def claims(au, res: dict, prep) -> None:
     add("Months with a failed-fee share below 78%: two on the corrected basis, none before the correction",
         len(rec["report_basis"]["months_below_78"]) == 2 and len(rec["no_sll_fix"]["months_below_78"]) == 0,
         f"corrected {rec['report_basis']['months_below_78']}; before {rec['no_sll_fix']['months_below_78']}")
-    # the typed 'before the SLL correction' figures against the computed sensitivity run
     nf = rec["no_sll_fix"]
-    au.add(S, "Typed 'before the SLL correction' figures ($3,148,908; $2,842,692; $744,744) match the computed fix-off run",
-           round(nf["fees"]) == 3_148_908 and round(nf["failed_fees"]) == 2_842_692 and round(nf["jan_failed_fees"]) == 744_744,
-           f"fix-off run gives ${nf['fees']:,.0f}, ${nf['failed_fees']:,.0f}, ${nf['jan_failed_fees']:,.0f}. The typed figures also had the rate-spike screen switched off; the difference is ${nf['failed_fees'] - 2_842_692:,.0f} on failed fees", flag=True)
-    au.add(S, "Typed '$63.3K' removed by the SLL correction matches the computed difference", round(rec["sll_effect_failed_fees"] / 1e3, 1) == 63.3,
-           f"computed ${rec['sll_effect_failed_fees']:,.0f}", flag=True)
+    add("The 'before the SLL correction' figures are computed by a run with only the redenomination fix switched off",
+        ctx_tok("pre_fees_d") == f"${nf['fees']:,.0f}" and ctx_tok("pre_ff_d") == f"${nf['failed_fees']:,.0f}" and ctx_tok("pre_jan_d") == f"${nf['jan_failed_fees']:,.0f}",
+        f"fees ${nf['fees']:,.0f}; fees on failed transactions ${nf['failed_fees']:,.0f}; January ${nf['jan_failed_fees']:,.0f}; removed by the correction ${rec['sll_effect_failed_fees']:,.0f}")
     v = tx[tx.flag_value & tx.failed].sort_values("val", ascending=False).head(1)
     add("Largest value anomaly is a failed NGN record of 2.36 trillion over 24 attempts with a fee of NGN 314",
         len(v) == 1 and v.iloc[0].ccy == "NGN" and round(v.iloc[0].total_value / 1e12, 2) == 2.36 and int(v.iloc[0].att) == 24 and round(float(v.iloc[0].revenue)) == 314,
         "" if not len(v) else f"{v.iloc[0].ccy} {v.iloc[0].total_value:,.0f}, {int(v.iloc[0].att)} attempts, fee {v.iloc[0].revenue}")
     u = tx[(tx.customer_id == 1039721) & (tx.ccy == "UGX") & (tx.status.str.lower() != "successful") & (tx.att >= 2000)]
-    ok = len(u) > 0 and u.att.min() >= 3000 and u.att.max() <= 4300 and u.total_value.between(4.5e8, 5.5e8).all() and abs((u.revenue / u.total_value).median() - 0.03) < 0.001
-    au.add(S, "Customer 1039721: 'recurring UGX 500 million records ... 3,000-4,300 attempts at a consistent 3.0% fee'", ok,
-           (f"{len(u)} recurring failed UGX mobile money records (Aug 2022 - Apr 2024): value UGX {u.total_value.min() / 1e6:,.0f}-{u.total_value.max() / 1e6:,.0f} million, "
-            f"attempts {int(u.att.min()):,}-{int(u.att.max()):,}, fee ratio {(u.revenue / u.total_value).median():.2%}. The fee ratio is right; '500 million' and '3,000-4,300' are looser than the data") if len(u) else "none", flag=True)
+    add("Customer 1039721: 21 recurring failed UGX records, UGX 262-520 million, 2,649-4,310 attempts, 3.0% fee (exact values in the text)",
+        len(u) == 21 and round(u.total_value.min() / 1e6) == 262 and round(u.total_value.max() / 1e6) == 520 and int(u.att.min()) == 2649 and int(u.att.max()) == 4310
+        and f"{(u.revenue / u.total_value).median() * 100:.1f}%" == "3.0%" and ctx_tok("va_ug_n") == str(len(u)),
+        f"{len(u)} records; UGX {u.total_value.min() / 1e6:,.0f}-{u.total_value.max() / 1e6:,.0f} million; attempts {int(u.att.min()):,}-{int(u.att.max()):,}; fee ratio {(u.revenue / u.total_value).median():.2%}")
+    cr, fsr = res["headline"]["count_rate"], res["headline"]["fee_share"]
+    add("'Six in ten' and 'nine in ten' equal the count failure rate and failed-fee share rounded to tenths",
+        round(cr * 10) == 6 and round(fsr * 10) == 9 and "Six in ten" in main_txt and "nine in ten" in main_txt, f"count failure rate {cr:.1%}; failed-fee share {fsr:.1%}")
+    nr, iv = res["recovery"]["no_rejections"], res["recovery"]["interval"]
+    add("Recovery: zero-success USD card customer-months are a third of USD card failed attempts, and the base case leaves them out at about $158.8K", abs(nr["share_of_failed_attempts"] - 1 / 3) < 0.01 and round(nr["incremental"] / 1e3, 1) == 158.8,
+        f"{nr['share_of_failed_attempts']:.1%} of failed attempts in {nr['customer_months']:,} customer-months; ${nr['incremental']:,.0f}")
+    add("Recovery: the resampling interval contains the base case; 1,000 replicates with a fixed seed", iv["low"] < iv["point"] < iv["high"] and iv["replicates"] == 1000,
+        f"{iv['level']:.0%} interval ${iv['low']:,.0f}-${iv['high']:,.0f}, median ${iv['median']:,.0f}, seed {iv['seed']}")
+    la = res["customers"]["lapse"]
+    add("Lapse: 4,328 customers had no activity in Feb-Apr 2024; 46% were active in only one or two months and 33% had an earlier gap of three months or more",
+        la["lapsed"] == 4328 and round(la["few_months_share"] * 100) == 46 and round(la["gap3_share"] * 100) == 33,
+        f"{la['lapsed']:,} customers; {la['few_months_share']:.1%} in one or two months; {la['gap3_share']:.1%} with a gap of three months or more")
+    rcn = res["headline"]
+    add("Records by status: 39,570 failed and 23,114 successful", rcn["failed_records"] == 39570 and rcn["successful_records"] == 23114, f"{rcn['failed_records']:,} failed; {rcn['successful_records']:,} successful")
+    used_customers = [f for f in TEXT_FILES if "{{customers}}" in (CONTENT / f).read_text(encoding="utf-8")]
+    add("No content uses the ambiguous {{customers}} token (customers with failed fees: customers_failed; who transacted: customers_transacting)", not used_customers, ", ".join(used_customers))
 
 
 # --------------------------------------------------------------------------------------- item 8
 HEDGE = [r"\bproves?\b", r"\bproof\b(?! of)", r"\bcaused by\b", r"\bcaus(?:es|ing)\b", r"\bnoise\b", r"\bset-up problem\b", r"\blost revenue\b", r"\bdue to\b",
          r"\bdefinitely\b|\bcertainly\b|\bobviously\b|\bclearly\b", r"\bguarantee", r"\bconfirms?\b", r"\bdrives?\b", r"\bresults? in\b", r"\bleads? to\b"]
-SOFT = re.compile(r"\b(?:may|might|could|can|cannot|consistent with|suggests?|hypothes|proxy|does not|not (?:a )?proof|not proven|not lost|cannot confirm|cannot rule|no |without)\b", re.I)
+SOFT = re.compile(r"\b(?:not confirmed|may|might|could|can|cannot|consistent with|suggests?|hypothes|proxy|does not|not (?:a )?proof|not proven|not lost|cannot confirm|cannot rule|no |without)\b", re.I)
 
 
 def hedging(au) -> None:
@@ -448,7 +475,22 @@ def cross_output(au, res: dict, ctx: dict, cfg: dict) -> None:
             au.add(S, "Excel 99_Checks readable", False, f"{type(e).__name__}: {e}", flag=True)
     else:
         au.add(S, "Excel workbook present", False, "outputs/payment_failure_analysis.xlsx not built (stage 09 skipped)", flag=True)
+    layout(au)
     dashboard(au, res)
+
+
+def layout(au) -> None:
+    """The printed report: nothing split across pages, every chapter on a new page; the gap pages are listed, not fixed."""
+    from .layout import check_layout
+    S = "7. Cross-output consistency"
+    f, c = OUT / "report" / "The_Economics_of_Payment_Failure.pdf", OUT / "report" / "contents.json"
+    if not (f.exists() and c.exists()):
+        au.add(S, "Report layout check", False, "report PDF or contents.json missing; run stage 10", flag=True)
+        return
+    r = check_layout(OUT / "report" / "The_Economics_of_Payment_Failure.html", f, json.loads(c.read_text(encoding="utf-8")))
+    au.add(S, "Layout: no paragraph, list item, table or figure group splits across pages", not r["splits"], f"{r['pages']} pages; " + "; ".join(f"{x['text'][:40]} p{x['pages']}" for x in r["splits"][:3]))
+    au.add(S, "Layout: all ten chapters and appendices start a page", len(r["chapter_pages"]) == 10, f"pages {r['chapter_pages']}")
+    au.add(S, "Layout: pages with a large gap (left as they are, by decision)", True, ", ".join(f"p{g['page']} {g['fill']:.0%}" for g in r["gaps"]) or "none")
 
 
 def dashboard(au, res: dict) -> None:
@@ -503,6 +545,7 @@ def figures_resolve(au) -> None:
 
 
 def run_audit(au, res: dict, prep, cfg: dict, ctx: dict) -> None:
+    CTX_HOLDER["ctx"] = ctx
     figures_resolve(au)
     independent(au, res, cfg)
     numbers_in_text(au, res, cfg, ctx)

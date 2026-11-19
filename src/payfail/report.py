@@ -76,6 +76,22 @@ def sd0(v):
 
 
 CH = {"card": "card", "mobilemoney": "mobile money", "alternative channels": "alternative channels"}
+_W = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+      "sixteen", "seventeen", "eighteen", "nineteen", "twenty"]
+
+
+def words(n, cap=False):
+    """A small whole number in words ('six'); halves as 'three and a half'."""
+    n2 = round(n * 2) / 2
+    w = _W[int(n2)] + (" and a half" if n2 % 1 else "")
+    return w.capitalize() if cap else w
+
+
+def month_list(sig):
+    """'Dec 2023 (70%), Jan 2024 (58%)' from a cell's control-chart signals, or an em dash."""
+    if sig is None or len(sig) == 0:
+        return "\u2014"
+    return ", ".join(f"{pd.Timestamp(r.period):%b %Y} ({r.top_customer_share * 100:.0f}%)" for r in sig.itertuples())
 
 
 def context(res: dict) -> dict[str, str]:
@@ -96,7 +112,7 @@ def context(res: dict) -> dict[str, str]:
              failed_value_share=p1(v["failed_value_share"]), avg_failed_value=d2(v["avg_failed_value"]),
              avg_success_value=d2(v["avg_success_value"]), value_ratio=f"{v['avg_failed_value'] / v['avg_success_value']:.1f}×",
              failed_intensity=f"{v['failed_fee_intensity'] * 100:.2f}%", success_intensity=f"{v['success_fee_intensity'] * 100:.2f}%",
-             fee_per_failed=d2(h["failed_fees"] / h["failed"]))
+             fee_per_failed=d2(h["failed_fees"] / h["failed"]), rec_failed=i0(h["failed_records"]), rec_success=i0(h["successful_records"]))
 
     b = res["bridge"].set_index("category")
     ex, es, rm = (b.loc[k] for k in ["Extreme-volume anomaly", "Escalation", "Remaining"])
@@ -114,7 +130,7 @@ def context(res: dict) -> dict[str, str]:
     sec = res["sectors"].set_index("sector")
     c.update(card_share=p0(ch.share_of_failed_fees["card"]), bank_rate=p1(ch.fail_rate["bank transfer"]),
              bank_att_share=p1(ch.att["bank transfer"] / ch.att.sum()),
-             bank_fpf=d2(ch.f_fee["bank transfer"] / ch.f_att["bank transfer"]),
+             bank_fpf=d2(ch.fee_per_failed_attempt["bank transfer"]),
              usd_share0=p0(cur.share_of_failed_fees["USD"]), usd_share=p1(cur.share_of_failed_fees["USD"]),
              usd_rate=p1(cur.fail_rate["USD"]), usd_ff=k1(cur.f_fee["USD"]), ghs_ff=k1(cur.f_fee["GHS"]), ugx_ff=k1(cur.f_fee["UGX"]),
              top10_0=p0(cc["top10"]), top10=p1(cc["top10"]), top1pct=p1(cc["top1pct"]), top1pct_n=i0(cc["top1pct_n"]),
@@ -126,7 +142,8 @@ def context(res: dict) -> dict[str, str]:
     mm = heat.xs("mobilemoney", level="pt")
     kc_all = heat.loc[("Kenya", "card")]
     c.update(card_min=p0(card.fail_rate.min()), card_max=p0(card.fail_rate.max()), mm_min=p0(mm.fail_rate.min()),
-             mm_max=p0(mm.fail_rate.max()), kenya_card_all=m2(kc_all.f_fee))
+             mm_max=p0(mm.fail_rate.max()), kenya_card_all=m2(kc_all.f_fee), mm_min_ctry=mm.fail_rate.idxmin(), mm_max_ctry=mm.fail_rate.idxmax(),
+             n_markets_words=words(len(card)))
 
     dr = res["drivers"].set_index(["country", "pt"])
     tot_att = dr.att.sum()
@@ -135,11 +152,13 @@ def context(res: dict) -> dict[str, str]:
         r = dr.loc[(cn, pt)]
         c[f"dr_{key}_sa"] = p1(r.att / tot_att)
         c[f"dr_{key}_fr"] = p1(r.fail_rate)
-        c[f"dr_{key}_fpf"] = d2(r.f_fee / r.f_att)
+        c[f"dr_{key}_fpf"] = d2(r.fee_per_failed_attempt)
         c[f"dr_{key}_ff"] = k1(r.f_fee)
     c["kenya_card_extreme"] = k0(kc_all.f_fee - dr.loc[("Kenya", "card")].f_fee)
     c["dr_all_fr"] = p1(dr.f_att.sum() / tot_att)
-    c["dr_all_fpf"] = d2(dr.f_fee.sum() / dr.f_att.sum())
+    c["dr_all_fpf"] = d2(dr.f_fee.sum() / dr.f_att_ok.sum())
+    c["tc_yield_x"] = f"{dr.loc[('Tanzania', 'card')].fee_per_failed_attempt / (dr.f_fee.sum() / dr.f_att_ok.sum()):.0f}\u00d7"
+    c["tc_vs_kc_words"] = words(dr.loc[("Tanzania", "card")].fee_per_failed_attempt / dr.loc[("Kenya", "card")].fee_per_failed_attempt)
     c["dr_all_ff"] = k1(dr.f_fee.sum())
 
     q = res["quintile_versions"]
@@ -343,6 +362,55 @@ def context(res: dict) -> dict[str, str]:
              nm=i0(len(m)), jan_cells_out_n=i0(j["cells_total"] - j["cells_used"]))
     c.update(rem_min=p0(m.count_rem.min()), rem_max=p0(m.count_rem.max()),
              rem_succ_month=k1((res["bridge"].f_fee.sum() * 0 + (h["succ_fees"])) / len(m)))
+    # ---- numbers the text used to type (stage 11 flags any that come back)
+    n_mo = len(m)
+    c.update(fs_rem_2022=p0(m.set_index("period").share_rem[pd.DatetimeIndex(m.period).year == 2022].mean()),
+             fs_rem_2024=p0(m.set_index("period").share_rem[pd.DatetimeIndex(m.period).year == 2024].mean()))
+    esc_s = res["anomalies"]["escalation_series"]
+    ep = res["anomalies"]["escalation_profile"]
+    c.update(esc_smax=i0(esc_s.s_att.max()), esc_mm_att=i0(ep["mobilemoney_attempts"]), esc_card_att=i0(ep["usd_card_attempts"]),
+             an_top_n_words=words(res["anomalies"]["top_n"], True), an_top_n_words_l=words(res["anomalies"]["top_n"]),
+             jan_card_n_words=words(res["january"]["top_n_card"]), anom_in_n_words=f"{words(round((ex.f_fee + es.f_fee) / tot * 5), True)} in five")
+    ob = res["anomalies"]["observations"]
+    early = ob[(ob.period >= "2022-01-01") & (ob.period <= "2023-07-01")]
+    c["an_early_words"] = words(early.period.nunique())
+    ten = res["customers"]["tenure"]
+    c["ten_fs_range"] = f"{ten.fee_share.min() * 100:.0f}\u2013{ten.fee_share.max() * 100:.0f}%"
+    c["lp_cells_words"] = words(len(pt_), True)
+    sg = res["laney"]["signals"]
+    for r in pt_.itertuples():
+        key = f"lp_{r.country}_{r.pt}".replace(" ", "_")
+        c[f"{key}_flags"] = r.flags.capitalize()
+        c[f"{key}_sig"] = month_list(sg[(sg.country == r.country) & (sg.pt == r.pt)])
+    sk = sg[(sg.country == "Kenya") & (sg.pt == "mobilemoney")].sort_values("period").iloc[-1]
+    sgc = sg[(sg.country == "Ghana") & (sg.pt == "card")].sort_values("period").iloc[0]
+    c.update(lp_km_last_share=p0(sk.top_customer_share), lp_gc_share=p0(sgc.top_customer_share),
+             lp_km_last_month=f"{pd.Timestamp(sk.period):%B}", lp_gc_month=f"{pd.Timestamp(sgc.period):%B %Y}")
+    cardmed = pt_[pt_.pt == "card"].median_rate
+    c["lp_card_med_range"] = f"{cardmed.min() * 100:.0f}\u2013{cardmed.max() * 100:.0f}%"
+    me2 = res["fx"]["measures"]
+    c["fx_mean_pct"] = p0(abs((me2.difference / me2.constant).mean()))
+    sv = res["sensitivity"].set_index("treatment").fee_share
+    c.update(sens_fs_range=f"{sv.iloc[:4].min() * 100:.0f}\u2013{sv.iloc[:4].max() * 100:.0f}%", sens_fs_anom=p0(sv.iloc[-1]))
+    ex_ = res.get("examples")
+    if ex_:
+        lg, rcg = ex_["largest"], ex_["recurring"]
+        c.update(va_value=f"{lg['value'] / 1e12:.2f} trillion", va_ccy=lg["ccy"], va_att=i0(lg["attempts"]), va_fee=i0(lg["fee"]),
+                 va_ug_n=i0(rcg["records"]), va_ug_value=f"{rcg['value_min'] / 1e6:,.0f}\u2013{rcg['value_max'] / 1e6:,.0f} million",
+                 va_ug_att=f"{rcg['att_min']:,}\u2013{rcg['att_max']:,}", va_ug_fee=f"{rcg['fee_ratio'] * 100:.1f}%", va_ug_cust=str(rcg["customer"]))
+    # lapse caveat
+    la_ = res["customers"]["lapse"]
+    c.update(lapse_few_pct=p0(la_["few_months_share"]), lapse_gap3_pct=p0(la_["gap3_share"]))
+    # recovery: legitimate rejections, resampling interval, range across choices, pilot targets
+    rcv = res["recovery"]
+    nr, iv, bxx = rcv["no_rejections"], rcv["interval"], rcv["benchmark_ex_escalation"]
+    vals = [sc.incremental_fees["Base"], bxx["incremental"], rcv["same_customer"]["incremental"], bxx["same_incremental"], rcv["offset"]["incremental"], nr["incremental"]]
+    c.update(rc_nr_k=k1(nr["incremental"]), rc_nr_k0=k0(nr["incremental"]), rc_nr_share=p0(nr["share_of_failed_attempts"]), rc_nr_n=i0(nr["customer_months"]),
+             rc_ci_lo=k0(iv["low"]), rc_ci_med=k0(iv["median"]), rc_ci_hi=k0(iv["high"]), rc_ci_level=p0(iv["level"]), rc_ci_reps=i0(iv["replicates"]),
+             rc_rng_lo=k0(min(vals)), rc_rng_hi=k0(max(vals)))
+    for cn in ["Kenya", "Tanzania", "Uganda"]:
+        rr_ = mk.loc[cn]
+        c.update({f"pl_{cn}_from": p1(rr_.rate), f"pl_{cn}_to": p1(rr_.best_window)})
     rc_ = res.get("reconciliation")
     if rc_:                                    # report basis against the same data with the SLL fix switched off (stage 01E)
         a_, b_ = rc_["report_basis"], rc_["no_sll_fix"]

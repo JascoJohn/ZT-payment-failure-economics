@@ -24,7 +24,7 @@ BASE = load_config()
 
 
 # ---- cached pipeline ----------------------------------------------------------------------------
-@st.cache_resource(show_spinner="Preparing data (rates, flags, anomaly rules)…")
+@st.cache_resource(show_spinner="Preparing data (rates, flags, extreme-volume anomaly rules)…")
 def get_prep(rel_min: int, rel_mult: float, rel_succ: float, esc_min: int, esc_succ: float):
     cfg = copy.deepcopy(BASE)
     cfg["anomalies"]["relative"].update(min_failed=rel_min, multiple_of_prior_median=rel_mult, max_success_rate=rel_succ)

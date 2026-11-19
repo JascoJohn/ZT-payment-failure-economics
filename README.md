@@ -105,7 +105,7 @@ Chapter scripts read the prepared data saved by 01G, so after a change to the ra
 ### Change an assumption
 
 Edit `config/assumptions.yaml` (for example `anomalies.relative.min_failed`), then `python run_pipeline.py --from 01A`. Every table, figure, the report, the workbook and
-the audit update. Stage 11 will then report differences from `baseline/` as failures: that is the point of the baseline. Refresh it deliberately by copying the new
+the audit update. Stage 11 will then report differences from `baseline/` as failures unless they are listed in `baseline/approved_changes.yaml`: that is the point of the baseline. Every difference, approved or not, is listed in `outputs/changes_from_baseline.md`. Refresh it deliberately by copying the new
 `outputs/results.json` to `baseline/results_baseline.json` (and the tables and tokens beside it) once you accept the new results.
 
 ### The report

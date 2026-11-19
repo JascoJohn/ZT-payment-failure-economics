@@ -69,7 +69,7 @@ def fig02_bridge(res, **_):
     total = b.f_fee.sum()
     ex, es, rm = b.loc["Extreme-volume anomaly", "f_fee"], b.loc["Escalation", "f_fee"], b.loc["Remaining", "f_fee"]
     fig = go.Figure(go.Waterfall(
-        x=["All failed-transaction fees", "Extreme-volume anomalies", "Escalation account(s)", "Remaining exposure"],
+        x=["All fees on failed transactions", "Extreme-volume anomalies", "Escalation account (47087)", "Remaining exposure"],
         measure=["absolute", "relative", "relative", "total"], y=[total, -ex, -es, 0],
         text=[_k(total), f"−{_k(ex)} ({ex / total:.1%})", f"−{_k(es)} ({es / total:.1%})", f"{_k(rm)} ({rm / total:.1%})"],
         textposition="outside", connector=dict(line=dict(color=MUTED, dash="dot")),
@@ -86,12 +86,12 @@ def fig03_trend(res, **_):
                         subplot_titles=("Count failure rate", "Failed-fee share"))
     for row, (a, r) in enumerate([("count_all", "count_rem"), ("share_all", "share_rem")], start=1):
         fig.add_trace(go.Scatter(x=m.period, y=m[a], name="All records", line=dict(color=MUTED, width=2), showlegend=row == 1), row, 1)
-        fig.add_trace(go.Scatter(x=m.period, y=m[r], name="Excluding extreme-volume anomalies and the escalation account", line=dict(color=ACCENT, width=3), showlegend=row == 1), row, 1)
+        fig.add_trace(go.Scatter(x=m.period, y=m[r], name="Excluding the two anomaly categories", line=dict(color=ACCENT, width=3), showlegend=row == 1), row, 1)
     for d in ["2024-01-01", "2024-04-01"]:
         fig.add_vline(x=pd.Timestamp(d).timestamp() * 1000, line=dict(color=SUB, dash="dot"))
     fig.update_yaxes(tickformat=".0%")
     lo, hi = m.count_rem.min(), m.count_rem.max()
-    return _style(fig, "Figure 3. Excluding extreme-volume anomalies and the escalation account, failure is persistent but steady",
+    return _style(fig, "Figure 3. Excluding the two anomaly categories, failure is persistent but steady",
                   f"Monthly; the count failure rate of remaining exposure stays between {lo:.0%} and {hi:.0%}", 560)
 
 
@@ -99,12 +99,12 @@ def fig03_trend(res, **_):
 def fig04_composition(res, **_):
     m = res["monthly"]
     fig = go.Figure()
-    for col, name, color in [("fees_remaining", "Remaining", MUTED), ("fees_escalation", "Escalation account(s)", LIGHT),
+    for col, name, color in [("fees_remaining", "Remaining", MUTED), ("fees_escalation", "Escalation account (47087)", LIGHT),
                              ("fees_extreme", "Extreme-volume anomalies", ACCENT)]:
         fig.add_trace(go.Bar(x=m.period, y=m[col], name=name, marker_color=color))
     fig.update_layout(barmode="stack")
     fig.update_yaxes(title="USD", tickformat="$,.0f")
-    return _style(fig, "Figure 4. Extreme-volume anomalies and the escalation account drive the Dec 2023 – Apr 2024 surge",
+    return _style(fig, "Figure 4. The two anomaly categories account for the Dec 2023 – Apr 2024 surge",
                   "Monthly fees on failed transactions by exposure category")
 
 
@@ -150,7 +150,7 @@ def fig07_heatmap(res, **_):
     fig.update_yaxes(autorange="reversed")
     card = z.get("card")
     sub = "Shade = count failure rate; cell text adds fees on failed transactions (a different measure)"
-    title = f"Figure 7. Card fails at {card.min():.0%}–{card.max():.0%} in every market" if card is not None else "Figure 7. Failure by market and channel"
+    title = f"Figure 7. Card fails at {card.min():.0%}–{card.max():.0%} by count in every market" if card is not None else "Figure 7. Failure by market and channel"
     return _style(fig, title, sub, 480)
 
 
@@ -174,17 +174,23 @@ def fig08_pareto(res, **_):
 def fig09_drivers(res, **_):
     d = res["drivers"]
     d = d[d.f_fee > 5000]
+    labels = [f"{c} {CH.get(p, p).lower()}" if f >= 15000 else "" for c, p, f in zip(d.country, d.pt, d.f_fee)]
+    # label positions chosen by hand so that none is clipped and none overlaps another
+    place = {"Uganda alternative channels": "top left", "Uganda mobile money": "top left", "Kenya alternative channels": "bottom center",
+             "Tanzania card": "top center", "Zambia card": "middle left", "Kenya mobile money": "top center"}
+    pos = [place.get(t, "top center") for t in labels]
     fig = go.Figure(go.Scatter(
-        x=d.share_of_attempts, y=d.fail_rate, mode="markers+text", text=[f"{c} {CH.get(p, p).lower()}" if f >= 15000 else "" for c, p, f in zip(d.country, d.pt, d.f_fee)],
-        hovertext=[f"{c} {CH.get(p, p).lower()}" for c, p in zip(d.country, d.pt)], textposition="top center", marker=dict(size=np.sqrt(d.f_fee) / np.sqrt(d.f_fee.max()) * 70 + 6,
-                                               color=[ACCENT if p == "card" else MUTED for p in d.pt], opacity=.65, line=dict(color=PAPER)),
+        x=d.share_of_attempts, y=d.fail_rate, mode="markers+text", text=labels, cliponaxis=False,
+        hovertext=[f"{c} {CH.get(p, p).lower()}" for c, p in zip(d.country, d.pt)], textposition=pos,
+        marker=dict(size=np.sqrt(d.f_fee) / np.sqrt(d.f_fee.max()) * 70 + 6, color=[ACCENT if p == "card" else MUTED for p in d.pt],
+                    opacity=.65, line=dict(color=PAPER)),
         customdata=d.f_fee, hovertemplate="%{hovertext}<br>%{x:.1%} of attempts<br>%{y:.1%} failed<br>$%{customdata:,.0f} failed fees<extra></extra>",
         showlegend=False))
-    fig.update_xaxes(type="log", tickformat=".1%", title="Share of non-anomalous attempts (log scale)",
-                     tickvals=[.002, .005, .01, .02, .05, .1, .2, .5])
-    fig.update_yaxes(tickformat=".0%", title="Count failure rate")
+    fig.update_xaxes(type="log", tickformat=".1%", title="Share of attempts excluding extreme-volume anomalies (log scale)",
+                     tickvals=[.002, .005, .01, .02, .05, .1, .2, .5], range=[np.log10(.0012), np.log10(.9)])
+    fig.update_yaxes(tickformat=".0%", title="Count failure rate", range=[.3, 1.04])
     return _style(fig, "Figure 9. Card: high failure, small volume; Uganda mobile money: scale",
-                  "Bubble area = non-anomalous fees on failed transactions; cells above $15K labelled (all cells over $5K shown)", 520)
+                  "Bubble area = fees on failed transactions excluding extreme-volume anomalies; cells above $15K labelled (all cells over $5K shown)", 520)
 
 
 # 10 --------------------------------------------------------------------------------------------
@@ -214,7 +220,7 @@ def fig11_anomalies(res, **_):
     fig.update_xaxes(range=[0, top.f_att.max() * 1.3], row=1, col=1)
     fig.update_xaxes(range=[0, top.f_fee.max() * 1.35], row=1, col=2)
     s4 = o.head(4).f_fee.sum()
-    return _style(fig, f"Figure 11. The four largest account-months carry {_k(s4)} of {_k(o.f_fee.sum())} anomaly exposure",
+    return _style(fig, f"Figure 11. The four largest account-months carry {_k(s4)} of {_k(o.f_fee.sum())} extreme-volume anomaly exposure",
                   "Extreme-volume anomaly proxies; the data cannot show automation or card testing", 480)
 
 
@@ -231,7 +237,7 @@ def fig12_escalation(res, **_):
     fig.update_yaxes(range=[0, s.f_fee.max() * 1.3], row=2, col=1)
     peak = s.loc[s.f_att.idxmax()]
     return _style(fig, f"Figure 12. One account escalated to {peak.f_att:,.0f} failed attempts in {pd.Timestamp(peak.period):%B %Y}",
-                  f"Escalation account(s) {ids}; a single-account series, not a market trend", 540)
+                  f"Escalation account ({ids}); a single-account series, not a market trend", 540)
 
 
 # 13 --------------------------------------------------------------------------------------------
@@ -241,10 +247,10 @@ def fig13_hard_mixed(res, **_):
     fig = go.Figure()
     fig.add_trace(go.Bar(y=[CH[p] for p in b.pt], x=b.Hard, name="Hard (no successes that month)", orientation="h", marker_color=ACCENT))
     fig.add_trace(go.Bar(y=[CH[p] for p in b.pt], x=b.Mixed, name="Mixed", orientation="h", marker_color=LIGHT,
-                         text=[f"{s:.0%} hard · anomalies shown separately: {_k(a)}" for s, a in zip(b.hard_share, b.anomalies)], textposition="outside"))
+                         text=[f"{s:.0%} hard · extreme-volume anomalies shown separately: {_k(a)}" for s, a in zip(b.hard_share, b.anomalies)], textposition="outside"))
     fig.update_layout(barmode="stack")
     fig.update_yaxes(categoryorder="array", categoryarray=[CH[p] for p in ["alternative channels", "mobilemoney", "card"]])
-    fig.update_xaxes(tickformat="$,.0f", title="Non-anomalous fees on failed transactions", range=[0, (b.Hard + b.Mixed).max() * 1.9])
+    fig.update_xaxes(tickformat="$,.0f", title="Fees on failed transactions excluding extreme-volume anomalies", range=[0, (b.Hard + b.Mixed).max() * 1.9])
     card = b.set_index("pt").hard_share.get("card", np.nan)
     return _style(fig, f"Figure 13. {card:.0%} of card exposure comes from months with no card success",
                   "Hard / mixed are proxies; the data cannot show causes")
@@ -261,7 +267,7 @@ def fig14_persistence(res, **_):
                          text=[f"{v:.1%}" for v in [p["lapse_persistent"], p["lapse_other"]]], textposition="outside", showlegend=False), 1, 2)
     fig.update_yaxes(tickformat=".0%", range=[0, 1.1])
     return _style(fig, "Figure 14. Persistent customers lose more fee value to failure and lapse more",
-                  "Customers with 6+ active months, excluding anomalies; associations, not causal effects")
+                  "Customers with 6+ active months, excluding extreme-volume anomalies; associations, not causal effects")
 
 
 # 15 --------------------------------------------------------------------------------------------
@@ -292,7 +298,7 @@ def fig16_january(res, **_):
     fig.update_yaxes(tickformat="$,.0f", range=[0, c.usd.iloc[-1] * 1.15])
     j = res["january"]
     share = (j["january_extreme"] - j["baseline_extreme"]) / (j["january_all"] - j["baseline_all"])
-    return _style(fig, f"Figure 16. Anomalies explain {share:.0%} of January's rise in failed-transaction fees",
+    return _style(fig, f"Figure 16. Extreme-volume anomalies explain {share:.0%} of January's rise in fees on failed transactions",
                   "Baseline = Jul–Dec 2023 monthly average; red raises, green lowers failed fees")
 
 
@@ -306,8 +312,8 @@ def fig17_lmdi(res, **_):
                            text=[f"{v / 1e3:+,.1f}K" for _, v in items][::-1], textposition="outside", showlegend=False))
     fig.add_vline(x=0, line=dict(color=SUB))
     fig.update_xaxes(tickformat="$,.0f")
-    return _style(fig, "Figure 17. Outside anomalies, volume and fee yield drove January",
-                  f"Components sum to the non-anomalous change of {total / 1e3:+,.1f}K; residual {j['residual']:.2f}")
+    return _style(fig, "Figure 17. Outside extreme-volume anomalies, volume and fee yield drove January",
+                  f"Components sum to the change excluding extreme-volume anomalies of {total / 1e3:+,.1f}K; residual {j['residual']:.2f}")
 
 
 # 18 --------------------------------------------------------------------------------------------
@@ -360,7 +366,7 @@ def fig21_recovery_market(res, **_):
     fig.update_xaxes(tickformat="$,.0f", title="Base-case incremental successful-transaction fee revenue", range=[0, m.incremental_base.max() * 1.15])
     tot, p3 = m.incremental_base.sum(), m[m.country.isin(pri)].incremental_base.sum()
     return _style(fig, f"Figure 21. Kenya, Tanzania and Uganda hold {_k(p3)} of the {_k(tot)} base case",
-                  "USD card, excluding anomalies; conditional estimate before processing costs")
+                  "USD card, excluding extreme-volume anomalies; conditional estimate before processing costs")
 
 
 # 22 --------------------------------------------------------------------------------------------
@@ -410,10 +416,10 @@ def fig24_matrix(res, prep=None, **_):
                                  hovertemplate="%{text}<br>$%{x:,.0f} failed fees<br>%{y:.1%} failed<br>internal potential $%{customdata[0]:,.0f}<br>diagnostic: %{customdata[1]}<extra></extra>"))
     if esc and prep is not None:
         e = prep.tx[prep.tx.customer_id.isin(esc) & ~prep.tx.extreme]
-        fig.add_trace(go.Scatter(x=[e.f_fee.sum()], y=[e.f_att.sum() / e.att.sum()], mode="markers+text", name="Escalation account (contain)",
-                                 text=[f"Account {', '.join(map(str, esc))} (escalation)"], textposition="top left",
+        fig.add_trace(go.Scatter(x=[e.f_fee.sum()], y=[e.f_att.sum() / e.att.sum()], mode="markers+text", name="Escalation account (47087)",
+                                 text=[f"Escalation account ({', '.join(map(str, esc))})"], textposition="top left",
                                  marker=dict(symbol="diamond", size=16, color=ALT)))
-    fig.update_xaxes(type="log", tickformat="$,.0f", title="Non-anomalous fees on failed transactions (log scale)")
+    fig.update_xaxes(type="log", tickformat="$,.0f", title="Fees on failed transactions excluding extreme-volume anomalies (log scale)")
     fig.update_yaxes(tickformat=".0%", title="Count failure rate")
     return _style(fig, "Figure 24. Card cells: largest exposure, high failure, most recoverable fees",
                   "Bubble area = internal recoverable fees (cell's own best 3-month rate)", 560)
@@ -423,7 +429,7 @@ def fig24_matrix(res, prep=None, **_):
 def fig25_roadmap(res, **_):
     rec = res["recovery"]["markets"].set_index("country").rate
     pers = res["customers"]["persistence"]["persistent"]
-    rows = [["1. Contain anomalies", "To be assigned", "Deploy relative and absolute account alerts; review flagged observations and escalation account(s)",
+    rows = [["1. Contain extreme-volume anomalies and the escalation account (47087)", "To be assigned", "Deploy relative and absolute account alerts; review flagged observations and the escalation account (47087)",
              "Extreme failed-attempt observations a month", "Weekly"],
             ["2. USD card completion: Kenya, Tanzania, Uganda", "To be assigned", "Diagnose zero-success merchant-months: acceptance, routing, currency set-up",
              "USD card failure vs baseline (" + ", ".join(f"{c} {rec.get(c, np.nan):.1%}" for c in ["Kenya", "Tanzania", "Uganda"]) + ")", "Monthly"],

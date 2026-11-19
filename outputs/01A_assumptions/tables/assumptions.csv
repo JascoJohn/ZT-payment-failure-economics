@@ -44,3 +44,6 @@ recovery.best_window_months,3
 recovery.best_window_min_attempts,500
 recovery.min_successes_for_local_fee,100
 recovery.cost_ratios,"[0, 0.2, 0.4, 0.6, 1.0]"
+recovery.bootstrap.replicates,1000
+recovery.bootstrap.seed,2026
+recovery.bootstrap.interval,0.9

@@ -1,24 +1,24 @@
 label,slug,section,chapter,in_report,title,file,dir
 Figure 1,bridge,Executive summary,2,True,Figure 1. 38.5% of the exposure sits in exceptional account behaviour,fig01_bridge,02_scale/figures
-Figure 2,trend,2. Scale,2,True,"Figure 2. Excluding extreme-volume anomalies and the escalation account, failure is persistent but steady",fig02_trend,02_scale/figures
+Figure 2,trend,2. Scale,2,True,"Figure 2. Excluding the two anomaly categories, failure is persistent but steady",fig02_trend,02_scale/figures
 Figure 3,channels,3. Concentration,3,True,Figure 3. Card payments hold 79% of fees on failed transactions,fig03_channels,03_concentration/figures
-Figure 4,heatmap,3. Concentration,3,True,Figure 4. Card fails at 79%–93% in every market,fig04_heatmap,03_concentration/figures
+Figure 4,heatmap,3. Concentration,3,True,Figure 4. Card fails at 79%–93% by count in every market,fig04_heatmap,03_concentration/figures
 Figure 5,pareto,3. Concentration,3,True,"Figure 5. The top 10 of 5,108 customers with failed fees hold 50% of it",fig05_pareto,03_concentration/figures
 Figure 6,drivers,3. Concentration,3,True,"Figure 6. Card: high failure, small volume; Uganda mobile money: scale",fig06_drivers,03_concentration/figures
 Figure 7,quintiles,3. Concentration,3,True,Figure 7. Mobile money fails mainly on high-value records; card at every size,fig07_quintiles,03_concentration/figures
 Figure 8,escalation,4. Diagnostics,4,True,"Figure 8. One account escalated to 88,152 failed attempts in April 2024",fig08_escalation,04_diagnostics/figures
 Figure 9,hard_mixed,4. Diagnostics,4,True,Figure 9. 35% of card exposure comes from months with no card success,fig09_hard_mixed,04_diagnostics/figures
-Figure 10,january,5. January 2024,5,True,Figure 10. Anomalies explain 96% of January's rise in failed-transaction fees,fig10_january,05_january/figures
-Figure 11,lmdi,5. January 2024,5,True,"Figure 11. Outside anomalies, volume and fee yield drove January",fig11_lmdi,05_january/figures
+Figure 10,january,5. January 2024,5,True,Figure 10. Extreme-volume anomalies explain 96% of January's rise in fees on failed transactions,fig10_january,05_january/figures
+Figure 11,lmdi,5. January 2024,5,True,"Figure 11. Outside extreme-volume anomalies, volume and fee yield drove January",fig11_lmdi,05_january/figures
 Figure 12,fx_currency,6. Foreign exchange,6,True,Figure 12. The Ghanaian cedi drives 81% of the translation effect,fig12_fx_currency,06_fx/figures
 Figure 13,recovery_market,7. Recovery,7,True,"Figure 13. Kenya, Tanzania and Uganda hold $227.9K of the $253.7K base case",fig13_recovery_market,07_recovery/figures
 Figure 14,scenarios,7. Recovery,7,True,"Figure 14. Base case: 33,655 more successful card payments, worth $253.7K",fig14_scenarios,07_recovery/figures
 Figure 15,matrix,8. Recommendations,8,True,"Figure 15. Card cells: largest exposure, high failure, most recoverable fees",fig15_matrix,08_recommendations/figures
 Figure 16,flow,Appendix A,01G,True,"Figure 16. Two populations: counts use every record, dollars translatable ones",fig16_flow,01G_transactions/figures
 Figure D1,kpis,Executive summary,2,False,"Figure D1. Headline figures, Jan 2022 – Apr 2024",figd1_kpis,02_scale/figures
-Figure D2,composition,2. Scale,2,False,Figure D2. Extreme-volume anomalies and the escalation account drive the Dec 2023 – Apr 2024 surge,figd2_composition,02_scale/figures
+Figure D2,composition,2. Scale,2,False,Figure D2. The two anomaly categories account for the Dec 2023 – Apr 2024 surge,figd2_composition,02_scale/figures
 Figure D3,value,2. Scale,2,False,"Figure D3. Failed attempts are 4.6× larger, but carry similar fee rates",figd3_value,02_scale/figures
-Figure D4,anomalies,4. Diagnostics,4,False,Figure D4. The four largest account-months carry $764.2K of $826.0K anomaly exposure,figd4_anomalies,04_diagnostics/figures
+Figure D4,anomalies,4. Diagnostics,4,False,Figure D4. The four largest account-months carry $764.2K of $826.0K extreme-volume anomaly exposure,figd4_anomalies,04_diagnostics/figures
 Figure D5,persistence,4. Diagnostics,4,False,Figure D5. Persistent customers lose more fee value to failure and lapse more,figd5_persistence,04_diagnostics/figures
 Figure D6,patterns,4. Diagnostics,4,False,Figure D6. Card cells are structural; flags overlap,figd6_patterns,04_diagnostics/figures
 Figure D7,reported_constant,6. Foreign exchange,6,False,Figure D7. Depreciation trims both measures by about 6% in USD terms,figd7_reported_constant,06_fx/figures
