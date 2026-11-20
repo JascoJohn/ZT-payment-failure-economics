@@ -866,6 +866,14 @@ class Book:
         ws.append([_c(ws, "Same customers"), _c(ws, "Mobile money failure among customers using both channels"), val(ws, float(rc["same_customer"]["incremental"]), USD)])
         ws.append([_c(ws, "Same customers without account 47087"), _c(ws, "As above"), val(ws, float(bx["same_incremental"]), USD)])
         ws.append([_c(ws, "Same-month failure offset"), _c(ws, "Failed attempts reduced by successes in the same customer-month-channel"), val(ws, float(rc["offset"]["incremental"]), USD)])
+        nr, iv = rc["no_rejections"], rc["interval"]
+        ws.append([_c(ws, "USD card without zero-success customer-months"), _c(ws, "Customer-months with no card success left out: some may be correct rejections, including card testing; extreme-volume anomalies already excluded"), val(ws, float(nr["incremental"]), USD)])
+        ws.append([])
+        ws.append([val(ws, f"Customer-resampling interval for the base case: {iv['replicates']:,} replicates, seed {iv['seed']}, {iv['level']:.0%} interval. Values from Python, see scripts/07_recovery.py.")])
+        _hdr(ws, ["Statistic", "Value"])
+        ws.append([_c(ws, "Lower bound"), val(ws, float(iv["low"]), USD)])
+        ws.append([_c(ws, "Median"), val(ws, float(iv["median"]), USD)])
+        ws.append([_c(ws, "Upper bound"), val(ws, float(iv["high"]), USD)])
         _ch().charts_rec(self, (f0, lN), (sr + 1, sr + 3), (i0 + 2, i0 + 1 + len(self.cfg["recovery"]["cost_ratios"])))
         self.R["_wb0"] = wb0
 

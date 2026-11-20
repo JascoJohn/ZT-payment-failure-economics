@@ -69,11 +69,12 @@ Every rendered value, table or results.json entry that differs from `baseline/`,
 | new value `pre_ff_k` | | $2,842.8K | new |
 | new value `pre_fs` | | 90.3% | new |
 | new value `pre_jan_d` | | $744,744 | new |
-| new value `rc_ci_hi` | | $418K | new |
+| new value `rc_ci_hi` | | $431K | new |
 | new value `rc_ci_level` | | 90% | new |
-| new value `rc_ci_lo` | | $140K | new |
-| new value `rc_ci_med` | | $266K | new |
-| new value `rc_ci_reps` | | 1,000 | new |
+| new value `rc_ci_lo` | | $142K | new |
+| new value `rc_ci_med` | | $262K | new |
+| new value `rc_ci_reps` | | 5,000 | new |
+| new value `rc_ci_seed` | | 2026 | new |
 | new value `rc_nr_k` | | $158.8K | new |
 | new value `rc_nr_k0` | | $159K | new |
 | new value `rc_nr_n` | | 3,959 | new |
@@ -88,6 +89,9 @@ Every rendered value, table or results.json entry that differs from `baseline/`,
 | new value `tc_vs_kc_words` | | three and a half | new |
 | new value `tc_yield_x` | | 8× | new |
 | new value `ten_fs_range` | | 85–88% | new |
+| new value `tz_card_customers` | | 127 | new |
+| new value `tz_top_n_words` | | three | new |
+| new value `tz_top_share` | | 75% | new |
 | new value `va_att` | | 24 | new |
 | new value `va_ccy` | | NGN | new |
 | new value `va_fee` | | 314 | new |

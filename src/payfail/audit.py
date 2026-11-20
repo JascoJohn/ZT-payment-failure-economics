@@ -376,7 +376,7 @@ def claims(au, res: dict, prep) -> None:
     nr, iv = res["recovery"]["no_rejections"], res["recovery"]["interval"]
     add("Recovery: zero-success USD card customer-months are a third of USD card failed attempts, and the base case leaves them out at about $158.8K", abs(nr["share_of_failed_attempts"] - 1 / 3) < 0.01 and round(nr["incremental"] / 1e3, 1) == 158.8,
         f"{nr['share_of_failed_attempts']:.1%} of failed attempts in {nr['customer_months']:,} customer-months; ${nr['incremental']:,.0f}")
-    add("Recovery: the resampling interval contains the base case; 1,000 replicates with a fixed seed", iv["low"] < iv["point"] < iv["high"] and iv["replicates"] == 1000,
+    add("Recovery: the resampling interval contains the base case; 5,000 replicates with a fixed seed", iv["low"] < iv["point"] < iv["high"] and iv["replicates"] == 5000,
         f"{iv['level']:.0%} interval ${iv['low']:,.0f}-${iv['high']:,.0f}, median ${iv['median']:,.0f}, seed {iv['seed']}")
     la = res["customers"]["lapse"]
     add("Lapse: 4,328 customers had no activity in Feb-Apr 2024; 46% were active in only one or two months and 33% had an earlier gap of three months or more",
@@ -480,17 +480,51 @@ def cross_output(au, res: dict, ctx: dict, cfg: dict) -> None:
 
 
 def layout(au) -> None:
-    """The printed report: nothing split across pages, every chapter on a new page; the gap pages are listed, not fixed."""
+    """The printed report: how full each page is, nothing split across pages, every chapter on a new page."""
+    import fitz
+
+    from .flow import fill, page_bottoms
     from .layout import check_layout
     S = "7. Cross-output consistency"
     f, c = OUT / "report" / "The_Economics_of_Payment_Failure.pdf", OUT / "report" / "contents.json"
     if not (f.exists() and c.exists()):
         au.add(S, "Report layout check", False, "report PDF or contents.json missing; run stage 10", flag=True)
         return
-    r = check_layout(OUT / "report" / "The_Economics_of_Payment_Failure.html", f, json.loads(c.read_text(encoding="utf-8")))
-    au.add(S, "Layout: no paragraph, list item, table or figure group splits across pages", not r["splits"], f"{r['pages']} pages; " + "; ".join(f"{x['text'][:40]} p{x['pages']}" for x in r["splits"][:3]))
-    au.add(S, "Layout: all ten chapters and appendices start a page", len(r["chapter_pages"]) == 10, f"pages {r['chapter_pages']}")
-    au.add(S, "Layout: pages with a large gap (left as they are, by decision)", True, ", ".join(f"p{g['page']} {g['fill']:.0%}" for g in r["gaps"]) or "none")
+    cj = json.loads(c.read_text(encoding="utf-8"))
+    r = check_layout(OUT / "report" / "The_Economics_of_Payment_Failure.html", f, cj)
+    doc = fitz.open(f)
+    fills = [fill(b) for b in page_bottoms(doc)]
+    ch = r["chapter_pages"]
+    last = doc.page_count
+    chapter_last = {p - 1 for p in ch[1:]} | {last}
+    rows, low_body, low_end = [], [], []
+    for pno in range(1, doc.page_count + 1):
+        if pno == 1:
+            role = "cover"
+        elif pno < ch[0]:
+            role = "front matter, contents and lists"
+        elif pno in ch:
+            role = "chapter start" + (" and end" if pno in chapter_last else "")
+        elif pno in chapter_last:
+            role = "chapter end"
+        else:
+            role = "body"
+        flag = ""
+        if pno >= ch[0] and pno in chapter_last and fills[pno - 1] < 0.25:
+            flag = "chapter-end page under 25%"
+            low_end.append(pno)
+        elif pno >= ch[0] and pno not in chapter_last and fills[pno - 1] < 0.60:
+            flag = "page under 60%"
+            low_body.append(pno)
+        rows.append((pno, fills[pno - 1], role, flag))
+    NL = chr(10)
+    (OUT / "report" / "page_fill.md").write_text(
+        "# Page fill, main report" + NL + NL + "Fill = how far down the text area the last line reaches. Flags: a page under 60% that is not the last page of a chapter; a chapter-end page under 25%." + NL + NL
+        + "| Page | Fill | Role | Flag |" + NL + "| --- | --- | --- | --- |" + NL + NL.join(f"| {p} | {x:.0%} | {role} | {fl} |" for p, x, role, fl in rows) + NL, encoding="utf-8")
+    au.add(S, "Layout: no paragraph, list item or table splits across pages (tables over 12 rows may continue)", not r["splits"], f"{doc.page_count} pages; " + "; ".join(f"{x['text'][:40]} p{x['pages']}" for x in r["splits"][:3]))
+    au.add(S, "Layout: all ten chapters and appendices start a page", len(ch) == 10, f"pages {ch}")
+    au.add(S, "Layout: no main-report page under 60% full unless it ends a chapter", not low_body, "pages " + ", ".join(f"{p} ({fills[p - 1]:.0%})" for p in low_body) if low_body else "every body page is at least 60% full", flag=True)
+    au.add(S, "Layout: no chapter-end page under 25% full", not low_end, "pages " + ", ".join(f"{p} ({fills[p - 1]:.0%})" for p in low_end) if low_end else "every chapter-end page is at least 25% full", flag=True)
 
 
 def dashboard(au, res: dict) -> None:

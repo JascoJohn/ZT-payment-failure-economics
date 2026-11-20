@@ -23,6 +23,7 @@ def _safe(fn):
 
 
 TOP_N_OBSERVATIONS = 4        # "the four largest account-months" (Figure 11 and Section 4.1)
+TOP_N_TANZANIA = 3            # "three of 127 Tanzanian USD card customers" (Section 7.3)
 TOP_N_JAN_CARD = 3            # "the three January card accounts" (Section 5)
 
 
@@ -464,6 +465,9 @@ def recovery(prep: Prepared, tx: pd.DataFrame, cfg: dict) -> dict:
     no_rej = {"incremental": float((add_h * t.fee_per_success).sum()), "additional": float(add_h.sum()),
               "share_of_failed_attempts": float(cm_[cm_.s == 0].f.sum() / cm_.f.sum()), "customer_months": int((cm_.s == 0).sum()),
               "failed_attempts": int(cm_[cm_.s == 0].f.sum())}
+    tzc = uc[uc.country == "Tanzania"].groupby("customer_id").agg(fee=("fee", "sum"), ff=("f_fee", "sum"))
+    tzs = (tzc.fee - tzc.ff).sort_values(ascending=False)
+    tz_conc = {"customers": int(len(tzs)), "top_n": TOP_N_TANZANIA, "top_share": float(tzs.head(TOP_N_TANZANIA).sum() / tzs.sum())}
     base = by_mkt["Base"].sum()
     interval = bootstrap_interval(uc, nb, r, base)
     return {"markets": t.reset_index(), "scenarios": pd.DataFrame(scen), "by_market": pd.DataFrame(by_mkt).reset_index(),
@@ -477,6 +481,7 @@ def recovery(prep: Prepared, tx: pd.DataFrame, cfg: dict) -> dict:
                               "top_customer_share": dual.card_att.max() / dual.card_att.sum()},
             "offset": {"removed": int(off.sum()), "removed_share": off.sum() / t.f_att.sum(), "incremental": rec_off},
             "benchmark_ex_escalation": bench_x, "no_rejections": no_rej, "interval": interval,
+            "tanzania_concentration": tz_conc,
             "contribution": pd.DataFrame({"cost_ratio": r["cost_ratios"], "contribution": [base * (1 - c) for c in r["cost_ratios"]]})}
 
 

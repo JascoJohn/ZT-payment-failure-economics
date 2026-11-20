@@ -70,14 +70,21 @@ def check_layout(html_path: Path, pdf_path: Path, contents: dict | None = None, 
         span[id(el)] = (pa, pb)
         if pb != pa and el.name != "table":
             splits.append({"kind": el.name, "pages": (pa + 1, pb + 1), "text": el.get_text()[:70].strip()})
-    for g in main.find_all(True, class_=re.compile(r"^(keep|tbl)$")):
-        members = [e for e in g.find_all(["p", "table"]) if id(e) in span and (e.name != "table" or True)]
-        if len(members) < 2:
+    # tables of up to 12 rows stay whole: the last row must be on the page where the table (its caption) starts
+    pages_map = (contents or {}).get("pages") or {}
+    for g in main.find_all("div", class_="tbl"):
+        cls = g.get("class") or []
+        tid = g.get("id")
+        if "long" in cls or tid not in pages_map:
             continue
-        first, last = span[id(members[0])][0], span[id(members[-1])][1]
-        if first != last:
-            splits.append({"kind": "group " + "/".join(m.name for m in members[:4]), "pages": (first + 1, last + 1),
-                           "text": members[0].get_text()[:60].strip()})
+        rows = g.find_all("tr")
+        cells = [c for c in rows[-1].find_all(["td", "th"]) if len(_norm(c.get_text())) >= 4] if rows else []
+        if not cells:
+            continue
+        pg = pages_map[tid] - 1
+        last = _norm(cells[0].get_text())
+        if last and last not in texts[pg] and all(_norm(c.get_text()) not in texts[pg] for c in cells):
+            splits.append({"kind": "table", "pages": (pg + 1, pg + 2), "text": " ".join(g.find("p", class_="caption").get_text().split())[:60] if g.find("p", class_="caption") else tid})
     fills, gaps = [], []
     for i, page in enumerate(doc):
         h = page.rect.height

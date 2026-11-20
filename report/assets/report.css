@@ -158,9 +158,12 @@ h2.section { break-before: page; margin-top: 0; }
 table.wide { font-size: 7.9pt; }
 table.wide td, table.wide th { padding: 3pt 3.5pt; }
 table.wide td:not(.num) { min-width: 15mm; }
-p, li, tr, figure, .eq, .callout, .tbl, .keep, .insight, .kpi { break-inside: avoid; }
+p, li, tr, figure, .eq, .callout, .tbl, .insight, .kpi { break-inside: avoid; }
+.tbl.long { break-inside: auto; }
+.tbl.long table { break-inside: auto; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
 h2, h3, h4, .caption { break-after: avoid; }
-.keep { break-inside: avoid; }
 
 /* ---------- contents, list of figures, list of tables ---------- */
 section.toc { break-before: page; }
@@ -178,3 +181,5 @@ section.toc.c-contents { break-before: page; }
 .toc.c-figures li, .toc.c-tables li { margin-top: 0; font-weight: 400; font-size: 9.6pt; padding: 0; }
 .toc.c-figures li.l1 a, .toc.c-tables li.l1 a { color: var(--ink); }
 .toc.c-figures li.l1, .toc.c-tables li.l1 { color: var(--ink); font-weight: 400; }
+
+.fignote { font-size: 7.8pt; color: var(--muted); margin: 1pt 0 9pt 0; text-align: left; }

@@ -5,6 +5,11 @@
 #   config:   optional path in config/assumptions.yaml; stage 11 checks the written value equals it
 #   why:      the reason it is a definition, a date or a quoted input rather than a result
 patterns:
+  - {re: '^\d+(\u2013\d+)?$', near: 'ays', why: day ranges of the suggested pilot timeline}
+  - {re: '^\d+$', near: 'month 1', why: pilot timeline}
+  - {re: '^\d+$', near: 'by day', why: pilot timeline}
+  - {re: '^\d+$', near: '90-day', why: pilot length}
+  - {re: '^\d+$', near: 'to day', why: pilot timeline}
   - {re: '^20(22|23|24|26)$', why: calendar years of the study period and the report date}
   - {re: '^\d{5,8}$', why: customer account numbers (verified against the data by stage 11)}
   - {re: '^[0-9]$', near: '|', why: single digits that label table rows, counts of 0 or 1 in table cells (checked separately)}
@@ -89,6 +94,9 @@ literals:
   - {literal: '2022–2024', why: period of the other extreme-volume observations}
 # number words that describe the structure of the document or a fixed set, not a result
 words:
+  - '^two months$'
+  - '^three months$'
+  - '^three-month window$'
   - '^six in ten$'
   - '^nine in ten$'
   - '^two anomaly categories$'

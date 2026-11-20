@@ -349,7 +349,7 @@ def build_recs(bk) -> dict:
     ch = scatter_chart(ws, bk.ftitle("matrix"), series, xlog=True, xfmt="$#,##0", yfmt="0%", xtitle="Non-anomalous fees on failed transactions (log scale)", ytitle="Count failure rate")
     w.chart(ch, "E", w.r - len(m) - 12)
     w.blank(14)
-    for slug, hdr in [("actions", None), ("triggers", None)]:
+    for slug, hdr in [("actions", None), ("pilot", None), ("triggers", None)]:
         w.caption(slug)
         rows = static_table(bk.root, bk.ctx, slug)
         w.head(rows[0])

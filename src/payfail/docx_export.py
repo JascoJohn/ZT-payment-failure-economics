@@ -12,14 +12,16 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup, NavigableString
 from docx import Document
-from docx.enum.section import WD_ORIENT
+from docx.enum.section import WD_ORIENT, WD_SECTION
+from docx.enum.table import WD_ROW_HEIGHT_RULE
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
-from docx.shared import Inches, Pt, RGBColor
+from docx.shared import Inches, Mm, Pt, RGBColor
 
 NAVY = RGBColor(0x1F, 0x3A, 0x5F)
+CREAM = "FAF7F0"
 MML2OMML_CANDIDATES = [r"C:\Program Files\Microsoft Office\root\Office16\MML2OMML.XSL",
                        r"C:\Program Files (x86)\Microsoft Office\root\Office16\MML2OMML.XSL",
                        r"C:\Program Files\Microsoft Office\Office16\MML2OMML.XSL"]
@@ -96,7 +98,7 @@ def _style_fonts(doc: Document, font: str) -> None:
 
 
 def _footer(section, meta: dict, font: str) -> None:
-    section.different_first_page_header_footer = True          # the cover has no footer
+    section.different_first_page_header_footer = False         # the cover is a section of its own and has no footer
     f = section.footer
     f.is_linked_to_previous = False
     p1 = f.paragraphs[0]
@@ -118,6 +120,8 @@ class Builder:
         self.doc, self.font, self.xslt, self.tmp, self.fig_png = doc, font, xslt, tmp, fig_png
         self.n_eq = 0
         self.fig_n = self.tab_n = 0
+        self.compact = False
+        self.no_break_next = False
 
     def math_el(self, par, math_tag, display: bool) -> bool:
         """Insert a MathML element as a Word equation; False if no converter is available."""
@@ -189,6 +193,10 @@ class Builder:
     def para(self, node, style=None, align=WD_ALIGN_PARAGRAPH.JUSTIFY, size=None):
         p = self.doc.add_paragraph(style=style)
         p.alignment = align
+        if self.compact:                       # the executive summary has to fit page 2
+            size = size or 9.3
+            p.paragraph_format.space_after = Pt(3)
+            p.paragraph_format.line_spacing = 1.04
         self.inline(p, node, size=size)
         return p
 
@@ -276,7 +284,8 @@ class Builder:
             n = el.name
             if n == "h2":
                 h = self.doc.add_heading(level=1)
-                h.paragraph_format.page_break_before = True
+                h.paragraph_format.page_break_before = not self.no_break_next
+                self.no_break_next = False
                 num = el.find("span", class_="num")
                 text = el.get_text().strip()
                 h.add_run((num.get_text() + " " + text[len(num.get_text()):].strip()) if num else text)
@@ -288,6 +297,10 @@ class Builder:
             elif n == "h4":
                 h = self.doc.add_heading(level=3)
                 h.add_run(" ".join(el.get_text().split()))
+                if self.compact:
+                    h.paragraph_format.space_before, h.paragraph_format.space_after = Pt(5), Pt(1)
+                    for r_ in h.runs:
+                        r_.font.size = Pt(10.2)
             elif n == "p":
                 if "lede" in cls or "src" in cls:
                     self.para(el, align=WD_ALIGN_PARAGRAPH.LEFT, size=8.5)
@@ -347,9 +360,119 @@ def _toc_block(doc, title: str, instr: str, entries: list[tuple[str, str, int]],
     last._p.append(fc("end"))
 
 
+def _shade(cell, fill: str) -> None:
+    tcpr = cell._tc.get_or_add_tcPr()
+    sh = OxmlElement("w:shd")
+    sh.set(qn("w:val"), "clear"); sh.set(qn("w:color"), "auto"); sh.set(qn("w:fill"), fill)
+    tcpr.append(sh)
+
+
+def _cell_margins(table, left=0, right=0, top=0, bottom=0) -> None:
+    tblpr = table._tbl.tblPr
+    mar = OxmlElement("w:tblCellMar")
+    for side, v in (("top", top), ("left", left), ("bottom", bottom), ("right", right)):
+        e = OxmlElement(f"w:{side}")
+        e.set(qn("w:w"), str(int(v))); e.set(qn("w:type"), "dxa")
+        mar.append(e)
+    tblpr.append(mar)
+
+
+def _cream_background(doc) -> None:
+    """Page colour for the whole document, as in the PDF."""
+    bg = OxmlElement("w:background")
+    bg.set(qn("w:color"), CREAM)
+    doc.element.insert(0, bg)
+    st = doc.settings.element
+    zoom = st.find(qn("w:zoom"))
+    node = OxmlElement("w:displayBackgroundShape")
+    if zoom is not None:
+        zoom.addnext(node)
+    else:
+        st.insert(0, node)
+
+
+def _cover(doc, meta: dict) -> None:
+    """A cover like the PDF's: navy field with the title, an amber rule, and a cream band with the contact details."""
+    t = doc.add_table(rows=3, cols=1)
+    t.autofit = False
+    t.alignment = WD_TABLE_ALIGNMENT.LEFT
+    _cell_margins(t)
+    heights = [Mm(196), Mm(9), Mm(85)]
+    fills = ["1F3A5F", "D99A1E", CREAM]
+    for row, h, fill in zip(t.rows, heights, fills):
+        row.height, row.height_rule = h, WD_ROW_HEIGHT_RULE.EXACTLY
+        row.cells[0].width = Mm(210)
+        _shade(row.cells[0], fill)
+    c = t.rows[0].cells[0]
+    first = c.paragraphs[0]
+    first.paragraph_format.space_before, first.paragraph_format.left_indent, first.paragraph_format.right_indent = Mm(30), Mm(22), Mm(22)
+    r = first.add_run(f"{meta['prepared_for']} · {meta['date']}".upper())
+    r.bold = True; r.font.size = Pt(10); r.font.color.rgb = RGBColor(0xD9, 0x9A, 0x1E)
+
+    def line(text, size, color, bold=False, before=0, after=0):
+        p = c.add_paragraph()
+        p.paragraph_format.left_indent, p.paragraph_format.right_indent = Mm(22), Mm(22)
+        p.paragraph_format.space_before, p.paragraph_format.space_after = Pt(before), Pt(after)
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        r_ = p.add_run(text)
+        r_.bold, r_.font.size, r_.font.color.rgb = bold, Pt(size), color
+        return p
+    line("The Economics", 36, RGBColor(255, 255, 255), True, 28, 0)
+    line("of Payment Failure", 36, RGBColor(255, 255, 255), True, 0, 10)
+    rule = c.add_paragraph()
+    rule.paragraph_format.left_indent, rule.paragraph_format.right_indent = Mm(22), Mm(150)
+    _border(rule._p.get_or_add_pPr(), bottom=(19, "D99A1E"))
+    line(meta["subtitle"], 14, RGBColor(0xDC, 0xE5, 0xEE), False, 14, 8).paragraph_format.right_indent = Mm(50)
+    line(meta.get("cover_line", ""), 10.5, RGBColor(0xDC, 0xE5, 0xEE), False, 18, 0)
+    # the amber strip needs a tiny paragraph so that Word does not add height
+    for row in (t.rows[1],):
+        pp = row.cells[0].paragraphs[0]
+        pp.paragraph_format.space_after = Pt(0)
+        pp.add_run("").font.size = Pt(1)
+    band = t.rows[2].cells[0]
+    inner = band.add_table(rows=1, cols=2)
+    _cell_margins(inner, left=0, right=0, top=0, bottom=0)
+    left, right = inner.rows[0].cells
+    for cell, head, lines in [(left, "Contact", [meta["author_line"], f"Email  {meta['email']}", f"Telephone  {meta['telephone']}", f"ORCID  {meta['orcid']}"]),
+                              (right, "Research materials and reproducibility", [f"Source code  {meta['source_code']}", f"Dashboard  {meta['dashboard']}",
+                                                                               "Data, code, figures, tables and an Excel version of the analysis are in the repository."])]:
+        p0 = cell.paragraphs[0]
+        p0.paragraph_format.left_indent, p0.paragraph_format.space_before = Mm(22), Mm(10)
+        r0 = p0.add_run(head.upper()); r0.bold = True; r0.font.size = Pt(9.4); r0.font.color.rgb = NAVY
+        for i, tx in enumerate(lines):
+            p_ = cell.add_paragraph()
+            p_.paragraph_format.left_indent, p_.paragraph_format.space_after = Mm(22), Pt(1)
+            p_.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            r_ = p_.add_run(tx)
+            r_.font.size = Pt(9.4)
+            r_.bold = (head == "Contact" and i == 0)
+    # the band's own first paragraph is empty: keep it small
+    band.paragraphs[0].paragraph_format.space_after = Pt(0)
+    for r_ in band.paragraphs[0].runs:
+        r_.font.size = Pt(1)
+
+
+def _glance_image(pdf, out: Path):
+    """The one-page infographic as the PDF prints it, cropped to the text area."""
+    if not pdf:
+        return None
+    import fitz
+    from .flow import LIMIT
+    d = fitz.open(pdf)
+    page = next((pg for pg in d if "at a glance" in pg.get_text().lower()), None)
+    if page is None:
+        return None
+    m = 18 * 72 / 25.4
+    clip = fitz.Rect(m - 8, 40, page.rect.width - m + 8, LIMIT + 6)
+    page.get_pixmap(dpi=170, clip=clip).save(str(out))
+    return out
+
+
 def build_docx(res: dict, root: Path, out_dir: Path, rep: dict) -> Path:
     from .pipeline import OUT, figure_file, load_figure_index
-    meta = rep["meta"]
+    from .report import context
+    ctx = context(res)
+    meta = {**rep["meta"], "cover_line": f"{ctx['failed_fees_m']} in fees on failed transactions  ·  {ctx['attempts']} payment attempts  ·  {ctx['n_markets_words']} African markets"}
     font = body_font()
     html = (out_dir / "The_Economics_of_Payment_Failure.html").read_text(encoding="utf-8")
     soup = BeautifulSoup(html, "html.parser")
@@ -359,37 +482,42 @@ def build_docx(res: dict, root: Path, out_dir: Path, rep: dict) -> Path:
     tmp.mkdir(exist_ok=True)
 
     doc = Document()
-    sec = doc.sections[0]
-    sec.page_width, sec.page_height = Inches(8.27), Inches(11.69)
-    sec.left_margin = sec.right_margin = Inches(0.9)
-    sec.top_margin, sec.bottom_margin = Inches(0.9), Inches(0.95)
     _style_fonts(doc, font)
-    _footer(sec, meta, font)
+    _cream_background(doc)
     doc.core_properties.title = meta["title"]
     doc.core_properties.author = meta["author_line"]
-
-    # cover
-    for _ in range(5):
-        doc.add_paragraph()
-    k = doc.add_paragraph(); r = k.add_run(f"{meta['prepared_for']} · {meta['date']}".upper()); r.bold = True; r.font.size = Pt(10); r.font.color.rgb = RGBColor(0xD9, 0x9A, 0x1E)
-    doc.add_paragraph(meta["title"], style="Title")
-    s = doc.add_paragraph(); s.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    r = s.add_run(meta["subtitle"]); r.font.size = Pt(14)
-    doc.add_paragraph()
-    for line in [f"{meta['author_line']}", meta["email"], meta["telephone"], f"ORCID {meta['orcid']}"]:
-        p = doc.add_paragraph(line); p.paragraph_format.space_after = Pt(1)
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    doc.add_paragraph()
-    for lab, key in [("Source code", "source_code"), ("Dashboard", "dashboard")]:
-        p = doc.add_paragraph(f"{lab}: {meta[key]}"); p.paragraph_format.space_after = Pt(1); p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    sec = doc.sections[0]                                  # section 1: the cover, full bleed, no footer
+    sec.page_width, sec.page_height = Mm(210), Mm(297)
+    sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Mm(0)
+    sec.header_distance = sec.footer_distance = Mm(0)
+    _cover(doc, meta)
+    sec2 = doc.add_section(WD_SECTION.NEW_PAGE)            # section 2: the report
+    sec2.page_width, sec2.page_height = Mm(210), Mm(297)
+    sec2.left_margin = sec2.right_margin = Mm(22)
+    sec2.top_margin, sec2.bottom_margin = Mm(22), Mm(24)
+    sec2.header_distance, sec2.footer_distance = Mm(10), Mm(10)
+    _footer(sec2, meta, font)
+    for p_ in doc.paragraphs[-1:]:                         # the paragraph that carries the section break must not add a page
+        p_.paragraph_format.space_after = Pt(0)
+        p_.paragraph_format.line_spacing = Pt(1)
 
     xslt = _xsl()
     b = Builder(doc, font, xslt, tmp, lambda slug: figure_file(slug, ("png", "svg")))
     heads: list = []
     front = soup.find("section", class_="front")
     if front is not None:
-        pb = doc.add_paragraph(); pb.add_run().add_break(WD_BREAK.PAGE)
-        b.walk(front, titles, [])
+        b.compact, b.no_break_next = True, True
+        b.walk(front, titles, [])                          # page 2: the executive summary
+        b.compact = False
+    img = _glance_image(rep.get("pdf"), tmp / "glance.png")
+    if img is not None:                                    # page 3: the one-page infographic, as the PDF prints it
+        pg_ = doc.add_paragraph()
+        pg_.add_run().add_break(WD_BREAK.PAGE)
+        pg_.paragraph_format.space_after = Pt(0)
+        pp = doc.add_paragraph()
+        pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        pp.paragraph_format.space_before = Pt(0)
+        pp.add_run().add_picture(str(img), width=Mm(166))
     ent, pg = rep["entries"], rep["pages"] or {}
     note = "Page numbers shown are those of the PDF. Right-click the list and choose Update Field to match Word's pagination."
     _toc_block(doc, "Contents", r'TOC \o "1-2" \h \z \u', [(e["text"], pg.get(e["id"], ""), e["level"]) for e in ent["contents"]], note)

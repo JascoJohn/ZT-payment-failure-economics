@@ -406,7 +406,8 @@ def context(res: dict) -> dict[str, str]:
     nr, iv, bxx = rcv["no_rejections"], rcv["interval"], rcv["benchmark_ex_escalation"]
     vals = [sc.incremental_fees["Base"], bxx["incremental"], rcv["same_customer"]["incremental"], bxx["same_incremental"], rcv["offset"]["incremental"], nr["incremental"]]
     c.update(rc_nr_k=k1(nr["incremental"]), rc_nr_k0=k0(nr["incremental"]), rc_nr_share=p0(nr["share_of_failed_attempts"]), rc_nr_n=i0(nr["customer_months"]),
-             rc_ci_lo=k0(iv["low"]), rc_ci_med=k0(iv["median"]), rc_ci_hi=k0(iv["high"]), rc_ci_level=p0(iv["level"]), rc_ci_reps=i0(iv["replicates"]),
+             rc_ci_lo=k0(iv["low"]), rc_ci_med=k0(iv["median"]), rc_ci_hi=k0(iv["high"]), rc_ci_level=p0(iv["level"]), rc_ci_reps=i0(iv["replicates"]), rc_ci_seed=str(iv["seed"]), tz_top_share=p0(rcv["tanzania_concentration"]["top_share"]), tz_card_customers=i0(rcv["tanzania_concentration"]["customers"]),
+             tz_top_n_words=words(rcv["tanzania_concentration"]["top_n"]),
              rc_rng_lo=k0(min(vals)), rc_rng_hi=k0(max(vals)))
     for cn in ["Kenya", "Tanzania", "Uganda"]:
         rr_ = mk.loc[cn]
@@ -544,7 +545,9 @@ def md_to_html(md: str, resolve, figs: dict, tabs: dict, idp: str = "sec-") -> s
                 r["class"] = "total"
     for k, h in enumerate(soup.find_all(["h2", "h3"]), start=1):
         h["id"] = f"{idp}{k}"
-    _keep_together(soup)
+    from .flow import mark_long_tables, place_figures
+    place_figures(soup, figs)
+    mark_long_tables(soup)
     return str(soup)
 
 
@@ -702,30 +705,36 @@ def build_report(res: dict, root: Path, out_dir: Path) -> dict:
     entries = collect_entries(main_html, fig_titles)
     flat = entries["contents"] + entries["figures"] + entries["tables"]
 
-    def compose(pages: dict | None) -> str:
+    def compose(pages: dict | None, main_part: str) -> str:
         toc = (_toc_section("Contents", entries["contents"], pages, "c-contents")
                + _toc_section("List of figures", entries["figures"], pages, "c-figures")
                + _toc_section("List of tables", entries["tables"], pages, "c-tables"))
         body = (_fill((content / "00_cover.html").read_text(encoding="utf-8"), ctx, meta)
                 + '<section class="front">' + front + "</section>"
                 + _fill((content / "02_at_a_glance.html").read_text(encoding="utf-8"), ctx, meta)
-                + toc + '<main class="main">' + main_html + "</main>")
+                + toc + '<main class="main">' + main_part + "</main>")
         return _page(meta["title"], css_rel, body, meta)
 
+    from .flow import apply_state, plan
     full = out_dir / "The_Economics_of_Payment_Failure.html"
-    pages, passes = None, 0
-    pdf = None
+    state = {"scale": {}, "pull": {}}
+    fig_files = {slug: figure_file(slug) for slug in figs}
+    flow_log: list[str] = []
+    pages, passes, pdf = None, 0, None
     while True:
         passes += 1
-        full.write_text(compose(pages), encoding="utf-8")
+        full.write_text(compose(pages, apply_state(main_html, state)), encoding="utf-8")
         pdf = print_pdf(full, full.with_suffix(".pdf"))
         if pdf is None:
             break
         new = read_pages(pdf, [e["id"] for e in flat])
-        if new == pages:
+        chapter_pages = {new[e["id"]] for e in entries["contents"] if e["level"] == 1}
+        changes = plan(state, main_html, pdf, chapter_pages, fig_files) if passes < 10 else []
+        flow_log += [f"pass {passes}: {c}" for c in changes]
+        if not changes and new == pages:
             break
-        if passes >= 5:
-            raise RuntimeError("Contents page numbers do not settle after 5 passes")
+        if passes >= 14:
+            raise RuntimeError("The page flow and the contents page numbers do not settle after 14 passes")
         pages = new
     brief_body = _fill((content / "brief.html").read_text(encoding="utf-8"), ctx, {**meta, "author": meta["author_line"]})
     brief_body = re.sub(r"\[\[figure (\w+)\]\]", lambda m: f'<figure class="chart"><img src="{resolve(m.group(1))}"></figure>', brief_body)
@@ -733,6 +742,6 @@ def build_report(res: dict, root: Path, out_dir: Path) -> dict:
     brief.write_text(_page(meta["title"] + " - Executive brief", css_rel, '<div class="brief">' + brief_body + "</div>", meta), encoding="utf-8")
     brief_pdf = print_pdf(brief, brief.with_suffix(".pdf"))
     import json
-    (out_dir / "contents.json").write_text(json.dumps({"passes": passes, "pages": pages, **entries}, indent=1), encoding="utf-8")
+    (out_dir / "contents.json").write_text(json.dumps({"passes": passes, "pages": pages, "flow": flow_log, "state": state, **entries}, indent=1), encoding="utf-8")
     return {"html": full, "pdf": pdf, "brief_html": brief, "brief_pdf": brief_pdf, "entries": entries, "pages": pages,
             "meta": meta, "passes": passes, "figures": figs, "tables": tabs}

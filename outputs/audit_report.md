@@ -1,10 +1,11 @@
 # Audit report
 
-110 checks: **109 pass**, **0 fail**, **1 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
+111 checks: **109 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
 
 ## Flagged for you
 
-- **[4. Denominators] Every sentence with a percentage states or implies its population.** 61 sentences with a percentage; 7 without any population cue (list in outputs/audit_percentages.csv): Remaining exposure: $1.71M (61.5%) Improve This is everything left once the two anomaly categories are set aside. | It covers every channel, but card carries 82% of remaining exposure ($1.40M) and USD card alone 61% of remaining exposure ($1.04M). | The high-value gap survives every exclusion: 75% against 42% even with all three applied.
+- **[4. Denominators] Every sentence with a percentage states or implies its population.** 66 sentences with a percentage; 8 without any population cue (list in outputs/audit_percentages.csv): Remaining exposure: $1.71M (61.5%) Improve This is everything left once the two anomaly categories are set aside. | It covers every channel, but card carries 82% of remaining exposure ($1.40M) and USD card alone 61% of remaining exposure ($1.04M). | The high-value gap survives every exclusion: 75% against 42% even with all three applied.
+- **[7. Cross-output consistency] Layout: no chapter-end page under 25% full.** pages 10 (22%), 35 (20%)
 
 ## A. Integrity
 
@@ -33,7 +34,7 @@
 | --- | --- | --- |
 | PASS | results.json matches the baseline except approved changes (ints exact, floats to 1e-9) | 0 approved differences; every other value identical |
 | PASS | Every baseline table (CSV) matches except approved changes | 38 tables compared |
-| PASS | Every rendered report value matches the baseline except approved changes (exact text) | 566 identical, 3 approved changes, 88 new values |
+| PASS | Every rendered report value matches the baseline except approved changes (exact text) | 566 identical, 3 approved changes, 92 new values |
 
 ## 1. Independent recomputation (plain pandas from data/raw)
 
@@ -85,7 +86,7 @@
 | --- | --- | --- |
 | PASS | Fee per failed attempt (Table 3): fees and failed attempts both from records with an exchange rate | recomputed from the prepared records and compared with the six printed cells; all six agree |
 | PASS | Sector table covers all fees on failed transactions (with an 'Unlabelled sector' row) | sector rows sum to $2,779,424; headline $2,779,424; unlabelled $71,766 |
-| FLAG | Every sentence with a percentage states or implies its population | 61 sentences with a percentage; 7 without any population cue (list in outputs/audit_percentages.csv): Remaining exposure: $1.71M (61.5%) Improve This is everything left once the two anomaly categories are set aside. / It covers every channel, but card carries 82% of remaining exposure ($1.40M) and USD card alone 61% of remaining exposure ($1.04M). / The high-value gap survives every exclusion: 75% against 42% even with all three applied. |
+| FLAG | Every sentence with a percentage states or implies its population | 66 sentences with a percentage; 8 without any population cue (list in outputs/audit_percentages.csv): Remaining exposure: $1.71M (61.5%) Improve This is everything left once the two anomaly categories are set aside. / It covers every channel, but card carries 82% of remaining exposure ($1.40M) and USD card alone 61% of remaining exposure ($1.04M). / The high-value gap survives every exclusion: 75% against 42% even with all three applied. |
 | PASS | No comparison sets two different populations without saying so | 0 to read:  |
 
 ## 5. Units and periods
@@ -136,7 +137,7 @@
 | PASS | Customer 1039721: 21 recurring failed UGX records, UGX 262-520 million, 2,649-4,310 attempts, 3.0% fee (exact values in the text) | 21 records; UGX 262-520 million; attempts 2,649-4,310; fee ratio 3.00% |
 | PASS | 'Six in ten' and 'nine in ten' equal the count failure rate and failed-fee share rounded to tenths | count failure rate 62.0%; failed-fee share 90.1% |
 | PASS | Recovery: zero-success USD card customer-months are a third of USD card failed attempts, and the base case leaves them out at about $158.8K | 33.3% of failed attempts in 3,959 customer-months; $158,819 |
-| PASS | Recovery: the resampling interval contains the base case; 1,000 replicates with a fixed seed | 90% interval $140,084-$418,067, median $265,697, seed 2026 |
+| PASS | Recovery: the resampling interval contains the base case; 5,000 replicates with a fixed seed | 90% interval $142,444-$430,626, median $262,338, seed 2026 |
 | PASS | Lapse: 4,328 customers had no activity in Feb-Apr 2024; 46% were active in only one or two months and 33% had an earlier gap of three months or more | 4,328 customers; 46.2% in one or two months; 32.8% with a gap of three months or more |
 | PASS | Records by status: 39,570 failed and 23,114 successful | 39,570 failed; 23,114 successful |
 | PASS | No content uses the ambiguous {{customers}} token (customers with failed fees: customers_failed; who transacted: customers_transacting) |  |
@@ -153,9 +154,10 @@
 | PASS | Executive_Brief.pdf: centred footer (author line, contact, ORCID) on every page except the cover | pages without it: [] |
 | PASS | Executive_Brief.pdf: the page number follows the title on line 2 |  |
 | PASS | Excel 99_Checks: every row reads OK (recalculated copy) | 93 of 93 OK |
-| PASS | Layout: no paragraph, list item, table or figure group splits across pages | 35 pages;  |
-| PASS | Layout: all ten chapters and appendices start a page | pages [7, 8, 11, 15, 19, 22, 24, 28, 31, 34] |
-| PASS | Layout: pages with a large gap (left as they are, by decision) | p8 39%, p11 55%, p28 41% |
+| PASS | Layout: no paragraph, list item or table splits across pages (tables over 12 rows may continue) | 35 pages;  |
+| PASS | Layout: all ten chapters and appendices start a page | pages [7, 8, 11, 15, 19, 21, 23, 27, 31, 34] |
+| PASS | Layout: no main-report page under 60% full unless it ends a chapter | every body page is at least 60% full |
+| FLAG | Layout: no chapter-end page under 25% full | pages 10 (22%), 35 (20%) |
 | PASS | Dashboard at default settings: says every figure matches the report |  |
 | PASS | Dashboard figure titles equal the figure index titles | 26 charts; titles missing from the dashboard: [] |
 

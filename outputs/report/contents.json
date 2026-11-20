@@ -1,16 +1,16 @@
 {
- "passes": 2,
+ "passes": 3,
  "pages": {
   "sec-1": 7,
   "sec-2": 8,
   "sec-3": 8,
-  "sec-4": 10,
-  "sec-5": 10,
+  "sec-4": 9,
+  "sec-5": 9,
   "sec-6": 11,
   "sec-7": 11,
   "sec-8": 12,
-  "sec-9": 13,
-  "sec-10": 14,
+  "sec-9": 12,
+  "sec-10": 13,
   "sec-11": 15,
   "sec-12": 15,
   "sec-13": 15,
@@ -18,67 +18,78 @@
   "sec-15": 17,
   "sec-16": 17,
   "sec-17": 19,
-  "sec-18": 22,
-  "sec-19": 23,
-  "sec-20": 24,
-  "sec-21": 24,
-  "sec-22": 24,
-  "sec-23": 26,
-  "sec-24": 27,
-  "sec-25": 28,
-  "sec-26": 28,
-  "sec-27": 30,
-  "sec-28": 30,
-  "sec-29": 30,
-  "sec-30": 31,
+  "sec-18": 21,
+  "sec-19": 21,
+  "sec-20": 23,
+  "sec-21": 23,
+  "sec-22": 23,
+  "sec-23": 24,
+  "sec-24": 26,
+  "sec-25": 27,
+  "sec-26": 27,
+  "sec-27": 28,
+  "sec-28": 29,
+  "sec-29": 29,
+  "sec-30": 30,
   "sec-31": 31,
-  "sec-32": 32,
-  "sec-33": 32,
-  "sec-34": 33,
-  "sec-35": 33,
-  "sec-36": 34,
+  "sec-32": 31,
+  "sec-33": 31,
+  "sec-34": 32,
+  "sec-35": 32,
+  "sec-36": 33,
   "sec-37": 34,
   "sec-38": 34,
-  "sec-39": 35,
-  "fig-bridge": 9,
-  "fig-trend": 10,
+  "sec-39": 34,
+  "sec-40": 35,
+  "fig-bridge": 8,
+  "fig-trend": 9,
   "fig-channels": 11,
-  "fig-heatmap": 12,
+  "fig-heatmap": 11,
   "fig-pareto": 12,
   "fig-drivers": 13,
-  "fig-quintiles": 14,
+  "fig-quintiles": 13,
   "fig-escalation": 16,
   "fig-hard_mixed": 17,
   "fig-january": 19,
   "fig-lmdi": 20,
-  "fig-fx_currency": 22,
-  "fig-recovery_market": 25,
-  "fig-scenarios": 26,
-  "fig-matrix": 29,
+  "fig-fx_currency": 21,
+  "fig-recovery_market": 24,
+  "fig-scenarios": 25,
+  "fig-matrix": 27,
   "fig-flow": 31,
   "tab-bridge": 9,
   "tab-perspectives": 10,
-  "tab-drivers": 13,
+  "tab-drivers": 12,
   "tab-quintiles": 14,
   "tab-anomalies": 15,
   "tab-hardmixed": 16,
   "tab-tenure": 17,
   "tab-laney": 18,
   "tab-january": 20,
-  "tab-fxmeasures": 22,
-  "tab-ias": 23,
-  "tab-gap": 24,
-  "tab-recovery": 25,
-  "tab-scenarios": 26,
-  "tab-recsens": 26,
-  "tab-costs": 27,
-  "tab-matrix": 29,
-  "tab-actions": 30,
+  "tab-fxmeasures": 21,
+  "tab-ias": 22,
+  "tab-gap": 23,
+  "tab-recovery": 24,
+  "tab-scenarios": 24,
+  "tab-recsens": 25,
+  "tab-costs": 26,
+  "tab-matrix": 28,
+  "tab-actions": 28,
+  "tab-pilot": 29,
   "tab-triggers": 30,
   "tab-populations": 31,
   "tab-brief": 32,
   "tab-flags": 32,
   "tab-sensitivity": 34
+ },
+ "flow": [
+  "pass 1: fig-heatmap: scaled to 93% to fill page 11 (67% full)"
+ ],
+ "state": {
+  "scale": {
+   "fig-heatmap": 0.93
+  },
+  "pull": {}
  },
  "contents": [
   {
@@ -154,7 +165,7 @@
   {
    "id": "sec-15",
    "level": 2,
-   "text": "4.4 Persistent customers, tenure and lapse"
+   "text": "4.4 Persistent customers, tenure and later inactivity"
   },
   {
    "id": "sec-16",
@@ -219,60 +230,65 @@
   {
    "id": "sec-28",
    "level": 2,
-   "text": "8.3 Monitoring triggers"
+   "text": "8.3 A 90-day pilot"
   },
   {
    "id": "sec-29",
    "level": 2,
-   "text": "8.4 Conclusion"
+   "text": "8.4 Monitoring triggers"
   },
   {
    "id": "sec-30",
+   "level": 2,
+   "text": "8.5 Conclusion"
+  },
+  {
+   "id": "sec-31",
    "level": 1,
    "text": "Appendix A. Data and methodology"
   },
   {
-   "id": "sec-31",
+   "id": "sec-32",
    "level": 2,
    "text": "A.1 Two analytical populations"
   },
   {
-   "id": "sec-32",
+   "id": "sec-33",
    "level": 2,
    "text": "A.2 Reconciliation with the challenge brief"
   },
   {
-   "id": "sec-33",
+   "id": "sec-34",
    "level": 2,
    "text": "A.3 Data-quality flags"
   },
   {
-   "id": "sec-34",
+   "id": "sec-35",
    "level": 2,
    "text": "A.4 Exchange-rate corrections"
   },
   {
-   "id": "sec-35",
+   "id": "sec-36",
    "level": 2,
    "text": "A.5 Translation and preparation rules"
   },
   {
-   "id": "sec-36",
+   "id": "sec-37",
    "level": 1,
    "text": "Appendix B. Sensitivity, validation and limitations"
   },
   {
-   "id": "sec-37",
+   "id": "sec-38",
    "level": 2,
    "text": "B.1 Headline sensitivity"
   },
   {
-   "id": "sec-38",
+   "id": "sec-39",
    "level": 2,
    "text": "B.2 Limitations"
   },
   {
-   "id": "sec-39",
+   "id": "sec-40",
    "level": 2,
    "text": "B.3 Reproducibility"
   }
@@ -451,29 +467,34 @@
    "text": "Table 18. Actions, measures and baselines"
   },
   {
+   "id": "tab-pilot",
+   "level": 1,
+   "text": "Table 19. 90-day pilot: actions, suggested owners, targets and decision rules"
+  },
+  {
    "id": "tab-triggers",
    "level": 1,
-   "text": "Table 19. Monitoring triggers"
+   "text": "Table 20. Monitoring triggers"
   },
   {
    "id": "tab-populations",
    "level": 1,
-   "text": "Table 20. Analytical populations"
+   "text": "Table 21. Analytical populations"
   },
   {
    "id": "tab-brief",
    "level": 1,
-   "text": "Table 21. Reconciliation with the challenge brief"
+   "text": "Table 22. Reconciliation with the challenge brief"
   },
   {
    "id": "tab-flags",
    "level": 1,
-   "text": "Table 22. Independent data-quality flags"
+   "text": "Table 23. Independent data-quality flags"
   },
   {
    "id": "tab-sensitivity",
    "level": 1,
-   "text": "Table 23. Headline measures under alternative treatments"
+   "text": "Table 24. Headline measures under alternative treatments"
   }
  ]
 }

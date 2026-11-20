@@ -29,12 +29,13 @@ Mobile money fails 13–50% by count below the top band and 85% within it.,2,att
 The high-value gap survives every exclusion: 75% against 42% even with all three applied.,2,
 "The result is not sensitive to the thresholds: the extreme-volume anomalies' share of fees on failed transactions is 28.6% under strict rules (2,000 attempts, 100×, under 2% success), 29.7% under the agreed ones and 32.0",5,"attempts, fees"
 "Hard failures make up 35% of card's fees on failed transactions excluding extreme-volume anomalies, against 5% for mobile money.",2,"fees, non-anomalous"
-"Proxy; causes are hypotheses 4.4 Persistent customers, tenure and lapse Of 1,682 customers with at least six active months, 950 (56%) are persistent: their monthly failure rate is 75% or higher in at least half of their ",2,customers
+"Proxy; causes are hypotheses 4.4 Persistent customers, tenure and later inactivity Of 1,682 customers with at least six active months, 950 (56%) are persistent: their monthly failure rate is 75% or higher in at least hal",2,customers
 "They hold 43.6% of failed attempts but 66.0% of fees on failed transactions excluding extreme-volume anomalies, so they matter financially, not only in number.",2,"attempts, fees, non-anomalous"
 "Failure is U-shaped across tenure, but the failed-fee share is flat at 85–88%, so onboarding is not the main source of exposure.",1,fees
-"4,328 of the 5,451 customers active before February 2024 (79%) made no attempts in February–April 2024.",1,"attempts, customers"
-"Before February, these lapsed customers had failed more than retained ones: 59.7% against 51.6% by count.",2,"attempts, customers"
-"Among customers with six or more active months, 59% of persistent customers lapsed against 51% of the rest.",2,customers
+"4,328 of the 5,451 customers active before February 2024 (79%) had no activity in February–April 2024.",1,customers
+"A three-month window cannot separate churn from irregular activity: 46% of these customers were active in only one or two months over the whole period, and 33% had earlier gaps of three months or more.",2,"all, customers"
+"Before February, these customers had failed more than the others: 59.7% against 51.6% by count.",2,"attempts, customers"
+"Among customers with six or more active months, 59% of persistent customers had no activity in February–April 2024 against 51% of the rest.",2,customers
 For month with attempts: Ten cells have at least 12 months with 500 or more attempts; the excluded cells hold 2.9% of fees on failed transactions.,1,"attempts, fees"
 "Kenya mobile money's April ""deterioration"" is 90% one account (47087), and Ghana card's May 2023 signal is 87% one account.",2,customers
 "The structural problems are the card cells, which fail at 84–93% by count in a typical month, spikes or not.",1,attempts
@@ -50,13 +51,17 @@ Both measures shrink by about 6% in dollar terms.,1,
 "Without it, Kenya's mobile money failure rate falls from 68.6% to 56.3%, and the five-market gap is 40.6 points across all activity and 41.1 points among the 1,331 customers using both.",2,"all, customers"
 The base case would add 83% to that annual figure.,1,
 "The base case is kept as the central estimate, but the benchmark matters: leaving account 47087 out of it raises the estimate by 28%, almost all in Kenya ($187.4K against $116.9K).",1,customers
+"The base case of $254K sits within a range of about $159K–$324K across benchmark and exclusion choices, with a 90% customer-resampling interval of about $142K–$431K.",1,customers
+"The 90% interval is $142K to $431K around the $254K base case, with a median of $262K.",1,
+"The interval is wide because fees and failure rates rest on a few customers: in Tanzania, three of 127 USD card customers earn 75% of successful-transaction fees, at $20.79 a payment against $4.63 in Uganda, and Kenya's ",1,"customers, fees"
 "Even at an assumed 60% processing cost, $101.5K of base-case fee revenue would remain over the period.",1,fees
 "Uganda alternative channels, for example, fails 89% of attempts but holds only $19K.",1,attempts
 "For Kenya card, for example: track the current failure rate against 89.0%, convert the improvement into additional successful payments (attempts × the fall in the failure rate), value them at $7.21 each, and check on the",1,attempts
 About 38.5% of it comes from 15 accounts that need detecting and containing.,1,customers
 "The remaining $1.71M is steady and spans every channel; card carries 82% of remaining exposure, and USD card completion is the clearest improvement opportunity.",1,
 "By contrast, the 21 recurring failed UGX records of customer 1039721, valued at UGX 262–520 million, are valid monthly aggregates of 2,649–4,310 attempts at a consistent 3.0% fee, and are kept.",1,"attempts, customers, fees, records"
-"Customer table: for 1,746 of 5,657 transacting customers (31%), the table's last transaction date precedes their last observed transaction, so lapse is measured from the transactions.",1,customers
+"Customer table: for 1,746 of 5,657 transacting customers (31%), the table's last transaction date precedes their last observed transaction, so activity is measured from the transactions.",1,customers
 The failed-fee share holds at 89–90% under every data and translation choice.,1,fees
 "Only removing the two anomaly categories moves the failed-fee share, and then to 85%.",1,fees
 "Tanzania card has 12 eligible months, the minimum needed, and Zambia card has 9, below it, so Zambia card is not pattern-classified; the excluded cells hold 2.9% of fees on failed transactions.",1,fees
+"Resampling customers within each market gives a 90% interval of $142K to $431K, wide because fees per successful payment and the Kenya mobile money failure rate depend on a few accounts.",1,"customers, fees"
