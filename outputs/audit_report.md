@@ -1,6 +1,6 @@
 # Audit report
 
-129 checks: **127 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
+131 checks: **129 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
 
 ## Flagged for you
 
@@ -169,6 +169,8 @@
 | PASS | Word copy: source-code and dashboard are clickable hyperlinks |  |
 | PASS | Dashboard at default settings: says every figure matches the report |  |
 | PASS | Dashboard figure titles equal the figure index titles | 26 charts; titles missing from the dashboard: [] |
+| PASS | meta.yaml carries a version (x.y.z) and a date | Version 1.0.2 · 20 November 2026 |
+| PASS | Version and date are the same in meta.yaml, both PDF covers and properties, the Word cover and properties, and the README (Version 1.0.2 · 20 November 2026) | The_Economics_of_Payment_Failure.pdf: cover and properties agree; Executive_Brief.pdf: cover and properties agree; Word: cover and properties agree; README: ['1.0.2'] |
 | PASS | No placeholder text in square brackets (or XX, TBD, 'to be added') in the README, the report and the brief | 3 files scanned |
 | PASS | README.md is exactly what report/content/readme.md renders to (no hand edits, every figure a token) | identical |
 | PASS | README template has no typed dollar amount, percentage or large number (they are all tokens) |  |
@@ -177,7 +179,7 @@
 | PASS | README.md: author line reads 'Jasco John, CPA (T)' without further credentials |  |
 | PASS | README.md: no setup, GitHub or Streamlit deployment instructions |  |
 | PASS | README.md: all four 'Start here' links and the dashboard link are present |  |
-| PASS | README.md: the number of automated checks it states equals this run's count | README says 129; this run has 129 |
+| PASS | README.md: the number of automated checks it states equals this run's count | README says 131; this run has 131 |
 
 ## 8. Hedging
 

@@ -424,7 +424,7 @@ def _cover(doc, meta: dict) -> None:
     c = t.rows[0].cells[0]
     first = c.paragraphs[0]
     first.paragraph_format.space_before, first.paragraph_format.left_indent, first.paragraph_format.right_indent = Mm(30), Mm(22), Mm(22)
-    r = first.add_run(f"{meta['prepared_for']} · {meta['date']}".upper())
+    r = first.add_run(f"{meta['prepared_for']} · {meta['date_month_year']}".upper())
     r.bold = True; r.font.size = Pt(10); r.font.color.rgb = RGBColor(0xD9, 0x9A, 0x1E)
 
     def line(text, size, color, bold=False, before=0, after=0):
@@ -442,6 +442,7 @@ def _cover(doc, meta: dict) -> None:
     _border(rule._p.get_or_add_pPr(), bottom=(19, "D99A1E"))
     line(meta["subtitle"], 14, RGBColor(0xDC, 0xE5, 0xEE), False, 14, 8).paragraph_format.right_indent = Mm(50)
     line(meta.get("cover_line", ""), 10.5, RGBColor(0xDC, 0xE5, 0xEE), False, 18, 0)
+    line(meta["version_line"], 10.5, RGBColor(0xDC, 0xE5, 0xEE), False, 4, 0)
     # the amber strip needs a tiny paragraph so that Word does not add height
     for row in (t.rows[1],):
         pp = row.cells[0].paragraphs[0]
@@ -511,7 +512,8 @@ def build_docx(res: dict, root: Path, out_dir: Path, rep: dict) -> Path:
     _style_fonts(doc, font)
     _cream_background(doc)
     doc.core_properties.title = meta["title"]
-    doc.core_properties.author = meta["author_line"]
+    doc.core_properties.author = meta["author"]
+    doc.core_properties.subject = f"{meta['version_line']} · {meta['prepared_for']}"
     sec = doc.sections[0]                                  # section 1: the cover, full bleed, no footer
     sec.page_width, sec.page_height = Mm(210), Mm(297)
     sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Mm(0)

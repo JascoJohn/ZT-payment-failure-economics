@@ -1,6 +1,6 @@
 # The Economics of Payment Failure
 
-**Jasco John, CPA (T)** · Zion Tech Hub Finance Data Challenge, November 2026 · Version 1.0.1
+**Jasco John, CPA (T)** · Zion Tech Hub Finance Data Challenge, 20 November 2026 · Version 1.0.2
 
 Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa transactions, January 2022 – April 2024.
 
@@ -94,7 +94,7 @@ Changing an assumption: edit [`config/assumptions.yaml`](config/assumptions.yaml
 
 Dashboard: `streamlit run app/streamlit_app.py`.
 
-Checks: 129 automated checks, including an independent recomputation in plain pandas; `pytest -q` runs them.
+Checks: 131 automated checks, including an independent recomputation in plain pandas; `pytest -q` runs them.
 
 | No. | Script | Report chapter | Excel sheet |
 | --- | --- | --- | --- |
@@ -129,7 +129,7 @@ Details (the report token system, Word export, Excel recalculation and the basel
 
 ## How to cite
 
-Jasco John (2026). *The Economics of Payment Failure: Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa transactions, January 2022 – April 2024* (Version 1.0.1). Zion Tech Hub Finance Data Challenge entry. https://github.com/JascoJohn/ZT-payment-failure-economics
+Jasco John (2026). *The Economics of Payment Failure: Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa transactions, January 2022 – April 2024* (Version 1.0.2). Zion Tech Hub Finance Data Challenge entry. https://github.com/JascoJohn/ZT-payment-failure-economics
 
 ## Licence
 

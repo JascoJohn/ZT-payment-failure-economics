@@ -657,6 +657,53 @@ def figures_resolve(au) -> None:
     au.add(S, "Ten dashboard-only figures, labelled D1-D10", len(dash) == 10 and list(dash.label) == [f"Figure D{i}" for i in range(1, 11)])
 
 
+def version_consistency(au) -> None:
+    """The version and date in meta.yaml are the ones on both PDF covers, in the PDF properties, on the Word cover (and its properties) and in the README."""
+    import zipfile
+
+    import fitz
+    import yaml
+    S = "7. Cross-output consistency"
+    meta = yaml.safe_load((CONTENT / "meta.yaml").read_text(encoding="utf-8"))
+    ver, date = str(meta.get("version", "")), str(meta.get("date", ""))
+    line = f"Version {ver} \u00b7 {date}"
+    norm = lambda t: re.sub(r"\s+", " ", t).strip()
+    au.add(S, "meta.yaml carries a version (x.y.z) and a date", bool(re.fullmatch(r"\d+\.\d+\.\d+", ver)) and bool(date), line)
+    rows, bad = [], []
+    for name in ["The_Economics_of_Payment_Failure.pdf", "Executive_Brief.pdf"]:
+        f = OUT / "report" / name
+        if not f.exists():
+            bad.append(f"{name} missing")
+            continue
+        d = fitz.open(f)
+        cover = norm(d[0].get_text())
+        md = d.metadata or {}
+        found = set(re.findall(r"Version \d+\.\d+\.\d+", cover + " " + str(md.get("subject", ""))))
+        ok = line in cover and ver in str(md.get("subject", "")) and md.get("author") == meta["author"] and "Economics of Payment Failure" in str(md.get("title", "")) and found == {f"Version {ver}"}
+        rows.append(f"{name}: cover and properties {'agree' if ok else 'DIFFER'}")
+        if not ok:
+            bad.append(f"{name}: cover has '{line}': {line in cover}; subject '{md.get('subject')}'; author '{md.get('author')}'; title '{md.get('title')}'; versions found {sorted(found)}")
+    docx = OUT / "report" / "The_Economics_of_Payment_Failure.docx"
+    if docx.exists():
+        z = zipfile.ZipFile(docx)
+        body = norm(re.sub(r"<[^>]+>", " ", z.read("word/document.xml").decode("utf-8")))
+        core = z.read("docProps/core.xml").decode("utf-8")
+        sub = re.search(r"<dc:subject>(.*?)</dc:subject>", core)
+        cre = re.search(r"<dc:creator>(.*?)</dc:creator>", core)
+        ok = line in body and sub is not None and ver in sub.group(1) and cre is not None and cre.group(1) == meta["author"] and set(re.findall(r"Version \d+\.\d+\.\d+", body)) == {f"Version {ver}"}
+        rows.append(f"Word: cover and properties {'agree' if ok else 'DIFFER'}")
+        if not ok:
+            bad.append(f"Word: cover has the line: {line in body}; subject {sub.group(1) if sub else None}; creator {cre.group(1) if cre else None}")
+    else:
+        bad.append("Word copy missing")
+    rd = (ROOT / "README.md").read_text(encoding="utf-8") if (ROOT / "README.md").exists() else ""
+    rv = set(re.findall(r"Version (\d+\.\d+\.\d+)", rd))
+    rows.append(f"README: {sorted(rv)}")
+    if rv != {ver}:
+        bad.append(f"README versions {sorted(rv)}")
+    au.add(S, f"Version and date are the same in meta.yaml, both PDF covers and properties, the Word cover and properties, and the README ({line})", not bad, "; ".join(rows) + ("; " + " | ".join(bad) if bad else ""))
+
+
 PLACEHOLDER = re.compile(r"(?<![\[!])\[[^\[\]\n]{3,120}\](?!\()|\b(?:TBD|TODO|XX)\b|\d\.XX|to be added|link pending|lorem ipsum", re.I)
 
 
@@ -735,5 +782,6 @@ def run_audit(au, res: dict, prep, cfg: dict, ctx: dict) -> None:
     claims(au, res, prep)
     cross_output(au, res, ctx, cfg)
     hedging(au)
+    version_consistency(au)
     placeholders(au)
     readme_checks(au, res)

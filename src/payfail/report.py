@@ -629,7 +629,18 @@ def find_browser() -> str | None:
     return None
 
 
-def print_pdf(html_path: Path, pdf_path: Path) -> Path | None:
+def set_pdf_properties(pdf: Path, title: str, author: str, subject: str) -> None:
+    """Document properties of a printed PDF (Chrome leaves Author and Subject empty)."""
+    import pymupdf
+    d = pymupdf.open(pdf)
+    md = dict(d.metadata or {})
+    md.update(title=title, author=author, subject=subject)
+    d.set_metadata(md)
+    d.saveIncr()
+    d.close()
+
+
+def print_pdf(html_path: Path, pdf_path: Path, props: dict | None = None) -> Path | None:
     exe = find_browser()
     if not exe:
         return None
@@ -637,7 +648,13 @@ def print_pdf(html_path: Path, pdf_path: Path) -> Path | None:
                     "--run-all-compositor-stages-before-draw", "--virtual-time-budget=20000",
                     f"--print-to-pdf={pdf_path.resolve()}", html_path.resolve().as_uri()],
                    check=True, capture_output=True, timeout=300)
+    if props:
+        set_pdf_properties(pdf_path, **props)
     return pdf_path
+
+
+def pdf_props(meta: dict, title: str) -> dict:
+    return {"title": title, "author": meta["author"], "subject": f"{meta['version_line']} \u00b7 {meta['prepared_for']}"}
 
 
 def author_line(meta: dict) -> str:
@@ -702,6 +719,8 @@ def build_report(res: dict, root: Path, out_dir: Path) -> dict:
     content = root / "report" / "content"
     meta = yaml.safe_load((content / "meta.yaml").read_text(encoding="utf-8"))
     meta["author_line"] = author_line(meta)
+    meta["date_month_year"] = re.sub(r"^\d{1,2}\s+", "", str(meta["date"]))          # '20 November 2026' -> 'November 2026' (the cover kicker)
+    meta["version_line"] = f"Version {meta['version']} \u00b7 {meta['date']}"              # printed on the covers and in the Word cover
     ctx = context(res)
     out_dir.mkdir(parents=True, exist_ok=True)
     css_rel = os.path.relpath(root / "report" / "assets", out_dir).replace("\\", "/")
@@ -735,7 +754,7 @@ def build_report(res: dict, root: Path, out_dir: Path) -> dict:
     while True:
         passes += 1
         full.write_text(compose(pages, apply_state(main_html, state)), encoding="utf-8")
-        pdf = print_pdf(full, full.with_suffix(".pdf"))
+        pdf = print_pdf(full, full.with_suffix(".pdf"), pdf_props(meta, meta["title"]))
         if pdf is None:
             break
         new = read_pages(pdf, [e["id"] for e in flat])
@@ -751,7 +770,7 @@ def build_report(res: dict, root: Path, out_dir: Path) -> dict:
     brief_body = re.sub(r"\[\[figure (\w+)\]\]", lambda m: f'<figure class="chart"><img src="{resolve(m.group(1))}"></figure>', brief_body)
     brief = out_dir / "Executive_Brief.html"
     brief.write_text(_page(meta["title"] + " - Executive brief", css_rel, '<div class="brief">' + brief_body + "</div>", meta), encoding="utf-8")
-    brief_pdf = print_pdf(brief, brief.with_suffix(".pdf"))
+    brief_pdf = print_pdf(brief, brief.with_suffix(".pdf"), pdf_props(meta, meta["title"] + " - Executive brief"))
     import json
     (out_dir / "contents.json").write_text(json.dumps({"passes": passes, "pages": pages, "flow": flow_log, "state": state, **entries}, indent=1), encoding="utf-8")
     return {"html": full, "pdf": pdf, "brief_html": brief, "brief_pdf": brief_pdf, "entries": entries, "pages": pages,

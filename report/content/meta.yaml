@@ -2,7 +2,7 @@
 title: The Economics of Payment Failure
 subtitle: Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa transactions, January 2022 – April 2024
 prepared_for: Zion Tech Hub Finance Data Challenge
-date: November 2026
+date: "20 November 2026"
 author: Jasco John
 credentials: CPA (T), MBA (Finance)
 email: jasco.john98@gmail.com
@@ -10,4 +10,4 @@ telephone: +255 759 003 950
 orcid: 0009-0007-3630-7943
 source_code: "https://github.com/JascoJohn/ZT-payment-failure-economics"
 dashboard: "https://zt-payment-failure-economics.streamlit.app/"
-version: "1.0.1"
+version: "1.0.2"
