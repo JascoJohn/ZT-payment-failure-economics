@@ -11,7 +11,7 @@ successful-transaction fees would be about $254K over 28 months. That is a condi
 | | |
 | --- | --- |
 | Source code | https://github.com/JascoJohn/ZT-payment-failure-economics |
-| Live dashboard | *Streamlit link to be added once deployed (see "Deploy the dashboard")* |
+| Live dashboard | https://zt-payment-failure-economics.streamlit.app/ |
 
 ---
 

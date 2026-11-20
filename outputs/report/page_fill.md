@@ -4,7 +4,7 @@ Fill = how far down the text area the last line reaches. Flags: a page under 60%
 
 | Page | Fill | Role | Flag |
 | --- | --- | --- | --- |
-| 1 | 96% | cover |  |
+| 1 | 95% | cover |  |
 | 2 | 91% | front matter, contents and lists |  |
 | 3 | 99% | front matter, contents and lists |  |
 | 4 | 98% | front matter, contents and lists |  |
