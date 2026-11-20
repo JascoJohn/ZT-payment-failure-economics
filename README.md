@@ -1,203 +1,139 @@
 # The Economics of Payment Failure
 
-Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa payment data, January 2022 – April 2024.
-Entry to the Zion Tech Hub Finance Data Challenge (November 2026) by **Jasco John, CPA (T), MBA (Finance)**.
+**Jasco John, CPA (T)** · Zion Tech Hub Finance Data Challenge, November 2026 · Version 1.0.1
 
-**Headline.** Fees on failed transactions total $2.78M (90.1% of recorded fees). $1.07M (38.5%) comes from exceptional account behaviour:
-extreme-volume anomalies and one escalation account (47087). The remaining $1.71M is *remaining exposure*, spread across every channel: card
-carries 82% of it, USD card alone 61%, mobile money 14%. If USD card failure fell to mobile money's rate in each market, incremental
-successful-transaction fees would be about $254K over 28 months. That is a conditional estimate before processing costs, not a forecast.
+Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa transactions, January 2022 – April 2024.
 
-| | |
+## Start here
+
+| | Who it is for |
 | --- | --- |
-| Source code | https://github.com/JascoJohn/ZT-payment-failure-economics |
-| Live dashboard | https://zt-payment-failure-economics.streamlit.app/ |
+| **[Full report (PDF)](outputs/report/The_Economics_of_Payment_Failure.pdf)** | Readers who want the whole analysis: findings, method and limitations (35 pages). |
+| **[Executive brief (PDF)](outputs/report/Executive_Brief.pdf)** | Decision-makers: the answer and three actions in 5 pages. |
+| **[Live dashboard](https://zt-payment-failure-economics.streamlit.app/)** | Anyone who wants to explore: every report figure, recomputed for the period, market, payment type and currency you choose. |
+| **[Excel workbook](outputs/payment_failure_analysis.xlsx)** | Finance analysts who want to trace the numbers in formulas. About 50 MB: GitHub downloads it rather than previewing it. |
 
----
+## The question
 
-## If you do not code
+Where does payment failure cost ZT East Africa money, how much of it could realistically be recovered, and what should management do first? The study uses 62,684 monthly merchant records (1,645,892 payment attempts) from Kenya, Uganda, Tanzania, Ghana and Zambia, with daily exchange rates and a customer table. It separates exceptional account behaviour from persistent failure, translates every currency with care, and values recovery against an observed benchmark.
 
-Pick whichever of these suits you. None needs Python.
+## Key findings
 
-1. **Excel.** Open `outputs/payment_failure_analysis.xlsx` and start at the `00_README` sheet. It rebuilds the study in formulas, one sheet per
-   report chapter, with native charts and a `99_Checks` sheet that compares every key figure with the Python results. Blue cells are inputs: change one and the
-   workbook recalculates. The file is large (about 2.5 million formulas), so set *Formulas > Calculation Options > Manual*, edit, then press F9.
-2. **Read the report.** `outputs/report/The_Economics_of_Payment_Failure.pdf` is the full report. `outputs/report/Executive_Brief.pdf` is the 5-page brief.
-   A Word copy for editing is `outputs/report/The_Economics_of_Payment_Failure.docx` (edits made in Word do not flow back into the pipeline; the PDF is the master).
-3. **Use the live dashboard** (link above once deployed). Every figure in the report is there, interactive, and recomputes for a period, market, payment type or
-   currency you choose. At its default settings every figure matches the report.
+1. **Fees on failed transactions total $2.78M, 90.1% of recorded fees, and 62.0% of attempts fail by count.** That headline mixes two problems with different remedies. [Report, Section 2 (p. 8)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=8) · [Dashboard, 2. Scale tab](https://zt-payment-failure-economics.streamlit.app/)
+2. **The two anomaly categories account for $1.07M (38.5%).** Twenty extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry it; this is a monitoring problem. [Report, Section 4 (p. 15)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=15) · [Dashboard, 4. Diagnostics tab](https://zt-payment-failure-economics.streamlit.app/)
+3. **Remaining exposure is $1.71M (61.5%), and it is steady.** Monthly count failure stays between 48% and 61%; card carries 82% of remaining exposure and USD card alone 61%. [Report, Section 2 (p. 8)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=8) · [Dashboard, 3. Concentration tab](https://zt-payment-failure-economics.streamlit.app/)
+4. **USD card completion is the main improvement opportunity.** Excluding extreme-volume anomalies, USD card fails 78–96% by count across the markets against 43–69% for mobile money; even among the 1,332 customers who use both, card fails about 29 percentage points more often. [Report, Section 7 (p. 23)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=23) · [Dashboard, 7. Recovery tab](https://zt-payment-failure-economics.streamlit.app/)
+5. **Extreme-volume anomalies explain 96% of January 2024's rise in fees on failed transactions.** Exchange-rate translation is small next to it, and the Ghanaian cedi drives 81% of that effect. [Report, Sections 5 and 6 (p. 19)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=19) · [Dashboard, 5. January 2024 tab](https://zt-payment-failure-economics.streamlit.app/)
 
----
+## What recovery is worth
 
-## If you code
+If USD card failed no more often than mobile money in each market, the platform would have earned about **$254K** more in successful-transaction fees over 28 months, roughly $109K a year. The conservative and optimistic targets give $81K and $346K. Across benchmark and exclusion choices the base case ranges from $159K to $324K, and resampling customers (5,000 replicates, fixed seed) gives a 90% interval of $142K–$431K. Kenya, Tanzania and Uganda hold $228K of the base case.
 
-### Setup
+It is a conditional estimate, not a forecast:
 
-Python 3.11 or later. Chrome or Microsoft Edge is needed for static figures and the PDF.
+- it is before processing costs: the break-even is $7.54 of cost per additional successful payment;
+- it assumes the gap is actually closed;
+- fees on failed transactions are recorded amounts, not cash or earned revenue;
+- some failures may be correct rejections: leaving out USD card customer-months with no card success gives $159K;
+- the mobile money benchmark is moved by the escalation account (47087): without it the base case is $324K.
 
-```powershell
-# Windows (PowerShell)
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+[Report, Section 7 (p. 23)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=23)
+
+## Recommendations
+
+- **Contain the two anomaly categories:** two account alerts, one for sudden spikes and one for steady escalation, so that flagged accounts are throttled and reviewed in the same month.
+- **Improve USD card completion in Kenya, Tanzania and Uganda,** starting with the merchant-months that had no successful card payment.
+- **Report three numbers every month:** the count failure rate, the failed-fee share, and successful-transaction fees at constant 2022 exchange rates.
+- **Run a 90-day pilot:** each market's target is its own best three-month USD card failure rate (Kenya 82.9% from 89.0%, Tanzania 70.5% from 85.9%, Uganda 64.9% from 77.6%), with $7.54 per additional successful payment as the cost ceiling. [Report, Section 8 (p. 29)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=29)
+
+## Key visuals
+
+![Figure 1. 38.5% of the exposure sits in exceptional account behaviour](outputs/02_scale/figures/fig01_bridge.png)
+
+*Figure 1. 38.5% of the exposure sits in exceptional account behaviour. Source: ZT East Africa supplied dataset; author's calculations.*
+
+![Figure 4. Card fails at 79%–93% by count in every market](outputs/03_concentration/figures/fig04_heatmap.png)
+
+*Figure 4. Card fails at 79%–93% by count in every market. Source: ZT East Africa supplied dataset; author's calculations.*
+
+![Figure 14. Base case: 33,655 more successful card payments, worth $253.7K](outputs/07_recovery/figures/fig14_scenarios.png)
+
+*Figure 14. Base case: 33,655 more successful card payments, worth $253.7K. Source: ZT East Africa supplied dataset; author's calculations.*
+
+![Figure 15. Card cells: largest exposure, high failure, most recoverable fees](outputs/08_recommendations/figures/fig15_matrix.png)
+
+*Figure 15. Card cells: largest exposure, high failure, most recoverable fees. Source: ZT East Africa supplied dataset; author's calculations.*
+
+## Data and method in brief
+
+- **Data.** The supplied ZT East Africa workbook: 62,684 monthly merchant records (1,645,892 attempts), a customer table and daily exchange rates, January 2022 – April 2024 ([`data/raw/`](data/raw)).
+- **Two populations.** Counts use every record; dollar measures use the 62,463 records that have an exchange rate.
+- **Translation.** The monthly average of daily rates (an IAS 21-informed approximation), month-end rates as a sensitivity, and each currency's 2022 average rate for constant currency. The Sierra Leone redenomination is corrected.
+- **Exposure and recovery.** Every fee on a failed transaction falls into one of three exclusive categories: extreme-volume anomalies, the escalation account (47087) and remaining exposure. Recovery values the USD card gap to mobile money in each market; January 2024 is decomposed with LMDI-I; patterns use Laney control charts.
+- **Full method:** [Report, Appendix A (p. 31)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=31).
+
+## Reproducibility
+
+### Reproduce the analysis
+
+Requirements: Python 3.11+ (tested on 3.14 locally and Streamlit Cloud [version shown in the app settings]), plus Chrome or Edge for the static figures and the PDF.
+
+```
+git clone https://github.com/JascoJohn/ZT-payment-failure-economics.git
+cd ZT-payment-failure-economics
 pip install -r requirements-dev.txt
-python scripts\00_readme_and_environment.py     # checks the machine and lists what each script does
+python run_pipeline.py
 ```
 
-```bash
-# macOS / Linux
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-dev.txt
-python scripts/00_readme_and_environment.py
-```
+`--from <stage>`, `--only <stage>`, `--skip-excel` and `--recalc-excel` choose what runs; a full run takes about 15 minutes.
 
-For figures that use exactly the report font, install `report/assets/fonts/SourceSans3[wght].ttf` (and the italic file) on the machine that runs the pipeline;
-otherwise they fall back to Segoe UI or Arial. On Windows: right-click the file, choose *Install for me*.
+Outputs: the report, brief and Word copy are in [`outputs/report/`](outputs/report), the workbook is [`outputs/payment_failure_analysis.xlsx`](outputs/payment_failure_analysis.xlsx), tables and figures are in one folder per chapter under [`outputs/`](outputs), and the audit is [`outputs/audit_report.md`](outputs/audit_report.md).
 
-### Run everything
+Changing an assumption: edit [`config/assumptions.yaml`](config/assumptions.yaml) and rerun with `--from 01A`; stage 11 lists every changed value against [`baseline/`](baseline).
 
-```powershell
-python run_pipeline.py                  # stages 00 -> 11, one progress line each, a summary at the end
-python run_pipeline.py --from 05        # restart from a stage (uses what earlier stages saved)
-python run_pipeline.py --only 03        # one stage
-python run_pipeline.py --skip-excel     # skip stage 09 (the workbook)
-python run_pipeline.py --recalc-excel   # also recalculate the workbook and read back 99_Checks
-```
+Dashboard: `streamlit run app/streamlit_app.py`.
 
-A full run takes about 15 minutes without `--recalc-excel`, most of it the figures and the workbook.
-Stage 01E (data quality) reports on what 01F and 01G produce, so it runs after them; its number does not change.
+Checks: 128 automated checks, including an independent recomputation in plain pandas; `pytest -q` runs them.
 
-### One numbering scheme for scripts, Excel sheets, output folders and report chapters
+| No. | Script | Report chapter | Excel sheet |
+| --- | --- | --- | --- |
+| 00 | `00_readme_and_environment.py` | front matter | `00_README` |
+| 01A–01G | `01A_assumptions.py` … `01G_transactions.py` (01E runs after 01G) | Appendix A | `01A_…` … `01G_…` |
+| 02 | `02_scale.py` | 2 Scale | `02_Scale` |
+| 03 | `03_concentration.py` | 3 Where failure concentrates | `03_Concentration` |
+| 04 | `04_diagnostics.py` | 4 Failure diagnostics | `04_Diagnostics`, `04_Laney` |
+| 05 | `05_january.py` | 5 January 2024 investigation | `05_January` |
+| 06 | `06_fx.py` | 6 Foreign exchange analysis | `06_FX` |
+| 07 | `07_recovery.py` | 7 Recovery opportunity | `07_Recovery` |
+| 08 | `08_recommendations.py` | 8 Management recommendations | `08_Recommendations` |
+| 09 | `09_excel_workbook.py` | | |
+| 10 | `10_report.py` | | |
+| 11 | `11_validate.py` | Appendix B | `99_Checks` |
 
-| No. | Script (`scripts/`) | Excel sheet | Report | Reads | Writes (`outputs/`) |
-| --- | --- | --- | --- | --- | --- |
-| 00 | `00_readme_and_environment.py` | `00_README` | Front matter | the machine, the raw workbook | console |
-| 01A | `01A_assumptions.py` | `01A_Assumptions` | 1 / Appendix A | `config/assumptions.yaml` | `01A_assumptions/` (validation, flattened assumptions) |
-| 01B | `01B_raw_transactions.py` | `01B_Raw_Transactions` | Appendix A | raw workbook | `01B_raw_transactions/`; caches the sheets in `intermediate/` |
-| 01C | `01C_raw_customers.py` | `01C_Raw_Customers` | Appendix A | raw workbook | `01C_raw_customers/` (aliases, stale dates) |
-| 01D | `01D_raw_rates.py` | `01D_Raw_Rates` | Appendix A | raw workbook | `01D_raw_rates/` |
-| 01E | `01E_data_quality.py` | `01E_Data_Quality` | Appendix A.3–A.4, B | `intermediate/prepared.pkl`, raw workbook | `01E_data_quality/` (flags, SLL evidence, spike days, legacy codes, reconciliation, sensitivity) |
-| 01F | `01F_rates.py` | `01F_Rates` | Appendix A.4–A.5, 6 | raw workbook | `01F_rates/` (monthly, month-end and 2022 base rates) |
-| 01G | `01G_transactions.py` | `01G_Transactions` | Appendix A.1 | raw workbook, assumptions | `01G_transactions/`; **saves `intermediate/prepared.pkl`**, which stages 01E and 02–08 read |
-| 02 | `02_scale.py` | `02_Scale` | 2 | `prepared.pkl` | `02_scale/` tables and figures |
-| 03 | `03_concentration.py` | `03_Concentration` | 3 | `prepared.pkl` | `03_concentration/` |
-| 04 | `04_diagnostics.py` | `04_Diagnostics`, `04_Laney` | 4 | `prepared.pkl` | `04_diagnostics/` |
-| 05 | `05_january.py` | `05_January` | 5 | `prepared.pkl` | `05_january/` |
-| 06 | `06_fx.py` | `06_FX` | 6 | `prepared.pkl` | `06_fx/` |
-| 07 | `07_recovery.py` | `07_Recovery` | 7 | `prepared.pkl` | `07_recovery/` |
-| 08 | `08_recommendations.py` | `08_Recommendations` | 8 | `prepared.pkl` | `08_recommendations/` |
-| 09 | `09_excel_workbook.py` | – | – | `intermediate/` | `payment_failure_analysis.xlsx` |
-| 10 | `10_report.py` | – | – | `intermediate/`, `report/content/` | `results.json`, `report/` (PDF, HTML, DOCX) |
-| 11 | `11_validate.py` | `99_Checks` | Appendix B | everything above, `baseline/` | `audit_report.md` |
+Details (the report token system, Word export, Excel recalculation and the baseline workflow) are in [`docs/REPRODUCING.md`](docs/REPRODUCING.md).
 
-Each chapter folder holds `tables/` (CSV) and, for chapters with figures, `figures/` (PNG, SVG for the report, interactive HTML). `outputs/figure_index.csv` is the
-one list of figures (number, title, file) that the report, the Excel charts and the checks read.
+## Repository contents
 
-### Rerun one chapter
+- [`app/`](app): the Streamlit dashboard.
+- [`baseline/`](baseline): the accepted results that stage 11 compares against.
+- [`config/`](config): `assumptions.yaml`, every threshold and rule.
+- [`data/raw/`](data/raw): the supplied dataset, unchanged.
+- [`docs/`](docs): reproduction details.
+- [`outputs/`](outputs): everything the pipeline writes (report, workbook, tables, figures, audit).
+- [`report/`](report): the text, style and fonts of the report.
+- [`scripts/`](scripts): one script per stage.
+- [`src/payfail/`](src/payfail): the analysis package.
+- [`tests/`](tests): a pytest wrapper around stage 11.
+- [`tools/`](tools): helper scripts.
 
-```powershell
-python scripts\05_january.py        # reproduces exactly what Chapter 5 shows: outputs\05_january\
-```
+## How to cite
 
-Chapter scripts read the prepared data saved by 01G, so after a change to the raw data or to `config/assumptions.yaml` run `python scripts\01G_transactions.py` first.
-`python run_pipeline.py --from 01G` does both.
+Jasco John (2026). *The Economics of Payment Failure: Financial exposure, foreign-currency translation and realistic recovery in ZT East Africa transactions, January 2022 – April 2024* (Version 1.0.1). Zion Tech Hub Finance Data Challenge entry. https://github.com/JascoJohn/ZT-payment-failure-economics
 
-### Change an assumption
+## Licence
 
-Edit `config/assumptions.yaml` (for example `anomalies.relative.min_failed`), then `python run_pipeline.py --from 01A`. Every table, figure, the report, the workbook and
-the audit update. Stage 11 will then report differences from `baseline/` as failures unless they are listed in `baseline/approved_changes.yaml`: that is the point of the baseline. Every difference, approved or not, is listed in `outputs/changes_from_baseline.md`. Refresh it deliberately by copying the new
-`outputs/results.json` to `baseline/results_baseline.json` (and the tables and tokens beside it) once you accept the new results.
+The code is released under the MIT licence ([`LICENSE`](LICENSE)). The dataset belongs to Zion Tech Hub and is included only to reproduce this entry.
 
-### The report
+## Contact
 
-`report/content/` holds the text; `report/assets/report.css` holds the style; stage 10 prints both to PDF through Chrome or Edge.
-
-- **Editing wording:** change the files in `report/content/` (`01_summary.md`, `03_main_report.md`, `brief.html`, `00_cover.html`, `02_at_a_glance.html`, `meta.yaml`).
-  A number written `{{key}}` comes from the pipeline; `{{fig:slug}}` and `{{tab:slug}}` give the figure or table number; `[[figure slug]]` places a figure.
-  Subheadings are numbered automatically (2.1, 2.2 …, A.1 …). Every other typed number must be on `report/content/number_allowlist.yaml`, or stage 11 flags it.
-- **Author, contact, footer, links:** `report/content/meta.yaml` (`author`, `credentials`, `email`, `telephone`, `orcid`, `source_code`, `dashboard`).
-  The centred two-line footer on every page except the cover is built from it.
-- **Layout:** each chapter and appendix starts a page; paragraphs, list items, tables, formula boxes and figures are never split; a table stays with the sentence that
-  introduces it and a figure with the sentence that discusses it. The contents, list of figures and list of tables are filled by printing twice: the first pass reads each
-  heading's page from the PDF (PyMuPDF), the second prints the numbers, and stage 10 stops if any entry moves between passes.
-- **Claude Doc sync:** export the Doc as Markdown, then `python tools/sync_from_doc.py export.md` shows a diff of `report/content/` and lists any number it could not map to a
-  token; add `--apply` to write it. Rerun stage 10 afterwards.
-- **Word copy:** stage 10 also writes `outputs/report/The_Economics_of_Payment_Failure.docx` from the same content (same headings, a contents field, plain tables,
-  equations as Word equations when Office's converter is present and as images otherwise). **Edits made in Word do not flow back into the pipeline.** Right-click the
-  contents and choose *Update Field* after you edit.
-
-### The Excel workbook
-
-Built by stage 09 from the raw rows in live formulas, following the report: `01B`–`01D` hold the supplied data unchanged, `01E`–`01G` the data preparation, `02`–`08` one sheet per
-chapter with the report's table numbers and captions and native charts (same figure numbers, titles and colours as `figures.py`; where Excel has no equivalent form, such as a
-waterfall, a heat map or a bubble chart, the closest form is used and a note sits beside it), and `99_Checks` compares every key figure with Python.
-Rebuilt in formulas: the customer Pareto, the exposure bridge, the drivers, the escalation series, the January decomposition and the recovery scenarios. Supplied as values from Python,
-each labelled with its script and a check row: size quintiles, sensitivity thresholds, hard/mixed split, persistence, tenure and lapse, the same-customer benchmark and the failure offset,
-and the prioritisation matrix.
-
-Recalculating (`--recalc-excel`): with LibreOffice if `soffice` is installed (verified in another environment, 63 of 63 checks; **not tested on this machine**), otherwise with
-Microsoft Excel through PowerShell on Windows (`tools/recalc_excel.ps1`), which is what was used here. Either way the result is zero formula errors and every check row OK, or the
-stage says what is wrong.
-
-### What `11_validate.py` checks
-
-Every check ends PASS, FAIL or FLAG and is listed in `outputs/audit_report.md`. FAIL stops the run. FLAG is a finding for you to decide; nothing is changed automatically.
-
-- **Integrity:** totals tie, categories are exclusive, no January residual, every `[[figure]]` resolves through `figure_index.csv`.
-- **Baseline:** `results.json`, every table and every rendered report value against `baseline/`.
-- **Independent recomputation** from `data/raw` in plain pandas, without importing `payfail`: headline, exposure bridge, monthly range, failure by market, January bridge, recovery
-  with and without account 47087, customer concentration.
-- **Every number in the text** is a `{{token}}` or on the allow-list; **terminology** variants; **denominators**; **units and periods**; **claims against the data**
-  (each factual statement about an account, month or market); **cross-output consistency** (PDF, brief, Excel checks, dashboard at default settings, figure titles, footers); **hedging**.
-
-`pytest -q` runs stage 11 as a test (run the pipeline first).
-
-### Put it on GitHub
-
-```powershell
-git remote add origin https://github.com/<your-username>/payment-failure-economics.git
-git push -u origin main                 # after merging the working branch
-```
-
-Create the empty repository on GitHub first (no README, so the first push is clean). The largest file is the Excel workbook, under GitHub's 100 MB limit. Do not push until
-you have checked the report and the workbook.
-
-### Deploy the dashboard on Streamlit Community Cloud
-
-1. Sign in at share.streamlit.io with your GitHub account.
-2. **Create app**, then **Deploy a public app from GitHub**.
-3. Repository, branch `main`, main file path `app/streamlit_app.py`. Streamlit installs `requirements.txt`.
-4. The first load takes about 20 seconds while the data is prepared; after that selections are cached.
-
-**Then put the two URLs into `report/content/meta.yaml`** (`source_code` and `dashboard`) and into the table at the top of this file, and rerun stage 10 so the cover and the Word
-copy show them.
-
-### What is here
-
-| Path | What it is |
-| --- | --- |
-| `data/raw/ZT_EA_Regional_Data.xlsx` | The supplied dataset, unchanged |
-| `config/assumptions.yaml` | Every threshold and rule |
-| `src/payfail/` | The analysis package: `data.py` (prepare), `analysis.py` (every analytical block and its chapter), `figures.py` (every figure), `pipeline.py` and `stages.py` (the stages), `report.py`, `docx_export.py`, `excel*.py`, `validate.py`, `audit.py`, `independent.py` |
-| `scripts/` | One thin script per stage |
-| `run_pipeline.py` | Runs the stages in order |
-| `app/streamlit_app.py` | The dashboard: sixteen report figures and ten dashboard-only ones (D1–D10) |
-| `report/` | Content, style and the bundled Source Sans 3 font (SIL Open Font Licence) |
-| `baseline/` | The accepted results that stage 11 compares against |
-| `tools/` | `sync_from_doc.py`, `recalc_excel.py`, `recalc_excel.ps1` |
-| `docs/` | Working notes |
-| `tests/` | A thin pytest wrapper around stage 11 |
-
-## Method in brief
-
-The full method is in Appendix A of the report.
-
-- **Two populations.** Count measures use all 62,684 records. USD measures use the 62,463 records with an exchange rate.
-- **Translation.** Monthly average of daily rates, an IAS 21-informed approximation; month-end rates only as a sensitivity; constant currency uses each currency's 2022 average rate.
-- **Exposure bridge.** Extreme-volume anomalies (at least 1,000 failed attempts, more than 50× the prior 6-month median, under 5% success), then the escalation account
-  (absolute trigger: at least 5,000 failed attempts, under 5% success). Remaining exposure is everything else.
-- **January 2024.** Extreme-volume anomalies are removed, FX is isolated at constant currency, then LMDI-I splits the rest into volume, mix, failure-rate and fee-yield effects, with no residual.
-- **Patterns.** Laney p′ charts with σz = mean moving range / 1.128.
-- **Recovery.** Additional successes = attempts × max(failure rate − target, 0), valued at the observed fee per successful payment.
-
-Fees on failed transactions are recorded amounts, not earned revenue: their recognition and collection cannot be established from the data.
+Jasco John, CPA (T) · [jasco.john98@gmail.com](mailto:jasco.john98@gmail.com) · ORCID [0009-0007-3630-7943](https://orcid.org/0009-0007-3630-7943)

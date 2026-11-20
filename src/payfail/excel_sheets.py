@@ -9,7 +9,7 @@ from openpyxl.chart import Reference
 from .excel import BOLD, INT, LINK_FONT, NOTE, PCT, USD, USD2, IN_FILL, IN_FONT, _c
 from .excel_ch import (AMBER, BRICK, GREEN, NAVY, SAND, SKY, TEAL, Wr, bar_chart, bubble_chart, line_chart, scatter_chart, static_table, val)
 from .excel_ch import PYFILL, PYFONT
-from .figures import label
+from .figures import ACTION_LABEL, label
 
 PTS = ["card", "mobilemoney", "alternative channels", "bank transfer"]
 CNT = ["Kenya", "Uganda", "Tanzania", "Ghana", "Zambia"]
@@ -32,7 +32,7 @@ def build_conc(bk) -> dict:
     # ---- payment types and markets
     for title, col, items, key in [("By payment type", "E", PT_ALL, "pt"), ("By market", "J", CNT, "mk")]:
         w.row([_c(ws, title, BOLD)])
-        w.head(["", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Failed fees (USD)", "Failed-fee share", "Share of all failed fees"])
+        w.head(["", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Fees on failed transactions (USD)", "Failed-fee share", "Share of all fees on failed transactions"])
         first = w.r + 1
         for it in items:
             i = w.r + 1
@@ -67,7 +67,7 @@ def build_conc(bk) -> dict:
     # ---- currencies
     cur = res["currencies"].head(8)
     w.row([_c(ws, "By currency (largest eight by fees on failed transactions)", BOLD)])
-    w.head(["Currency", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Failed fees (USD)", "Failed-fee share", "Share of all failed fees"])
+    w.head(["Currency", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Fees on failed transactions (USD)", "Failed-fee share", "Share of all fees on failed transactions"])
     for cc in cur.ccy:
         i = w.r + 1
         k = f"{T('I')},$A{i}"
@@ -79,13 +79,13 @@ def build_conc(bk) -> dict:
     sec = res["sectors"]
     w.row([_c(ws, "By sector", BOLD)])
     w.pynote("scripts/03_concentration.py", "Sector comes from the customer table's sector label; customers without one are the 'Unlabelled sector' row.")
-    w.head(["Sector", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Failed fees (USD)", "Failed-fee share"])
+    w.head(["Sector", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Fees on failed transactions (USD)", "Failed-fee share"])
     s0 = w.r + 1
     for r in sec.itertuples():
         w.row([_c(ws, r.sector), val(ws, int(r.att), INT), val(ws, int(r.f_att), INT), val(ws, float(r.fail_rate), PCT), val(ws, float(r.fee), USD),
                val(ws, float(r.f_fee), USD), val(ws, float(r.fee_share), PCT)])
     i = w.r + 1
-    w.row([_c(ws, "Check: sector failed fees less headline", BOLD), None, None, None, None,
+    w.row([_c(ws, "Check: sector fees on failed transactions less headline", BOLD), None, None, None, None,
            _c(ws, f"=SUM(F{s0}:F{w.r})-{S['failed_fees']}", fmt=USD2), _c(ws, f'=IF(ABS(F{i})<1,"OK","CHECK")', BOLD)])
     P["sector_check"] = f"{w.q}$G${i}"
     w.blank()
@@ -110,7 +110,7 @@ def build_conc(bk) -> dict:
            _c(ws, f"=SUMIFS({T('W')},{nbq},{T('N')},TRUE)/SUMIFS({T('Q')},{nbq},{T('N')},TRUE)", BOLD, USD2), _c(ws, f"=SUMIFS({T('W')},{nbq})", BOLD, USD)])
     P["drv_all"] = i
     ch = bubble_chart(ws, bk.ftitle("drivers"), ref(ws, 2, d0, d0 + 5), ref(ws, 3, d0, d0 + 5),
-                      ref(ws, 5, d0, d0 + 5), xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of non-anomalous attempts (log scale)", ytitle="Count failure rate")
+                      ref(ws, 5, d0, d0 + 5), xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of attempts excluding extreme-volume anomalies (log scale)", ytitle="Count failure rate")
     w.chart(ch, "H", d0 - 2)
     w.blank(12)
     # ---- Figure 5 Pareto
@@ -139,12 +139,12 @@ def build_conc(bk) -> dict:
     P["pareto_rank10"] = pr0 + [int(x) for x in p1["rank"]].index(10)
     top1 = int(res["customer_concentration"]["top1pct_n"])
     P["pareto_top1"] = pr0 + [int(x) for x in p1["rank"]].index(top1)
-    w.row([_c(ws, "Customers with failed fees"), _c(ws, f'=COUNTIF({rngA},">0")', fmt=INT)])
+    w.row([_c(ws, "Customers with fees on failed transactions"), _c(ws, f'=COUNTIF({rngA},">0")', fmt=INT)])
     P["n_cust"] = f"{w.q}$B${w.r}"
     w.row([_c(ws, "Customers who transacted"), val(ws, int(res["customer_concentration"]["customers_transacting"]), INT)])
     ch = scatter_chart(ws, bk.ftitle("pareto"), [(ref(ws, 2, pr0, pr1), ref(ws, 3, pr0, pr1), "All records", NAVY),
                        (ref(ws, 5, pr0, pr0 + len(p2) - 1), ref(ws, 6, pr0, pr0 + len(p2) - 1), "Excluding extreme-volume anomalies", SAND)],
-                       xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of customers (log scale)", ytitle="Cumulative share of failed fees", lines=True)
+                       xlog=True, xfmt="0.0%", yfmt="0%", xtitle="Share of customers (log scale)", ytitle="Cumulative share of fees on failed transactions", lines=True)
     w.chart(ch, "H", pr0 - 3)
     w.blank(8)
     # ---- Table 4 quintiles and Figure 7
@@ -152,7 +152,7 @@ def build_conc(bk) -> dict:
     w.pynote("scripts/03_concentration.py", "Quintiles of average value per aggregated record need a per-record ranking.")
     qv = res["quintile_versions"]
     names = ["All translatable records", "Excluding extreme-volume anomalies", "Excluding escalation account(s)", "Excluding value anomalies", "All three exclusions"]
-    w.head(["Version", "Mobile money Q5 failure", "Mobile money Q1–Q4 failure", "Mobile money Q5 failed fees", "Largest customer's share of Q5 failed fees",
+    w.head(["Version", "Mobile money Q5 failure", "Mobile money Q1–Q4 failure", "Mobile money Q5 fees on failed transactions", "Largest customer's share of Q5 fees on failed transactions",
             "Card Q5 failure", "Card Q1–Q4 failure"])
     for nme in names:
         m = qv[(qv.version == nme) & (qv.pt == "mobilemoney")].iloc[0]
@@ -177,7 +177,7 @@ def build_conc(bk) -> dict:
     w.chart(ch, "H", q0 - 4)
     w.pad_to(HELP0 - 3)
     # ---- helper list for the Pareto (bottom of the sheet)
-    w.row([_c(ws, "Helper: fees on failed transactions by customer (customers with failed fees)", BOLD)])
+    w.row([_c(ws, "Helper: fees on failed transactions by customer (customers with fees on failed transactions)", BOLD)])
     w.head(["Customer id", "All records", "Excluding extreme-volume anomalies"])
     assert w.r == HELP0 - 1, (w.r, HELP0)
     for k, cid in enumerate(bk.cust_fail):
@@ -215,8 +215,8 @@ def build_diag(bk) -> dict:
     P["anom_check"] = f"{w.q}$G${i + 1}"
     w.blank()
     sens = an["sensitivity"].set_index("thresholds")
-    w.row([_c(ws, "Sensitivity of the anomaly share to the thresholds", BOLD)])
-    w.head(["Thresholds", "Observations", "Customers", "Fees on failed transactions", "Share of failed fees"])
+    w.row([_c(ws, "Sensitivity of the extreme-volume anomaly share to the thresholds", BOLD)])
+    w.head(["Thresholds", "Observations", "Customers", "Fees on failed transactions", "Share of fees on failed transactions"])
     for nm in ["loose", "agreed", "strict"]:
         i = w.r + 1
         if nm == "agreed":
@@ -229,7 +229,7 @@ def build_diag(bk) -> dict:
     # ---- Figure 8 escalation series
     esc = int(bk.prep.stats["escalation_customers"][0])
     w.row([_c(ws, bk.ftitle("escalation"), BOLD)])
-    w.row([_c(ws, "Escalation account"), _c(ws, esc, IN_FONT, fill=IN_FILL)])
+    w.row([_c(ws, "Escalation account (47087)"), _c(ws, esc, IN_FONT, fill=IN_FILL)])
     ea = f"$B${w.r}"
     w.head(["Month", "Failed attempts", "Successful attempts", "Fees on failed transactions"])
     e0 = w.r + 1
@@ -268,26 +268,26 @@ def build_diag(bk) -> dict:
                    horizontal=True, stacked=True, yfmt="$#,##0", h=8)
     w.chart(ch, "G", b0 - 8)
     w.blank(4)
-    # ---- persistence, tenure, lapse (values)
+    # ---- persistence, tenure, later inactivity (values)
     cu = res["customers"]
     pe, la = cu["persistence"], cu["lapse"]
-    w.row([_c(ws, "Persistent customers and lapse", BOLD)])
+    w.row([_c(ws, "Persistent customers and later inactivity", BOLD)])
     w.pynote("scripts/04_diagnostics.py", "Needs a customer × month table.")
     w.head(["Measure", "Persistent", "Other eligible"])
     w.row([_c(ws, "Customers with at least six active months"), val(ws, int(pe["persistent"]), INT), val(ws, int(pe["eligible"] - pe["persistent"]), INT)])
     w.row([_c(ws, "Failed-fee share"), val(ws, float(pe["fee_share_persistent"]), PCT), val(ws, float(pe["fee_share_other"]), PCT)])
     w.row([_c(ws, "End-period lapse rate"), val(ws, float(pe["lapse_persistent"]), PCT), val(ws, float(pe["lapse_other"]), PCT)])
-    w.row([_c(ws, "Persistent customers' share of failed attempts / failed fees (non-anomalous)"), val(ws, float(pe["share_f_att"]), PCT), val(ws, float(pe["share_f_fee"]), PCT)])
+    w.row([_c(ws, "Persistent customers' share of failed attempts / fees on failed transactions (excluding extreme-volume anomalies)"), val(ws, float(pe["share_f_att"]), PCT), val(ws, float(pe["share_f_fee"]), PCT)])
     w.blank()
     w.caption("tenure")
     w.pynote("scripts/04_diagnostics.py", "Tenure = months between sign-up and the month of attempt.")
-    w.head(["Tenure", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Failed fees (USD)", "Failed-fee share", "Share of failed fees"])
+    w.head(["Tenure", "Attempts", "Failed attempts", "Count failure rate", "Fees (USD)", "Fees on failed transactions (USD)", "Failed-fee share", "Share of fees on failed transactions"])
     t0 = w.r + 1
     for r in cu["tenure"].itertuples():
         w.row([_c(ws, str(r.band)), val(ws, int(r.att), INT), val(ws, int(r.f_att), INT), val(ws, float(r.fail_rate), PCT), val(ws, float(r.fee), USD), val(ws, float(r.f_fee), USD),
                val(ws, float(r.fee_share), PCT), val(ws, float(r.share_of_failed_fees), PCT)])
     i = w.r + 1
-    w.row([_c(ws, "Check: tenure failed fees less non-anomalous failed fees (differences are records with no sign-up date)", BOLD), None, None, None, None,
+    w.row([_c(ws, "Check: tenure fees on failed transactions less fees on failed transactions excluding extreme-volume anomalies (differences are records with no sign-up date)", BOLD), None, None, None, None,
            _c(ws, f"=SUM(F{t0}:F{w.r})-SUMIFS({T('W')},{T('AF')},FALSE)", fmt=USD2)])
     P["tenure_diff"] = f"{w.q}$F${i}"
     w.blank()
@@ -329,7 +329,7 @@ def build_recs(bk) -> dict:
                val(ws, r.persistence), val(ws, r.data_confidence), val(ws, r.diagnostic_confidence), val(ws, r.action)])
     m1 = w.r
     i = w.r + 1
-    w.row([_c(ws, "Check: matrix failed fees less non-anomalous fees on failed transactions in the same cells", BOLD), None,
+    w.row([_c(ws, "Check: matrix fees on failed transactions less fees on failed transactions excluding extreme-volume anomalies in the same cells", BOLD), None,
            _c(ws, f"=SUM(C{m0}:C{m1})-SUMIFS({T('W')},{T('AF')},FALSE)", fmt=USD2), None, None, None, None, None, None, _c(ws, f'=IF(ABS(C{i})<=0.001*SUM(C{m0}:C{m1}),"OK","CHECK (cells under $1,000 are not listed)")', BOLD)])
     P["matrix_check"] = f"{w.q}$J${i}"
     # Figure 15 scatter by action
@@ -344,9 +344,9 @@ def build_recs(bk) -> dict:
             continue
         a0 = w.r + 1
         for r in d.itertuples():
-            w.row([val(ws, f"{act}: {r.country} {r.pt}"), val(ws, float(r.f_fee), USD), val(ws, float(r.fail_rate), PCT)])
-        series.append((ref(ws, 2, a0, w.r), ref(ws, 3, a0, w.r), act, col))
-    ch = scatter_chart(ws, bk.ftitle("matrix"), series, xlog=True, xfmt="$#,##0", yfmt="0%", xtitle="Non-anomalous fees on failed transactions (log scale)", ytitle="Count failure rate")
+            w.row([val(ws, f"{ACTION_LABEL.get(act, act)}: {r.country} {r.pt}"), val(ws, float(r.f_fee), USD), val(ws, float(r.fail_rate), PCT)])
+        series.append((ref(ws, 2, a0, w.r), ref(ws, 3, a0, w.r), ACTION_LABEL.get(act, act), col))
+    ch = scatter_chart(ws, bk.ftitle("matrix"), series, xlog=True, xfmt="$#,##0", yfmt="0%", xtitle="Fees on failed transactions excluding extreme-volume anomalies (log scale)", ytitle="Count failure rate")
     w.chart(ch, "E", w.r - len(m) - 12)
     w.blank(14)
     for slug, hdr in [("actions", None), ("pilot", None), ("triggers", None)]:
@@ -448,7 +448,7 @@ def build_dq(bk) -> dict:
     w.row([_c(ws, "Failed-fee share"), _c(ws, "90%", IN_FONT, fill=IN_FILL), _c(ws, f"={S['fee_share']}", LINK_FONT, PCT), val(ws, float(b["fee_share"]), PCT), _c(ws, "Translatable"), _c(ws, "")])
     w.row([_c(ws, "January 2024 failure rate by count"), _c(ws, "97%", IN_FONT, fill=IN_FILL), _c(ws, f"=SUMIFS({T('Q')},{jn})/SUMIFS({T('P')},{jn})", fmt=PCT), val(ws, float(b["jan_count_rate"]), PCT), _c(ws, "All records"), _c(ws, "Brief reports the failed-fee share")])
     w.row([_c(ws, "January 2024 failed-fee share"), _c(ws, "97%", IN_FONT, fill=IN_FILL), _c(ws, f"=SUMIFS({T('W')},{jn})/SUMIFS({T('T')},{jn})", fmt=PCT), val(ws, float(b["jan_fee_share"]), PCT), _c(ws, "Translatable"), _c(ws, "")])
-    w.row([_c(ws, "January 2024 failed fees"), _c(ws, "Over $745K", IN_FONT, fill=IN_FILL), _c(ws, f"=SUMIFS({T('W')},{jn})", fmt=USD), val(ws, float(b["jan_failed_fees"]), USD), _c(ws, "Translatable"), _c(ws, "Overstated")])
+    w.row([_c(ws, "January 2024 fees on failed transactions"), _c(ws, "Over $745K", IN_FONT, fill=IN_FILL), _c(ws, f"=SUMIFS({T('W')},{jn})", fmt=USD), val(ws, float(b["jan_failed_fees"]), USD), _c(ws, "Translatable"), _c(ws, "Overstated")])
     w.row([_c(ws, "Months with a failed-fee share below 78%"), _c(ws, "None", IN_FONT, fill=IN_FILL), _c(ws, f"=COUNTIF('02_Scale'!$F${bk.mrow0}:$F${bk.mrow0 + bk.nm - 1},\"<0.78\")", fmt=INT),
            val(ws, len(b["months_below_78"]), INT), _c(ws, "Translatable"), _c(ws, "Holds only before the correction")])
     for pt, br in [("card", "94%"), ("mobilemoney", "77%"), ("bank transfer", "3%")]:
@@ -456,7 +456,7 @@ def build_dq(bk) -> dict:
     w.row([_c(ws, "Bank transfer share of attempts"), _c(ws, "2%", IN_FONT, fill=IN_FILL), _c(ws, f'=SUMIFS({T("P")},{T("E")},"bank transfer")/{S["attempts"]}', fmt=PCT), None, _c(ws, "All records"), _c(ws, "Brief counts records")])
     w.row([_c(ws, "Bank transfer share of records"), None, _c(ws, f'=COUNTIF({T("E")},"bank transfer")/{S["records"]}', fmt=PCT), None, _c(ws, "All records"), _c(ws, "")])
     w.row([_c(ws, "Kenya failed-fee share"), _c(ws, "93%", IN_FONT, fill=IN_FILL), _c(ws, f'=SUMIFS({T("W")},{T("J")},"Kenya")/SUMIFS({T("T")},{T("J")},"Kenya")', fmt=PCT), None, _c(ws, "Translatable"), _c(ws, "Reconciles")])
-    w.row([_c(ws, "Failed fees removed by the SLL correction"), None, _c(ws, f"=D{ffr}-C{ffr}", fmt=USD), None, None, _c(ws, "Brief basis less report basis")])
+    w.row([_c(ws, "Fees on failed transactions removed by the SLL correction"), None, _c(ws, f"=D{ffr}-C{ffr}", fmt=USD), None, None, _c(ws, "Brief basis less report basis")])
     w.blank()
     # Table 23 sensitivity
     w.caption("sensitivity")
@@ -470,7 +470,7 @@ def build_dq(bk) -> dict:
     w.row([_c(ws, "2022 constant currency"), _c(ws, f"=SUM({T('X')})", fmt=USD), _c(ws, f"=SUM({T('X')})/SUM({T('U')})", fmt=PCT), _c(ws, f"={S['count_rate']}", fmt=PCT)])
     w.row([_c(ws, "Excluding extreme-volume anomalies"), _c(ws, f"=SUMIFS({T('W')},{T('AF')},FALSE)", fmt=USD), _c(ws, f"=SUMIFS({T('W')},{T('AF')},FALSE)/SUMIFS({T('T')},{T('AF')},FALSE)", fmt=PCT),
            _c(ws, f"=SUMIFS({T('Q')},{T('AF')},FALSE)/SUMIFS({T('P')},{T('AF')},FALSE)", fmt=PCT)])
-    w.row([_c(ws, "Also excluding the escalation account"), _c(ws, f'=SUMIFS({T("W")},{T("AG")},"Remaining")', fmt=USD), _c(ws, f'=SUMIFS({T("W")},{T("AG")},"Remaining")/SUMIFS({T("T")},{T("AG")},"Remaining")', fmt=PCT),
+    w.row([_c(ws, "Also excluding the escalation account (47087)"), _c(ws, f'=SUMIFS({T("W")},{T("AG")},"Remaining")', fmt=USD), _c(ws, f'=SUMIFS({T("W")},{T("AG")},"Remaining")/SUMIFS({T("T")},{T("AG")},"Remaining")', fmt=PCT),
            _c(ws, f'=SUMIFS({T("Q")},{T("AG")},"Remaining")/SUMIFS({T("P")},{T("AG")},"Remaining")', fmt=PCT)])
     P["sens_first"] = s0
     return P
@@ -480,11 +480,11 @@ def build_dq(bk) -> dict:
 def charts_scale(bk, rows: dict) -> None:
     ws = bk.sheet("02_Scale")
     m0, m1 = rows["month"]
-    c1 = line_chart(ws, bk.ftitle("trend") + " [count failure rate]", ref(ws, 1, m0, m1), [(ref(ws, 4, m0, m1), "All records", SAND), (ref(ws, 5, m0, m1), "Excluding extreme-volume anomalies and the escalation account", NAVY)], yfmt="0%")
+    c1 = line_chart(ws, bk.ftitle("trend") + " [count failure rate]", ref(ws, 1, m0, m1), [(ref(ws, 4, m0, m1), "All records", SAND), (ref(ws, 5, m0, m1), "Excluding the two anomaly categories", NAVY)], yfmt="0%")
     ws.add_chart(c1, "L4")
-    c2 = line_chart(ws, bk.ftitle("trend") + " [failed-fee share]", ref(ws, 1, m0, m1), [(ref(ws, 6, m0, m1), "All records", SAND), (ref(ws, 7, m0, m1), "Excluding extreme-volume anomalies and the escalation account", NAVY)], yfmt="0%")
+    c2 = line_chart(ws, bk.ftitle("trend") + " [failed-fee share]", ref(ws, 1, m0, m1), [(ref(ws, 6, m0, m1), "All records", SAND), (ref(ws, 7, m0, m1), "Excluding the two anomaly categories", NAVY)], yfmt="0%")
     ws.add_chart(c2, "L24")
-    c3 = bar_chart(ws, bk.ftitle("composition"), ref(ws, 1, m0, m1), [(ref(ws, 10, m0, m1), "Remaining", SAND), (ref(ws, 9, m0, m1), "Escalation account(s)", SKY), (ref(ws, 8, m0, m1), "Extreme-volume anomalies", NAVY)],
+    c3 = bar_chart(ws, bk.ftitle("composition"), ref(ws, 1, m0, m1), [(ref(ws, 10, m0, m1), "Remaining", SAND), (ref(ws, 9, m0, m1), "Escalation account (47087)", SKY), (ref(ws, 8, m0, m1), "Extreme-volume anomalies", NAVY)],
                    stacked=True, yfmt="$#,##0")
     ws.add_chart(c3, "L44")
     b0 = rows["wf"]
@@ -500,9 +500,9 @@ def charts_jan(bk, comp_first: int, n_comp: int) -> None:
     ws = bk.sheet("05_January")
     wf = bk.jan_wf
     c = bar_chart(ws, bk.ftitle("january"), ref(ws, 1, wf, wf + n_comp - 1),
-                  [(ref(ws, 2, wf, wf + n_comp - 1), "Base", None), (ref(ws, 3, wf, wf + n_comp - 1), "Amount", NAVY)], yfmt="$#,##0", stacked=True, point_colors=bk.jan_colors, labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base; red raises, green lowers failed fees")
+                  [(ref(ws, 2, wf, wf + n_comp - 1), "Base", None), (ref(ws, 3, wf, wf + n_comp - 1), "Amount", NAVY)], yfmt="$#,##0", stacked=True, point_colors=bk.jan_colors, labels=True, legend=False, note="Excel form of the waterfall: stacked columns with an invisible base; red raises, green lowers fees on failed transactions")
     ws.add_chart(c, "L4")
-    c2 = bar_chart(ws, bk.ftitle("lmdi"), ref(ws, 1, comp_first + 2, comp_first + 7), [(ref(ws, 2, comp_first + 2, comp_first + 7), "Effect on failed fees", NAVY)], horizontal=True, yfmt="$#,##0",
+    c2 = bar_chart(ws, bk.ftitle("lmdi"), ref(ws, 1, comp_first + 2, comp_first + 7), [(ref(ws, 2, comp_first + 2, comp_first + 7), "Effect on fees on failed transactions", NAVY)], horizontal=True, yfmt="$#,##0",
                    point_colors=bk.lmdi_colors, labels=True, legend=False, h=8)
     ws.add_chart(c2, "L26")
 

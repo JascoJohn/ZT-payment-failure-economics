@@ -164,10 +164,10 @@ def fig08_pareto(res, **_):
     n = int(p.n.iloc[0])
     for k, lab in [(10, "Top 10"), (max(1, round(n * .01)), "Top 1%")]:
         fig.add_vline(x=k / n * 100, line=dict(color=SUB, dash="dot"), annotation_text=lab, annotation_position="bottom right")
-    fig.update_xaxes(type="log", title="Share of customers, ranked by failed fees (log scale)", ticksuffix="%")
-    fig.update_yaxes(tickformat=".0%", title="Cumulative share of failed fees")
+    fig.update_xaxes(type="log", title="Share of customers, ranked by fees on failed transactions (log scale)", ticksuffix="%")
+    fig.update_yaxes(tickformat=".0%", title="Cumulative share of fees on failed transactions")
     t10 = res["customer_concentration"]["top10"]
-    return _style(fig, f"Figure 8. The top 10 of {n:,} customers with failed fees hold {t10:.0%} of it", "Cumulative concentration")
+    return _style(fig, f"Figure 8. The top 10 of {n:,} customers with fees on failed transactions hold {t10:.0%} of it", "Cumulative concentration")
 
 
 # 9 ---------------------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ def fig09_drivers(res, **_):
         hovertext=[f"{c} {CH.get(p, p).lower()}" for c, p in zip(d.country, d.pt)], textposition=pos,
         marker=dict(size=np.sqrt(d.f_fee) / np.sqrt(d.f_fee.max()) * 70 + 6, color=[ACCENT if p == "card" else MUTED for p in d.pt],
                     opacity=.65, line=dict(color=PAPER)),
-        customdata=d.f_fee, hovertemplate="%{hovertext}<br>%{x:.1%} of attempts<br>%{y:.1%} failed<br>$%{customdata:,.0f} failed fees<extra></extra>",
+        customdata=d.f_fee, hovertemplate="%{hovertext}<br>%{x:.1%} of attempts<br>%{y:.1%} failed<br>$%{customdata:,.0f} fees on failed transactions<extra></extra>",
         showlegend=False))
     fig.update_xaxes(type="log", tickformat=".1%", title="Share of attempts excluding extreme-volume anomalies (log scale)",
                      tickvals=[.002, .005, .01, .02, .05, .1, .2, .5], range=[np.log10(.0012), np.log10(.9)])
@@ -260,13 +260,13 @@ def fig13_hard_mixed(res, **_):
 def fig14_persistence(res, **_):
     p = res["customers"]["persistence"]
     lab = [f"Persistent ({p['persistent']:,})", f"Other eligible ({p['eligible'] - p['persistent']:,})"]
-    fig = make_subplots(rows=1, cols=2, subplot_titles=("Failed-fee share", "End-period lapse rate"))
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("Failed-fee share", "No activity in Feb–Apr 2024"))
     fig.add_trace(go.Bar(x=lab, y=[p["fee_share_persistent"], p["fee_share_other"]], marker_color=[ACCENT, MUTED],
                          text=[f"{v:.1%}" for v in [p["fee_share_persistent"], p["fee_share_other"]]], textposition="outside", showlegend=False), 1, 1)
     fig.add_trace(go.Bar(x=lab, y=[p["lapse_persistent"], p["lapse_other"]], marker_color=[ACCENT, MUTED],
                          text=[f"{v:.1%}" for v in [p["lapse_persistent"], p["lapse_other"]]], textposition="outside", showlegend=False), 1, 2)
     fig.update_yaxes(tickformat=".0%", range=[0, 1.1])
-    return _style(fig, "Figure 14. Persistent customers lose more fee value to failure and lapse more",
+    return _style(fig, "Figure 14. Persistent customers lose more fee value to failure and are more often inactive in Feb–Apr 2024",
                   "Customers with 6+ active months, excluding extreme-volume anomalies; associations, not causal effects")
 
 
@@ -299,7 +299,7 @@ def fig16_january(res, **_):
     j = res["january"]
     share = (j["january_extreme"] - j["baseline_extreme"]) / (j["january_all"] - j["baseline_all"])
     return _style(fig, f"Figure 16. Extreme-volume anomalies explain {share:.0%} of January's rise in fees on failed transactions",
-                  "Baseline = Jul–Dec 2023 monthly average; red raises, green lowers failed fees")
+                  "Baseline = Jul–Dec 2023 monthly average; red raises, green lowers fees on failed transactions")
 
 
 # 17 --------------------------------------------------------------------------------------------
@@ -398,6 +398,9 @@ def fig23_costs(res, **_):
 
 
 # 24 --------------------------------------------------------------------------------------------
+ACTION_LABEL = {"Contain escalation account": "Contain the escalation account"}          # legend text only; the action value in the data is unchanged
+
+
 def fig24_matrix(res, prep=None, **_):
     m = res["matrix"]
     esc = res["anomalies"]["escalation_customers"]
@@ -407,13 +410,13 @@ def fig24_matrix(res, prep=None, **_):
         d = m[m.action == act]
         if d.empty:
             continue
-        fig.add_trace(go.Scatter(x=d.f_fee, y=d.fail_rate, mode="markers+text", name=act,
+        fig.add_trace(go.Scatter(x=d.f_fee, y=d.fail_rate, mode="markers+text", name=ACTION_LABEL.get(act, act),
                                  text=[f"{c} {CH.get(p, p).lower()}" if f > 50000 else "" for c, p, f in zip(d.country, d.pt, d.f_fee)],
                                  textposition=["bottom center" if f == m.f_fee.max() else "middle left" for f in d.f_fee],
                                  marker=dict(size=np.sqrt(d.internal_potential.clip(lower=0)) / np.sqrt(max(m.internal_potential.max(), 1)) * 60 + 8,
                                              color=color, opacity=.65, line=dict(color=PAPER)),
                                  customdata=np.stack([d.internal_potential, d.diagnostic_confidence], axis=1),
-                                 hovertemplate="%{text}<br>$%{x:,.0f} failed fees<br>%{y:.1%} failed<br>internal potential $%{customdata[0]:,.0f}<br>diagnostic: %{customdata[1]}<extra></extra>"))
+                                 hovertemplate="%{text}<br>$%{x:,.0f} fees on failed transactions<br>%{y:.1%} failed<br>internal potential $%{customdata[0]:,.0f}<br>diagnostic: %{customdata[1]}<extra></extra>"))
     if esc and prep is not None:
         e = prep.tx[prep.tx.customer_id.isin(esc) & ~prep.tx.extreme]
         fig.add_trace(go.Scatter(x=[e.f_fee.sum()], y=[e.f_att.sum() / e.att.sum()], mode="markers+text", name="Escalation account (47087)",
@@ -434,7 +437,7 @@ def fig25_roadmap(res, **_):
             ["2. USD card completion: Kenya, Tanzania, Uganda", "To be assigned", "Diagnose zero-success merchant-months: acceptance, routing, currency set-up",
              "USD card failure vs baseline (" + ", ".join(f"{c} {rec.get(c, np.nan):.1%}" for c in ["Kenya", "Tanzania", "Uganda"]) + ")", "Monthly"],
             ["3. Persistent customers and high-value mobile money", "To be assigned", f"Review the {pers:,} persistent accounts; investigate the mobile money Q5 result",
-             "Persistent-customer failed fees; mobile money Q5 failure rate", "Monthly / quarterly"]]
+             "Persistent-customer fees on failed transactions; mobile money Q5 failure rate", "Monthly / quarterly"]]
     fig = go.Figure(go.Table(columnwidth=[1.4, .8, 2, 1.6, .8],
                              header=dict(values=["Workstream", "Owner", "First action", "KPI", "Review"], fill_color="#EFE9DC", align="left", font=dict(size=12)),
                              cells=dict(values=list(map(list, zip(*rows))), align="left", height=48, fill_color=PAPER, font=dict(size=12))))

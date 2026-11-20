@@ -1,6 +1,6 @@
 # Audit report
 
-116 checks: **114 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
+128 checks: **126 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
 
 ## Flagged for you
 
@@ -142,7 +142,7 @@
 | PASS | Records by status: 39,570 failed and 23,114 successful | 39,570 failed; 23,114 successful |
 | PASS | The executive summary: the $324K sentence is followed by the zero-success and interval sentence, with the figures of Section 7 | zero-success $159K; 90% interval $142K–$431K; benchmark without account 47087 $324K |
 | PASS | The brief: the $324K sentence is followed by the zero-success and interval sentence, with the figures of Section 7 | zero-success $159K; 90% interval $142K–$431K; benchmark without account 47087 $324K |
-| PASS | Executive summary is 400-500 words | 493 words |
+| PASS | Executive summary is 400-500 words | 497 words |
 | PASS | Brief is 5 pages | 5 pages |
 | PASS | Brief and summary open the anomaly bullet with 'Twenty extreme-volume observations' (the number in words) |  |
 | PASS | No content uses the ambiguous {{customers}} token (customers with failed fees: customers_failed; who transacted: customers_transacting) |  |
@@ -163,8 +163,20 @@
 | PASS | Layout: all ten chapters and appendices start a page | pages [7, 8, 11, 15, 19, 21, 23, 27, 31, 34] |
 | PASS | Layout: no main-report page under 60% full unless it ends a chapter | every body page is at least 60% full |
 | FLAG | Layout: no chapter-end page under 25% full | pages 10 (22%), 35 (20%) |
+| PASS | The_Economics_of_Payment_Failure.pdf: source-code and dashboard links are clickable and print as one-line labels | links ['https://github.com/JascoJohn/ZT-payment-failure-economics', 'https://zt-payment-failure-economics.streamlit.app']; labels ['github.com/JascoJohn/ZT-payment-failure-economics', 'zt-payment-failure-economics.streamlit.app'] on one line: True |
+| PASS | Executive_Brief.pdf: source-code and dashboard links are clickable and print as one-line labels | links ['https://github.com/JascoJohn/ZT-payment-failure-economics', 'https://zt-payment-failure-economics.streamlit.app']; labels ['github.com/JascoJohn/ZT-payment-failure-economics', 'zt-payment-failure-economics.streamlit.app'] on one line: True |
+| PASS | Contents and the lists of figures and tables: every entry links to the page that holds its heading, figure or table | 80 entries checked |
+| PASS | Word copy: source-code and dashboard are clickable hyperlinks |  |
 | PASS | Dashboard at default settings: says every figure matches the report |  |
 | PASS | Dashboard figure titles equal the figure index titles | 26 charts; titles missing from the dashboard: [] |
+| PASS | README.md is exactly what report/content/readme.md renders to (no hand edits, every figure a token) | identical |
+| PASS | README template has no typed dollar amount, percentage or large number (they are all tokens) |  |
+| PASS | README headline figures agree with results.json (failed fees, shares, base case, interval, records, attempts) | 9 figures looked up |
+| PASS | README.md: every relative link and image path points to a file or folder that exists | 35 relative links, 4 images |
+| PASS | README.md: author line reads 'Jasco John, CPA (T)' without further credentials |  |
+| PASS | README.md: no setup, GitHub or Streamlit deployment instructions |  |
+| PASS | README.md: all four 'Start here' links and the dashboard link are present |  |
+| PASS | README.md: the number of automated checks it states equals this run's count | README says 128; this run has 128 |
 
 ## 8. Hedging
 

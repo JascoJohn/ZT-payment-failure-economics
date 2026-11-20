@@ -175,11 +175,11 @@ def numbers_in_text(au, res: dict, cfg: dict, ctx: dict) -> None:
 # --------------------------------------------------------------------------------------- item 3
 TERMS = [
     ("Extreme-volume anomalies", [r"(?<!extreme-volume )(?<!value )(?<!value-)(?<!ratio )(?<!Extreme-volume )(?<!two )(?<!The two )(?<!Two )(?<!Value )(?<![\x22])\banomal(?:y|ies)\b(?! categories)(?!\.\w)(?![\x22])(?! (?:in|of) the (?:supplied )?data)", r"\bextreme accounts?\b",
-                                  r"\banomalous accounts?\b", r"\bextreme (?:account behaviour|customer-months|failure volumes)\b", r"\bnon-anomalous\b"]),
-    ("The escalation account (47087)", [r"\bescalation accounts?\(s\)", r"\bescalating account\b", r"\bEscalation account\(s\)", r"\bescalation accounts\b"]),
+                                  r"\banomalous accounts?\b", r"\bextreme (?:account behaviour|customer-months|failure volumes)\b", r"\bnon-anomalous\b", r"\bAnomalies and escalation\b", r"\bAnomaly rules\b"]),
+    ("The escalation account (47087)", [r"\bescalation accounts?\(s\)", r"\bescalating account\b", r"\bEscalation account\(s\)", r"\bescalation accounts\b", r"\b[Ee]scalation trigger\b"]),
     ("Remaining exposure", [r"\bpersistent card failure\b", r"\bpersistent card-completion problem\b", r"\bremaining (?:problem|failed-fee exposure)\b", r"\bunderlying failure\b"]),
-    ("Fees on failed transactions", [r"\bfees on failed payments\b", r"\bfailed-transaction fees\b", r"\bFees on failed payments\b", r"\blost revenue\b(?! or cash)"]),
-    ("Successful-transaction fees", [r"\bfees on successful payments\b", r"\bfees earned on successful payments\b", r"\bsuccessful fees\b",
+    ("Fees on failed transactions", [r"\bfees on failed payments\b", r"\bfailed-transaction fees\b", r"\bFees on failed payments\b", r"\blost revenue\b(?! or cash)", r"\b[Ff]ailed fees\b"]),
+    ("Successful-transaction fees", [r"\bfees on successful payments\b", r"\bfees earned on successful payments\b", r"\b[Ss]uccessful fees\b",
                                      r"\bsuccessful-transaction fee\b(?! revenue)"]),
 ]
 
@@ -192,6 +192,11 @@ def terminology(au, res: dict, cfg: dict) -> None:
     corpus["figures.py (titles, legends)"] = " ".join(re.findall(r'"([A-Z][^"]{12,})"', src))
     corpus["dashboard"] = (ROOT / "app" / "streamlit_app.py").read_text(encoding="utf-8")
     corpus["README.md"] = (ROOT / "README.md").read_text(encoding="utf-8")
+    for f in sorted((ROOT / "src" / "payfail").glob("excel*.py")):           # the text the Excel workbook shows (string literals only)
+        keys = {"Also excluding escalation account(s)", "Excluding escalation account(s)"}      # data lookup keys of the analysis tables, not display text
+        lits = [x for x in re.findall(r'"([^"\n]{8,})"', f.read_text(encoding="utf-8")) if not re.fullmatch(r"[\w.]+", x) and x not in keys]
+        corpus[f"Excel: {f.name}"] = " ".join(lits)
+    corpus["docs/REPRODUCING.md"] = (ROOT / "docs" / "REPRODUCING.md").read_text(encoding="utf-8") if (ROOT / "docs" / "REPRODUCING.md").exists() else ""
     ex_file = OUT / "payment_failure_analysis.xlsx"
     for concept, pats in TERMS:
         hits = []
@@ -503,6 +508,7 @@ def cross_output(au, res: dict, ctx: dict, cfg: dict) -> None:
     else:
         au.add(S, "Excel workbook present", False, "outputs/payment_failure_analysis.xlsx not built (stage 09 skipped)", flag=True)
     layout(au)
+    links(au)
     dashboard(au, res)
 
 
@@ -552,6 +558,52 @@ def layout(au) -> None:
     au.add(S, "Layout: all ten chapters and appendices start a page", len(ch) == 10, f"pages {ch}")
     au.add(S, "Layout: no main-report page under 60% full unless it ends a chapter", not low_body, "pages " + ", ".join(f"{p} ({fills[p - 1]:.0%})" for p in low_body) if low_body else "every body page is at least 60% full", flag=True)
     au.add(S, "Layout: no chapter-end page under 25% full", not low_end, "pages " + ", ".join(f"{p} ({fills[p - 1]:.0%})" for p in low_end) if low_end else "every chapter-end page is at least 25% full", flag=True)
+
+
+def links(au) -> None:
+    """Both PDFs carry the two external links as one-line labels; every contents entry links to the page that holds its heading, figure or table."""
+    import fitz
+    import yaml
+
+    from .flow import read_dests
+    from .report import link_label
+    S = "7. Cross-output consistency"
+    meta = yaml.safe_load((CONTENT / "meta.yaml").read_text(encoding="utf-8"))
+    want = [meta["source_code"], meta["dashboard"]]
+    strip = lambda u: u.rstrip("/")
+    for name in ["The_Economics_of_Payment_Failure.pdf", "Executive_Brief.pdf"]:
+        f = OUT / "report" / name
+        if not f.exists():
+            au.add(S, f"{name}: external links", False, "PDF missing; run stage 10", flag=True)
+            continue
+        d = fitz.open(f)
+        uris = {strip(l["uri"]) for p in d for l in p.get_links() if l.get("uri")}
+        ok_links = all(strip(u) in uris for u in want)
+        one_line = all(len(d[0].search_for(link_label(u))) == 1 for u in want)
+        au.add(S, f"{name}: source-code and dashboard links are clickable and print as one-line labels", ok_links and one_line,
+               f"links {sorted(uris)}; labels {[link_label(u) for u in want]} on one line: {one_line}")
+    f = OUT / "report" / "The_Economics_of_Payment_Failure.pdf"
+    c = OUT / "report" / "contents.json"
+    if f.exists() and c.exists():
+        cj = json.loads(c.read_text(encoding="utf-8"))
+        d = fitz.open(f)
+        dests = read_dests(f)
+        norm = lambda t: re.sub(r"[^0-9a-z]", "", t.lower())
+        bad, n = [], 0
+        for kind in ("contents", "figures", "tables"):
+            for e in cj[kind]:
+                n += 1
+                pg = dests.get(e["id"])
+                if pg is None:
+                    bad.append(f"{e['id']}: no link")
+                elif norm(e["text"])[:40] not in norm(d[pg[0] - 1].get_text()):
+                    bad.append(f"{e['id']}: target page {pg[0]} does not hold '{e['text'][:40]}'")
+        au.add(S, "Contents and the lists of figures and tables: every entry links to the page that holds its heading, figure or table", not bad, f"{n} entries checked" + (f"; {bad[:3]}" if bad else ""))
+    docx = OUT / "report" / "The_Economics_of_Payment_Failure.docx"
+    if docx.exists():
+        import zipfile
+        rels = zipfile.ZipFile(docx).read("word/_rels/document.xml.rels").decode("utf-8")
+        au.add(S, "Word copy: source-code and dashboard are clickable hyperlinks", all(strip(u) in [strip(x) for x in re.findall(r'Target="(https[^"]+)"', rels)] for u in want), "")
 
 
 def dashboard(au, res: dict) -> None:
@@ -605,6 +657,51 @@ def figures_resolve(au) -> None:
     au.add(S, "Ten dashboard-only figures, labelled D1-D10", len(dash) == 10 and list(dash.label) == [f"Figure D{i}" for i in range(1, 11)])
 
 
+def readme_checks(au, res: dict) -> None:
+    """README.md: figures come from results.json, every relative link and image path exists, the name line and the contents rules hold."""
+    import yaml
+
+    from .readme import tokens
+    from .report import render
+    S = "7. Cross-output consistency"
+    f = ROOT / "README.md"
+    if not f.exists():
+        au.add(S, "README.md exists", False, "missing; run stage 10")
+        return
+    txt = f.read_text(encoding="utf-8")
+    cj = json.loads((OUT / "report" / "contents.json").read_text(encoding="utf-8"))
+    meta = yaml.safe_load((CONTENT / "meta.yaml").read_text(encoding="utf-8"))
+    rep = {"meta": meta, "entries": {k: cj[k] for k in ("contents", "figures", "tables")}, "pages": cj["pages"]}
+    tpl = (CONTENT / "readme.md").read_text(encoding="utf-8")
+    fresh = render(tpl, tokens(res, ROOT, rep))
+    au.add(S, "README.md is exactly what report/content/readme.md renders to (no hand edits, every figure a token)", txt == fresh, "identical" if txt == fresh else "differs: run stage 10")
+    typed = re.findall(r"\$\d[\d,.]*[KM]?|\d+(?:\.\d+)?%|\d{1,3}(?:,\d{3})+", re.sub(r"\{\{[^}]+\}\}", "", tpl))
+    au.add(S, "README template has no typed dollar amount, percentage or large number (they are all tokens)", not typed, ", ".join(typed[:6]))
+    # independent spot check of the headline figures against results.json
+    j = json.loads((OUT / "results.json").read_text(encoding="utf-8"))
+    h = j["headline"]
+    scen = pd.read_csv(OUT / "07_recovery" / "tables" / "recovery__scenarios.csv").set_index("scenario")
+    base = float(scen.incremental_fees["Base"])
+    iv = j["recovery"]["interval"]
+    want = [f"${h['failed_fees'] / 1e6:.2f}M", f"{h['fee_share'] * 100:.1f}%", f"{h['count_rate'] * 100:.1f}%", f"{h['records']:,}", f"{h['attempts']:,}",
+            f"${round(iv['low'] / 1e3)}K", f"${round(iv['high'] / 1e3)}K", f"{iv['replicates']:,}"]
+    want.append(f"${round(base / 1e3)}K")
+    miss = [w for w in want if w not in txt]
+    au.add(S, "README headline figures agree with results.json (failed fees, shares, base case, interval, records, attempts)", not miss, f"{len(want)} figures looked up" + (f"; missing {miss}" if miss else ""))
+    # links and images
+    targets = re.findall(r"\]\(([^)\s]+)\)", txt)
+    rel = [t.split("#")[0].split("?")[0] for t in targets if not re.match(r"(https?:|mailto:|#)", t)]
+    gone = sorted({t for t in rel if t and not (ROOT / t).exists()})
+    imgs = re.findall(r"!\[[^\]]*\]\(([^)\s]+)\)", txt)
+    au.add(S, "README.md: every relative link and image path points to a file or folder that exists", not gone and len(imgs) == 4, f"{len(rel)} relative links, {len(imgs)} images" + (f"; missing {gone[:4]}" if gone else ""))
+    au.add(S, "README.md: author line reads 'Jasco John, CPA (T)' without further credentials", "**Jasco John, CPA (T)**" in txt and "MBA" not in txt, "")
+    au.add(S, "README.md: no setup, GitHub or Streamlit deployment instructions", not re.search(r"share\.streamlit\.io|git push|git remote|Create app|Deploy a public", txt), "")
+    au.add(S, "README.md: all four 'Start here' links and the dashboard link are present", all(k in txt for k in ["(outputs/report/The_Economics_of_Payment_Failure.pdf)", "(outputs/report/Executive_Brief.pdf)", "(outputs/payment_failure_analysis.xlsx)", f"({meta['dashboard']})"]), "")
+    n = len(au.checks) + 1                         # this check included
+    m = re.search(r"Checks: (\d+) automated checks", txt)
+    au.add(S, "README.md: the number of automated checks it states equals this run's count", bool(m) and int(m.group(1)) == n, f"README says {m.group(1) if m else 'nothing'}; this run has {n}" + ("" if m and int(m.group(1)) == n else "; run stage 10 then stage 11 again"))
+
+
 def run_audit(au, res: dict, prep, cfg: dict, ctx: dict) -> None:
     CTX_HOLDER["ctx"] = ctx
     figures_resolve(au)
@@ -616,3 +713,4 @@ def run_audit(au, res: dict, prep, cfg: dict, ctx: dict) -> None:
     claims(au, res, prep)
     cross_output(au, res, ctx, cfg)
     hedging(au)
+    readme_checks(au, res)

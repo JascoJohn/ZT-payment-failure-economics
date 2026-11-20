@@ -29,6 +29,8 @@ def stage_10() -> dict:
     out = {"report": rep["pdf"].name if rep["pdf"] else "no PDF (Chrome or Edge not found)",
            "brief": rep["brief_pdf"].name if rep["brief_pdf"] else "no PDF",
            "contents passes": rep["passes"], "contents entries": sum(len(rep["entries"][k]) for k in rep["entries"])}
+    from .readme import build_readme
+    out["readme"] = build_readme(res, ROOT, rep).name
     try:
         from .docx_export import build_docx
         out["word"] = build_docx(res, ROOT, OUT / "report", rep).name

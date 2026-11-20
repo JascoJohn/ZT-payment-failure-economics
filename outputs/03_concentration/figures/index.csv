@@ -1,6 +1,6 @@
 label,slug,section,chapter,in_report,title,file,dir
 Figure 3,channels,3. Concentration,03,True,Figure 3. Card payments hold 79% of fees on failed transactions,fig03_channels,03_concentration/figures
 Figure 4,heatmap,3. Concentration,03,True,Figure 4. Card fails at 79%–93% by count in every market,fig04_heatmap,03_concentration/figures
-Figure 5,pareto,3. Concentration,03,True,"Figure 5. The top 10 of 5,108 customers with failed fees hold 50% of it",fig05_pareto,03_concentration/figures
+Figure 5,pareto,3. Concentration,03,True,"Figure 5. The top 10 of 5,108 customers with fees on failed transactions hold 50% of it",fig05_pareto,03_concentration/figures
 Figure 6,drivers,3. Concentration,03,True,"Figure 6. Card: high failure, small volume; Uganda mobile money: scale",fig06_drivers,03_concentration/figures
 Figure 7,quintiles,3. Concentration,03,True,Figure 7. Mobile money fails mainly on high-value records; card at every size,fig07_quintiles,03_concentration/figures

@@ -580,8 +580,19 @@ def _keep_together(soup) -> None:
             prv.append(t.extract())
 
 
+def link_label(url: str) -> str:
+    """The short label printed for an address: no scheme, no trailing slash."""
+    return re.sub(r"^https?://", "", url).rstrip("/")
+
+
 def _fill(template: str, ctx: dict, meta: dict) -> str:
-    template = re.sub(r"\{\{meta\.(\w+)\}\}", lambda m: _html.escape(str(meta.get(m.group(1), ""))), template)
+    def sub(m):
+        k = m.group(1)
+        if k.endswith("_html"):                              # source_code_html, dashboard_html: the short label as a link
+            u = str(meta.get(k[:-5], ""))
+            return f'<a class="ext" href="{_html.escape(u)}">{_html.escape(link_label(u))}</a>' if u.startswith("http") else _html.escape(u)
+        return _html.escape(str(meta.get(k, "")))
+    template = re.sub(r"\{\{meta\.(\w+)\}\}", sub, template)
     return render(template, ctx)
 
 

@@ -3,7 +3,7 @@ Figure 1,bridge,Executive summary,2,True,Figure 1. 38.5% of the exposure sits in
 Figure 2,trend,2. Scale,2,True,"Figure 2. Excluding the two anomaly categories, failure is persistent but steady",fig02_trend,02_scale/figures
 Figure 3,channels,3. Concentration,3,True,Figure 3. Card payments hold 79% of fees on failed transactions,fig03_channels,03_concentration/figures
 Figure 4,heatmap,3. Concentration,3,True,Figure 4. Card fails at 79%–93% by count in every market,fig04_heatmap,03_concentration/figures
-Figure 5,pareto,3. Concentration,3,True,"Figure 5. The top 10 of 5,108 customers with failed fees hold 50% of it",fig05_pareto,03_concentration/figures
+Figure 5,pareto,3. Concentration,3,True,"Figure 5. The top 10 of 5,108 customers with fees on failed transactions hold 50% of it",fig05_pareto,03_concentration/figures
 Figure 6,drivers,3. Concentration,3,True,"Figure 6. Card: high failure, small volume; Uganda mobile money: scale",fig06_drivers,03_concentration/figures
 Figure 7,quintiles,3. Concentration,3,True,Figure 7. Mobile money fails mainly on high-value records; card at every size,fig07_quintiles,03_concentration/figures
 Figure 8,escalation,4. Diagnostics,4,True,"Figure 8. One account escalated to 88,152 failed attempts in April 2024",fig08_escalation,04_diagnostics/figures
@@ -19,7 +19,7 @@ Figure D1,kpis,Executive summary,2,False,"Figure D1. Headline figures, Jan 2022 
 Figure D2,composition,2. Scale,2,False,Figure D2. The two anomaly categories account for the Dec 2023 – Apr 2024 surge,figd2_composition,02_scale/figures
 Figure D3,value,2. Scale,2,False,"Figure D3. Failed attempts are 4.6× larger, but carry similar fee rates",figd3_value,02_scale/figures
 Figure D4,anomalies,4. Diagnostics,4,False,Figure D4. The four largest account-months carry $764.2K of $826.0K extreme-volume anomaly exposure,figd4_anomalies,04_diagnostics/figures
-Figure D5,persistence,4. Diagnostics,4,False,Figure D5. Persistent customers lose more fee value to failure and lapse more,figd5_persistence,04_diagnostics/figures
+Figure D5,persistence,4. Diagnostics,4,False,Figure D5. Persistent customers lose more fee value to failure and are more often inactive in Feb–Apr 2024,figd5_persistence,04_diagnostics/figures
 Figure D6,patterns,4. Diagnostics,4,False,Figure D6. Card cells are structural; flags overlap,figd6_patterns,04_diagnostics/figures
 Figure D7,reported_constant,6. Foreign exchange,6,False,Figure D7. Depreciation trims both measures by about 6% in USD terms,figd7_reported_constant,06_fx/figures
 Figure D8,ias_screen,6. Foreign exchange,6,False,Figure D8. Naira and cedi months most often fail the average-rate screen,figd8_ias_screen,06_fx/figures

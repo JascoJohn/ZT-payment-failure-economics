@@ -15,8 +15,8 @@
       <p><span class="lbl">ORCID</span>{{meta.orcid}}</p></div>
     <div><h4>The full study</h4>
       <p>This five-page brief summarises the full report.</p>
-      <p><span class="lbl">Source code</span>{{meta.source_code}}</p>
-      <p><span class="lbl">Dashboard</span>{{meta.dashboard}}</p></div>
+      <p><span class="lbl">Source code</span>{{meta.source_code_html}}</p>
+      <p><span class="lbl">Dashboard</span>{{meta.dashboard_html}}</p></div>
   </div>
 </section>
 
@@ -28,7 +28,7 @@
   <div class="kpis">
     <div class="kpi"><div><div class="v">{{failed_fees_m}}</div><div class="l">Fees on failed transactions</div></div></div>
     <div class="kpi"><div><div class="v">{{anom_share}}</div><div class="l">From the two anomaly categories</div></div></div>
-    <div class="kpi"><div><div class="v">{{card_share}}</div><div class="l">Of failed fees on card</div></div></div>
+    <div class="kpi"><div><div class="v">{{card_share}}</div><div class="l">Of fees on failed transactions on card</div></div></div>
     <div class="kpi"><div><div class="v">{{rc_base_k0}}</div><div class="l">Base-case recovery, {{nm}} months</div></div></div>
   </div>
   <div class="insight">
@@ -41,7 +41,7 @@
   <h3>What the data shows</h3>
   <ul>
     <li><strong>Most of the spikes come from a few accounts.</strong> {{an_obs_words}} extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry {{anom_m}}.
-        They explain {{jan_ex_share}} of January 2024's jump in failed fees.</li>
+        They explain {{jan_ex_share}} of January 2024's jump in fees on failed transactions.</li>
     <li><strong>Underlying failure is persistent but stable.</strong> Excluding the two anomaly categories, between {{rem_range_words}} of attempts failed in
         every month, with no upward trend.</li>
     <li><strong>Card is the structural problem.</strong> Excluding extreme-volume anomalies, USD card fails {{usd_card_range}} of the time, against {{mm_mk_range}} for mobile money

@@ -10,11 +10,11 @@ A small number of accounts produced sudden bursts of failed attempts, most of al
 
 #### 2. Remaining exposure: {{rm_m}} ({{rm_share}}) <span class="pill amber">Improve</span>
 
-This is everything left once the two anomaly categories are set aside. It covers every channel, but card carries {{rm_card_share}} of remaining exposure ({{rm_card_m}}) and USD card alone {{rm_usdcard_share}} of remaining exposure ({{rm_usdcard_m}}). Between {{rem_range_words}} of payment attempts failed in every one of the {{nm}} months. Excluding extreme-volume anomalies, USD card payments fail {{usd_card_range}} of the time across the {{n_markets_words}} markets, while mobile money fails {{mm_mk_range}} of the time in the same markets.
+This is everything left once the two anomaly categories are set aside. It covers every channel, but card carries {{rm_card_share}} of remaining exposure ({{rm_card_m}}) and USD card alone {{rm_usdcard_share}} of remaining exposure ({{rm_usdcard_m}}). Between {{rem_range_words}} of payment attempts failed in every one of the {{nm}} months. Excluding extreme-volume anomalies, USD card payments fail {{usd_card_range}} of the time across the {{n_markets_words}} markets, while mobile money fails {{mm_mk_range}} of the time in the same markets. Even among the {{gap_n}} customers who use both, card fails about {{gap_gs0}} percentage points more often.
 
 #### Where the money sits
 
-Card carries {{card_share}} of all fees on failed transactions. Kenya, Tanzania and Uganda card hold most of what could be recovered.
+Card carries {{card_share}} of all fees on failed transactions.
 
 #### What recovery is worth
 
@@ -22,7 +22,7 @@ If USD card failure came down to the mobile money level in each market, the plat
 
 #### Three actions
 
-1. **Contain the two anomaly categories.** Set up two account alerts, one for sudden spikes and one for steady escalation,, so that flagged accounts are throttled and reviewed in the same month.
+1. **Contain the two anomaly categories.** Set up two account alerts, one for sudden spikes and one for steady escalation, so that flagged accounts are throttled and reviewed in the same month.
 2. **Improve card completion in Kenya, Tanzania and Uganda.** These three markets hold {{rc_pri_k0}} of the {{rc_base_k0}} base case. Start with the merchant-months that had no successful card payments at all.
 3. **Report three numbers every month:** the count failure rate, the failed-fee share, and successful-transaction fees at constant 2022 exchange rates.
 

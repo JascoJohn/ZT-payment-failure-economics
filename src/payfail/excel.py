@@ -93,7 +93,7 @@ class Book:
         self.tabs = numbering([main])[1]
         self.fig_idx = pd.read_csv(OUT / "figure_index.csv").set_index("slug")
         cf = prep.tx.groupby("customer_id").f_fee.sum()
-        self.cust_fail = sorted(cf[cf > 0].index.tolist())          # customers with failed fees (the ranked population)
+        self.cust_fail = sorted(cf[cf > 0].index.tolist())          # customers with fees on failed transactions (the ranked population)
 
     def tcap(self, slug):
         """'Table n. Caption' exactly as the report prints it."""
@@ -135,11 +135,11 @@ class Book:
                   ("01D_Raw_Rates", "The supplied daily exchange rates, unchanged (script 01D)."),
                   ("01E_Data_Quality", "Appendix A and B: populations, the three flags, untranslatable records, SLL evidence, reconciliation with the brief, headline sensitivity (script 01E)."),
                   ("01F_Rates", "SLL restatement, spike screen, monthly average / month-end / 2022 base rates (script 01F)."),
-                  ("01G_Transactions", "Every record translated to USD, with flags, anomaly category and failure measures (script 01G); 01G_Anomaly_Rules holds the customer × payment type × month rule grid."),
+                  ("01G_Transactions", "Every record translated to USD, with flags, exposure category and failure measures (script 01G); 01G_Anomaly_Rules holds the customer × payment type × month rule grid."),
                   ("02_Scale", "Chapter 2: headline, exposure bridge, monthly series, three perspectives, value (script 02)."),
                   ("03_Concentration", "Chapter 3: payment type, market, currency, customer Pareto, drivers, size quintiles (script 03)."),
-                  ("04_Diagnostics", "Chapter 4: anomalies, escalation, hard/mixed, persistence, tenure, pattern flags; 04_Laney holds the control charts (script 04)."),
-                  ("05_January", "Chapter 5: January 2024 against Jul–Dec 2023: anomaly and FX effects, then the LMDI-I decomposition (script 05)."),
+                  ("04_Diagnostics", "Chapter 4: extreme-volume anomalies, the escalation account, hard/mixed, persistence, tenure, pattern flags; 04_Laney holds the control charts (script 04)."),
+                  ("05_January", "Chapter 5: January 2024 against Jul–Dec 2023: extreme-volume anomaly and FX effects, then the LMDI-I decomposition (script 05)."),
                   ("06_FX", "Chapter 6: reported against 2022 constant-currency fees; the 10% high–low screen (script 06)."),
                   ("07_Recovery", "Chapter 7: USD card benchmark gap, scenarios, sensitivities, fee revenue remaining after assumed costs (script 07)."),
                   ("08_Recommendations", "Chapter 8: prioritisation matrix, actions, monitoring triggers (script 08)."),
@@ -150,7 +150,7 @@ class Book:
         ws.append([_c(ws, "Charts", BOLD), _c(ws, "Native Excel charts carry the report's figure numbers, titles and colours (navy, teal, amber, muted). Where Excel has no equivalent form "
                    "(waterfalls, heat map, bubble charts, diagrams) the closest form is used and a note sits beside the chart.")])
         ws.append([_c(ws, "Python-only items", BOLD), _c(ws, "Rebuilt in formulas: the customer Pareto, exposure bridge and every table fed by the transaction rows. Supplied as values "
-                   "from Python, each labelled with its script and a check row: size quintiles (03), sensitivity thresholds, hard/mixed split, persistence, tenure and lapse (04), "
+                   "from Python, each labelled with its script and a check row: size quintiles (03), sensitivity thresholds, hard/mixed split, persistence, tenure and later inactivity (04), "
                    "same-customer benchmark and failure offset (07), prioritisation matrix (08). They need per-customer rankings or repeated reruns that would slow the workbook.")])
         ws.append([_c(ws, "Not in the workbook", BOLD), _c(ws, "The dashboard, the Word and PDF report, and the audit. Edits made here do not flow back into the Python pipeline.")])
 
@@ -179,8 +179,8 @@ class Book:
             ("rel_min", "Extreme-volume rule: minimum failed attempts", a["min_failed"], INT, "Customer × payment type × month"),
             ("rel_mult", "Extreme-volume rule: attempts above x prior median", a["multiple_of_prior_median"], "0", "Median of the 6 preceding months, zeros included (window fixed at 6)"),
             ("rel_succ", "Extreme-volume rule: success rate below", a["max_success_rate"], PCT, ""),
-            ("esc_min", "Escalation trigger: minimum failed attempts", e["min_failed"], INT, "Applied to observations not caught by the extreme rule"),
-            ("esc_succ", "Escalation trigger: success rate below", e["max_success_rate"], PCT, ""),
+            ("esc_min", "Escalation account rule: minimum failed attempts", e["min_failed"], INT, "Applied to observations not caught by the extreme rule"),
+            ("esc_succ", "Escalation account rule: success rate below", e["max_success_rate"], PCT, ""),
             ("pat_att", "Laney: minimum attempts in an eligible month", pt["min_month_attempts"], INT, ""),
             ("pat_months", "Laney: minimum eligible months", pt["min_eligible_months"], INT, ""),
             ("structural", "Structural flag: median failure rate at least", pt["structural_median"], PCT, ""),
@@ -368,7 +368,7 @@ class Book:
     TX_COLS = ["Month", "Customer id", "Currency", "Status", "Payment type", "Attempts", "Value (local)", "Fee (local)",
                "Code", "Country", "Avg rate", "Month-end rate", "Base rate", "Rate available", "Failed", "Attempts (all)",
                "Failed attempts", "Successful attempts", "Missing fee", "Fee USD", "Fee USD (2022 rates)", "Fee USD (month-end)",
-               "Failed fee USD", "Failed fee USD (2022 rates)", "Failed fee USD (month-end)", "Value USD", "Fee-ratio flag",
+               "Fee on failed transactions USD", "Fee on failed transactions USD (2022 rates)", "Fee on failed transactions USD (month-end)", "Value USD", "Fee-ratio flag",
                "Value flag", "Value excluded", "Failed value USD", "Rule row", "Extreme-volume anomaly", "Category"]
 
     def transactions(self):
@@ -440,14 +440,14 @@ class Book:
         ws.freeze_panes = "G6"
         nm, A, st = self.nm, self.A, self.an_start
         _widths(ws, [11, 18, 22, 11, 11, 9] + [9] * (6 * (nm + 1)) + [12])
-        ws.append([_c(ws, "Anomaly rules: customer × payment type × month", T_FONT)])
+        ws.append([_c(ws, "Rules for the two anomaly categories: customer × payment type × month", T_FONT)])
         ws.append([_c(ws, "Rows are every customer × payment type with at least 100 failed attempts in some month (thresholds below "
                        "100 would need more rows). Attempt and failed-attempt grids are a pivot of Transactions supplied as values; "
                        "columns D–F reconcile each row back to Transactions.", NOTE)])
         ws.append([_c(ws, "Extreme-volume rule: failed ≥ minimum, attempts > multiple × MAX(prior median, 1), success rate < limit. "
-                       "Escalation trigger: not extreme, failed ≥ minimum, success rate < limit; it marks the whole customer.", NOTE)])
+                       "Escalation account rule: not extreme, failed ≥ minimum, success rate < limit; it marks the whole customer.", NOTE)])
         titles = {"att": "Attempts (values)", "fat": "Failed attempts (values)", "sat": "Successful attempts",
-                  "prior": "Prior 6-month median of attempts", "ext": "Extreme-volume anomaly", "trig": "Escalation trigger"}
+                  "prior": "Prior 6-month median of attempts", "ext": "Extreme-volume anomaly", "trig": "Escalation account rule"}
         r4 = [None] * (self.an_esc_col)
         for b, s in st.items():
             r4[s - 1] = _c(ws, titles[b], BOLD)
@@ -552,7 +552,7 @@ class Book:
         put([])
         put([_c(ws, "Monthly series (data for Figures 2 and D2)", BOLD)])
         _hdr(ws, ["Month", "Attempts", "Failed attempts", "Count failure rate", "Count rate, remaining", "Failed-fee share",
-                  "Failed-fee share, remaining", "Failed fees: extreme", "Failed fees: escalation", "Failed fees: remaining"]); r[0] += 1
+                  "Failed-fee share, remaining", "Fees on failed transactions: extreme-volume anomalies", "Fees on failed transactions: escalation account (47087)", "Fees on failed transactions: remaining exposure"]); r[0] += 1
         m0 = r[0] + 1
         for p in self.periods:
             i = r[0] + 1
@@ -595,7 +595,7 @@ class Book:
         put([_c(ws, self.ftitle("bridge") + "  [chart data: stacked-column waterfall helper]", BOLD)])
         _hdr(ws, ["Step", "Base (invisible)", "Amount"]); r[0] += 1
         wf = r[0] + 1
-        put([_c(ws, "All failed-transaction fees"), _c(ws, 0, fmt=USD), _c(ws, f"=SUM(C{b0}:C{b0 + 2})", fmt=USD)])
+        put([_c(ws, "All fees on failed transactions"), _c(ws, 0, fmt=USD), _c(ws, f"=SUM(C{b0}:C{b0 + 2})", fmt=USD)])
         put([_c(ws, "Extreme-volume anomalies"), _c(ws, f"=C{wf}-C{b0}", fmt=USD), _c(ws, f"=C{b0}", fmt=USD)])
         put([_c(ws, "Escalation account"), _c(ws, f"=C{wf}-C{b0}-C{b0 + 1}", fmt=USD), _c(ws, f"=C{b0 + 1}", fmt=USD)])
         put([_c(ws, "Remaining exposure"), _c(ws, 0, fmt=USD), _c(ws, f"=C{b0 + 2}", fmt=USD)])
@@ -608,30 +608,30 @@ class Book:
         T, A = self.tx, self.A
         self.J = {}
         ws.append([_c(ws, "05_January. January 2024 investigation", T_FONT)])
-        ws.append([_c(ws, "Baseline = monthly average of the baseline window. LMDI-I on non-anomalous, translatable records at 2022 "
+        ws.append([_c(ws, "Baseline = monthly average of the baseline window. LMDI-I on translatable records excluding extreme-volume anomalies at 2022 "
                        "constant currency; cells present in only one period form the entry/exit term.", NOTE)])
         ws.append([])
         win = f'{T("A")},">="&{A["jan_s"]},{T("A")},"<="&{A["jan_e"]}'
         tgt = f'{T("A")},{A["jan_t"]}'
         rows = [
             ("n", "Baseline months", f"=(YEAR({A['jan_e']})-YEAR({A['jan_s']}))*12+MONTH({A['jan_e']})-MONTH({A['jan_s']})+1", INT),
-            ("b_all", "Baseline failed fees, all", f"=SUMIFS({T('W')},{win})/B4", USD),
-            ("j_all", "January failed fees, all", f"=SUMIFS({T('W')},{tgt})", USD),
+            ("b_all", "Baseline fees on failed transactions, all", f"=SUMIFS({T('W')},{win})/B4", USD),
+            ("j_all", "January fees on failed transactions, all", f"=SUMIFS({T('W')},{tgt})", USD),
             ("b_ex", "Baseline, extreme-volume anomalies", f"=SUMIFS({T('W')},{win},{T('AF')},TRUE)/B4", USD),
             ("j_ex", "January, extreme-volume anomalies", f"=SUMIFS({T('W')},{tgt},{T('AF')},TRUE)", USD),
-            ("b_nb", "Baseline, non-anomalous (reported)", f"=SUMIFS({T('W')},{win},{T('AF')},FALSE)/B4", USD),
-            ("j_nb", "January, non-anomalous (reported)", f"=SUMIFS({T('W')},{tgt},{T('AF')},FALSE)", USD),
-            ("b_cc", "Baseline, non-anomalous (2022 rates)", f"=SUMIFS({T('X')},{win},{T('AF')},FALSE)/B4", USD),
-            ("j_cc", "January, non-anomalous (2022 rates)", f"=SUMIFS({T('X')},{tgt},{T('AF')},FALSE)", USD),
+            ("b_nb", "Baseline, excluding extreme-volume anomalies (reported)", f"=SUMIFS({T('W')},{win},{T('AF')},FALSE)/B4", USD),
+            ("j_nb", "January, excluding extreme-volume anomalies (reported)", f"=SUMIFS({T('W')},{tgt},{T('AF')},FALSE)", USD),
+            ("b_cc", "Baseline, excluding extreme-volume anomalies (2022 rates)", f"=SUMIFS({T('X')},{win},{T('AF')},FALSE)/B4", USD),
+            ("j_cc", "January, excluding extreme-volume anomalies (2022 rates)", f"=SUMIFS({T('X')},{tgt},{T('AF')},FALSE)", USD),
         ]
         for k, (key, lab, f, fmt) in enumerate(rows, start=4):
             ws.append([_c(ws, lab), _c(ws, f, fmt=fmt)])
             self.J[key] = f"$B${k}"
         ws.append([])
         ct = 4 + len(rows) + 2   # header row of the cells table
-        ws.append([_c(ws, "Market × payment type cells (non-anomalous, translatable)", BOLD)])
-        _hdr(ws, ["Market", "Payment type", "Attempts, base", "Failed, base", "Failed fees (2022), base", "Attempts, Jan",
-                  "Failed, Jan", "Failed fees (2022), Jan", "In both", "Log-mean weight", "Volume", "Mix", "Failure rate", "Fee yield"])
+        ws.append([_c(ws, "Market × payment type cells (excluding extreme-volume anomalies, translatable)", BOLD)])
+        _hdr(ws, ["Market", "Payment type", "Attempts, base", "Failed, base", "Fees on failed transactions (2022), base", "Attempts, Jan",
+                  "Failed, Jan", "Fees on failed transactions (2022), Jan", "In both", "Log-mean weight", "Volume", "Mix", "Failure rate", "Fee yield"])
         cells = [(c, p) for c in ["Kenya", "Uganda", "Tanzania", "Ghana", "Zambia"]
                  for p in ["card", "mobilemoney", "alternative channels", "bank transfer", "account", "pay with wallet", "enaira"]]
         first = ct + 1
@@ -761,7 +761,7 @@ class Book:
         ws.append([_c(ws, "Additional successes = attempts × MAX(failure rate − target, 0), valued at fee per successful attempt. "
                        "Scenarios, not forecasts.", NOTE)])
         ws.append([_c(ws, self.tcap("recovery") + " (and the targets of the three scenarios)", BOLD)])
-        _hdr(ws, ["Market", "Attempts", "Failed", "Successful", "Fees", "Failed fees", "Successful fees", "Failure rate",
+        _hdr(ws, ["Market", "Attempts", "Failed", "Successful", "Fees", "Fees on failed transactions", "Successful-transaction fees", "Failure rate",
                   "Fee per success", "MM attempts", "MM failed", "MM rate", "Best 3-month", "Target: conservative", "Target: base",
                   "Target: optimistic", "Addl. successes (base)", "Incremental fees (base)"])
         f0 = 5
@@ -790,7 +790,7 @@ class Book:
         ws.append([_c(ws, self.tcap("scenarios"), BOLD)])
         sr = tot + 2
         _hdr(ws, ["Scenario", "Additional successes", "Incremental fees", "Annual run-rate", "Share of recorded fees",
-                  "Share of addressable failed fees"])
+                  "Share of addressable fees on failed transactions"])
         # placeholder rows written after the window block would break streaming order, so compute inline
         for k, (name, col) in enumerate([("Conservative", "N"), ("Base", "O"), ("Optimistic", "P")]):
             i = sr + 1 + k
@@ -805,7 +805,7 @@ class Book:
         # best-window block
         hdr = ["Market"] + [f"Attempts {p:%b %y}" for p in self.periods] + [f"Failed {p:%b %y}" for p in self.periods] + \
               [f"3-month rate to {p:%b %y}" for p in self.periods]
-        ws.append([_c(ws, "Best 3-month window (USD card, non-anomalous)", BOLD)])
+        ws.append([_c(ws, "Best 3-month window (USD card, excluding extreme-volume anomalies)", BOLD)])
         _hdr(ws, hdr)
         while True:
             break
@@ -862,7 +862,7 @@ class Book:
         bx = rc["benchmark_ex_escalation"]
         t0 = ga + 5
         ws.append([_c(ws, "Base"), _c(ws, "Mobile money failure rate in each market, as observed"), _c(ws, f"={self.R['Base']}", LINK_FONT, USD)])
-        ws.append([_c(ws, "Mobile money without account 47087"), _c(ws, "Escalation account removed from the benchmark"), val(ws, float(bx["incremental"]), USD)])
+        ws.append([_c(ws, "Mobile money without account 47087"), _c(ws, "The escalation account (47087) removed from the benchmark"), val(ws, float(bx["incremental"]), USD)])
         ws.append([_c(ws, "Same customers"), _c(ws, "Mobile money failure among customers using both channels"), val(ws, float(rc["same_customer"]["incremental"]), USD)])
         ws.append([_c(ws, "Same customers without account 47087"), _c(ws, "As above"), val(ws, float(bx["same_incremental"]), USD)])
         ws.append([_c(ws, "Same-month failure offset"), _c(ws, "Failed attempts reduced by successes in the same customer-month-channel"), val(ws, float(rc["offset"]["incremental"]), USD)])
@@ -949,9 +949,9 @@ class Book:
                  ("Value flags", S["flag_value"], res["stats"]["flag_value"], INT),
                  ("Transaction value, excluding flagged", S["value"], res["value"]["value"], USD),
                  ("Bridge: extreme-volume anomalies", S["bridge_Extreme-volume anomaly"], b["Extreme-volume anomaly"], USD),
-                 ("Bridge: escalation", S["bridge_Escalation"], b["Escalation"], USD),
+                 ("Bridge: escalation account (47087)", S["bridge_Escalation"], b["Escalation"], USD),
                  ("Bridge: remaining exposure", S["bridge_Remaining"], b["Remaining"], USD),
-                 ("Card share of failed fees", S["card_share"], res["channels"].set_index("pt").share_of_failed_fees["card"], PCT)]
+                 ("Card share of fees on failed transactions", S["card_share"], res["channels"].set_index("pt").share_of_failed_fees["card"], PCT)]
         for comp, v in zip(j["components"].component, j["components"].usd):
             items.append((f"January: {comp}", J[comp], v, USD))
         items.append(("January: residual", J["Residual"], j["residual"], "0.0000"))
@@ -959,8 +959,8 @@ class Book:
             items.append((f"Recovery: {name.lower()} incremental fees", R[name],
                           res["recovery"]["scenarios"].set_index("scenario").incremental_fees[name], USD))
         items.append(("Recovery: break-even per additional success", R["breakeven"], res["recovery"]["breakeven"], USD2))
-        items.append(("Recovery: addressable failed fees", R["addressable"], res["recovery"]["addressable_f_fee"], USD))
-        items.append(("FX: failed fees at 2022 rates", F["failed_constant"], res["fx"]["measures"].constant.iloc[0], USD))
+        items.append(("Recovery: addressable fees on failed transactions", R["addressable"], res["recovery"]["addressable_f_fee"], USD))
+        items.append(("FX: fees on failed transactions at 2022 rates", F["failed_constant"], res["fx"]["measures"].constant.iloc[0], USD))
         items.append(("FX: local-currency fees, reported", F["local_reported"], res["fx"]["local_reported"], USD))
         items.append(("FX: local-currency fees, constant", F["local_constant"], res["fx"]["local_constant"], USD))
         bc = res["fx"]["by_currency"].set_index("ccy").effect
@@ -979,9 +979,9 @@ class Book:
         cc = res["customer_concentration"]
         items += [("Value: average failed value per attempt", S["avg_failed_value"], res["value"]["avg_failed_value"], USD2),
                   ("Value: average successful value per attempt", S["avg_success_value"], res["value"]["avg_success_value"], USD2),
-                  ("Concentration: top 10 customers' share of failed fees", f"{conc}$C${c3['pareto_rank10']}", cc["top10"], PCT),
-                  ("Concentration: top 1% (51 customers) share of failed fees", f"{conc}$C${c3['pareto_top1']}", cc["top1pct"], PCT),
-                  ("Concentration: customers with failed fees", c3["n_cust"], cc["customers"], INT)]
+                  ("Concentration: top 10 customers' share of fees on failed transactions", f"{conc}$C${c3['pareto_rank10']}", cc["top10"], PCT),
+                  ("Concentration: top 1% (51 customers) share of fees on failed transactions", f"{conc}$C${c3['pareto_top1']}", cc["top1pct"], PCT),
+                  ("Concentration: customers with fees on failed transactions", c3["n_cust"], cc["customers"], INT)]
         dr = res["drivers"].set_index(["country", "pt"])
         for cell in [("Kenya", "card"), ("Uganda", "mobilemoney")]:
             row, d = c3["drv"][cell], dr.loc[cell]
@@ -994,7 +994,7 @@ class Book:
         items += [("Heat map: Kenya card failure rate", f"{conc}$B${hm0}", hh.loc[("Kenya", "card")].fail_rate, PCT),
                   ("Heat map: Uganda mobile money failure rate", f"{conc}$C${hm0 + 1}", hh.loc[("Uganda", "mobilemoney")].fail_rate, PCT)]
         es = res["anomalies"]["escalation_series"]
-        items.append(("Escalation account: failed attempts in the last month", c4["esc_last"], es.f_att.iloc[-1], INT))
+        items.append(("Escalation account (47087): failed attempts in the last month", c4["esc_last"], es.f_att.iloc[-1], INT))
         gt = res["recovery"]["gap_totals"]
         gr = R["gap_row"]
         items += [("Recovery: USD card failure rate, all five markets", f"'07_Recovery'!$B${gr}", gt["card_all"], PCT),
@@ -1007,11 +1007,11 @@ class Book:
                   ("Sensitivity: month-end rates, fees on failed transactions", f"{q1}$B${s1 + 3}", sn.f_fee["Month-end rates"], USD),
                   ("Sensitivity: excluding extreme-volume anomalies, failed-fee share", f"{q1}$C${s1 + 5}", sn.fee_share["Excluding extreme-volume anomalies"], PCT),
                   ("Sensitivity: also excluding the escalation account, count failure rate", f"{q1}$D${s1 + 6}", sn.count_rate["Also excluding escalation account(s)"], PCT),
-                  ("Sensitivity: value anomalies and untranslatable records excluded, failed fees", f"{q1}$B${s1 + 2}", sn.f_fee["Excluding value anomalies and untranslatable records"], USD),
+                  ("Sensitivity: value anomalies and untranslatable records excluded, fees on failed transactions", f"{q1}$B${s1 + 2}", sn.f_fee["Excluding value anomalies and untranslatable records"], USD),
                   ("Data quality: spike days dropped", c1["spike_total"], res["stats"]["spike_days_dropped"], INT)]
-        for key, lab in [("sector_check", "03 sector failed fees tie to the headline"), ("q_check", "03 quintile attempts tie to the transaction rows"),
-                         ("anom_check", "04 anomaly observations and fees tie to the rule grid"), ("hm_check", "04 hard + mixed + extreme fees tie to the headline"),
-                         ("matrix_check", "08 matrix fees tie to non-anomalous failed fees"), ("untr_check", "01E untranslatable records by currency tie")]:
+        for key, lab in [("sector_check", "03 sector fees on failed transactions tie to the headline"), ("q_check", "03 quintile attempts tie to the transaction rows"),
+                         ("anom_check", "04 extreme-volume anomaly observations and fees tie to the rule grid"), ("hm_check", "04 hard + mixed + extreme fees tie to the headline"),
+                         ("matrix_check", "08 matrix fees tie to fees on failed transactions excluding extreme-volume anomalies"), ("untr_check", "01E untranslatable records by currency tie")]:
             src = {**c3, **c4, **c8, **c1}[key]
             items.append((lab, f'IF({src}="OK",1,0)', 1, INT))
         for k, (lab, ref, py, fmt) in enumerate(items, start=4):

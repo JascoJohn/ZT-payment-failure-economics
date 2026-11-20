@@ -47,7 +47,7 @@ def get_results(prep_key: tuple, start, end, countries: tuple, channels: tuple, 
         m &= tx.ccy.isin(ccys)
     if exclude == "Extreme-volume anomalies":
         m &= ~tx.extreme
-    elif exclude == "Anomalies and escalation":
+    elif exclude == "The two anomaly categories":
         m &= tx.category.eq("Remaining")
     sub = tx[m].copy()
     res = analyse(prep, cfg, sub)
@@ -64,14 +64,14 @@ countries = st.sidebar.multiselect("Markets", sorted(prep0.tx.country.dropna().u
 channels = st.sidebar.multiselect("Payment types", sorted(prep0.tx.pt.dropna().unique()))
 top_ccy = prep0.tx.groupby("ccy").att.sum().sort_values(ascending=False).index.tolist()
 ccys = st.sidebar.multiselect("Currencies", top_ccy)
-exclude = st.sidebar.radio("Exclude", ["Nothing", "Extreme-volume anomalies", "Anomalies and escalation"])
+exclude = st.sidebar.radio("Exclude", ["Nothing", "Extreme-volume anomalies", "The two anomaly categories"])
 
-with st.sidebar.expander("Anomaly rules"):
-    rel_min = st.number_input("Relative rule: minimum failed attempts", 100, 10000, 1000, 100)
-    rel_mult = st.number_input("Relative rule: multiple of prior 6-month median", 5.0, 500.0, 50.0, 5.0)
-    rel_succ = st.slider("Relative rule: maximum success rate", 0.0, 0.2, 0.05, 0.01)
-    esc_min = st.number_input("Escalation trigger: minimum failed attempts", 500, 50000, 5000, 500)
-    esc_succ = st.slider("Escalation trigger: maximum success rate", 0.0, 0.2, 0.05, 0.01)
+with st.sidebar.expander("Rules for the two anomaly categories"):
+    rel_min = st.number_input("Extreme-volume anomaly rule: minimum failed attempts", 100, 10000, 1000, 100)
+    rel_mult = st.number_input("Extreme-volume anomaly rule: multiple of prior 6-month median", 5.0, 500.0, 50.0, 5.0)
+    rel_succ = st.slider("Extreme-volume anomaly rule: maximum success rate", 0.0, 0.2, 0.05, 0.01)
+    esc_min = st.number_input("Escalation account rule: minimum failed attempts", 500, 50000, 5000, 500)
+    esc_succ = st.slider("Escalation account rule: maximum success rate", 0.0, 0.2, 0.05, 0.01)
 with st.sidebar.expander("Recovery scenario"):
     margin = st.slider("Optimistic case: points below mobile money failure rate", 0.0, 0.3, 0.10, 0.01)
 

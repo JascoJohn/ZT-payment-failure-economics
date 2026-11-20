@@ -360,6 +360,24 @@ def _toc_block(doc, title: str, instr: str, entries: list[tuple[str, str, int]],
     last._p.append(fc("end"))
 
 
+def _hyperlink(paragraph, url: str, text: str, size: float = 9.4) -> None:
+    """An external hyperlink (clickable in Word) showing a short label."""
+    from docx.opc.constants import RELATIONSHIP_TYPE as RT
+    r_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
+    h = OxmlElement("w:hyperlink")
+    h.set(qn("r:id"), r_id)
+    h.set(qn("w:history"), "1")
+    r = OxmlElement("w:r")
+    rpr = OxmlElement("w:rPr")
+    col = OxmlElement("w:color"); col.set(qn("w:val"), "1F3A5F"); rpr.append(col)
+    u = OxmlElement("w:u"); u.set(qn("w:val"), "single"); rpr.append(u)
+    sz = OxmlElement("w:sz"); sz.set(qn("w:val"), str(int(size * 2))); rpr.append(sz)
+    r.append(rpr)
+    t = OxmlElement("w:t"); t.text = text; r.append(t)
+    h.append(r)
+    paragraph._p.append(h)
+
+
 def _shade(cell, fill: str) -> None:
     tcpr = cell._tc.get_or_add_tcPr()
     sh = OxmlElement("w:shd")
@@ -434,7 +452,7 @@ def _cover(doc, meta: dict) -> None:
     _cell_margins(inner, left=0, right=0, top=0, bottom=0)
     left, right = inner.rows[0].cells
     for cell, head, lines in [(left, "Contact", [meta["author_line"], f"Email  {meta['email']}", f"Telephone  {meta['telephone']}", f"ORCID  {meta['orcid']}"]),
-                              (right, "Research materials and reproducibility", [f"Source code  {meta['source_code']}", f"Dashboard  {meta['dashboard']}",
+                              (right, "Research materials and reproducibility", [("Source code  ", meta["source_code"]), ("Dashboard  ", meta["dashboard"]),
                                                                                "Data, code, figures, tables and an Excel version of the analysis are in the repository."])]:
         p0 = cell.paragraphs[0]
         p0.paragraph_format.left_indent, p0.paragraph_format.space_before = Mm(22), Mm(10)
@@ -443,6 +461,14 @@ def _cover(doc, meta: dict) -> None:
             p_ = cell.add_paragraph()
             p_.paragraph_format.left_indent, p_.paragraph_format.space_after = Mm(22), Pt(1)
             p_.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            if isinstance(tx, tuple):
+                from .report import link_label
+                r_ = p_.add_run(tx[0]); r_.font.size = Pt(9.4)
+                if str(tx[1]).startswith("http"):
+                    _hyperlink(p_, tx[1], link_label(tx[1]))
+                else:
+                    p_.add_run(tx[1]).font.size = Pt(9.4)
+                continue
             r_ = p_.add_run(tx)
             r_.font.size = Pt(9.4)
             r_.bold = (head == "Contact" and i == 0)
