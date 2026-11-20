@@ -4,7 +4,7 @@ Details behind the short "Reproduce the analysis" section of the [README](../REA
 
 ## Requirements
 
-- Python 3.11 or later (tested on 3.14 locally and Streamlit Cloud [version shown in the app settings]).
+- Python 3.11 or later (tested on 3.14, locally and on Streamlit Cloud).
 - `pip install -r requirements-dev.txt` (`requirements.txt` is the runtime set used by the dashboard).
 - Chrome or Microsoft Edge: Kaleido uses it for the static figures, and stage 10 prints the PDFs through it.
 - Optional: Microsoft Excel (Windows) or LibreOffice to recalculate the workbook. Source Sans 3 is bundled in `report/assets/fonts/`; install it to get exactly the report font in the figures, otherwise they fall back to Segoe UI or Arial.

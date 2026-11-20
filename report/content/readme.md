@@ -23,7 +23,8 @@ Where does payment failure cost ZT East Africa money, how much of it could reali
 2. **The two anomaly categories account for {{anom_m}} ({{anom_share}}).** {{an_obs_words}} extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry it; this is a monitoring problem. [Report, Section 4 (p. {{pg4}})]({{rel_report}}#page={{pg4}}) · [Dashboard, 4. Diagnostics tab]({{dashboard}})
 3. **Remaining exposure is {{rm_m}} ({{rm_share}}), and it is steady.** Monthly count failure stays between {{rem_range_words}}; card carries {{rm_card_share}} of remaining exposure and USD card alone {{rm_usdcard_share}}. [Report, Section 2 (p. {{pg2}})]({{rel_report}}#page={{pg2}}) · [Dashboard, 3. Concentration tab]({{dashboard}})
 4. **USD card completion is the main improvement opportunity.** Excluding extreme-volume anomalies, USD card fails {{usd_card_range}} by count across the markets against {{mm_mk_range}} for mobile money; even among the {{gap_n}} customers who use both, card fails about {{gap_gs0}} percentage points more often. [Report, Section 7 (p. {{pg7}})]({{rel_report}}#page={{pg7}}) · [Dashboard, 7. Recovery tab]({{dashboard}})
-5. **Extreme-volume anomalies explain {{jan_ex_share}} of January 2024's rise in fees on failed transactions.** Exchange-rate translation is small next to it, and the Ghanaian cedi drives {{fx_ghs_share}} of that effect. [Report, Sections 5 and 6 (p. {{pg5}})]({{rel_report}}#page={{pg5}}) · [Dashboard, 5. January 2024 tab]({{dashboard}})
+5. **January 2024 was a few accounts, not a breakdown.** Extreme-volume anomalies explain {{jan_ex_share}} of the month's rise in fees on failed transactions; exchange-rate translation moved it by only {{rd_jan_fx}}. [Report, Section 5 (p. {{pg5}})]({{rel_report}}#page={{pg5}}) · [Dashboard, 5. January 2024 tab]({{dashboard}})
+6. **Exchange rates distort the reported trend.** Depreciation cut local-currency fees on failed transactions by {{rd_fx_local}} ({{rd_fx_pct}}) against 2022 rates, and the Ghanaian cedi drives {{fx_ghs_share}} of that effect. [Report, Section 6 (p. {{pg6}})]({{rel_report}}#page={{pg6}}) · [Dashboard, 6. Foreign exchange tab]({{dashboard}})
 
 ## What recovery is worth
 
@@ -76,7 +77,7 @@ It is a conditional estimate, not a forecast:
 
 ### Reproduce the analysis
 
-Requirements: Python 3.11+ (tested on 3.14 locally and Streamlit Cloud [version shown in the app settings]), plus Chrome or Edge for the static figures and the PDF.
+Requirements: Python 3.11+ (tested on 3.14, locally and on Streamlit Cloud), plus Chrome or Edge for the static figures and the PDF.
 
 ```
 git clone https://github.com/JascoJohn/ZT-payment-failure-economics.git

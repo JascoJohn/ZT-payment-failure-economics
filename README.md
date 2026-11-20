@@ -23,7 +23,8 @@ Where does payment failure cost ZT East Africa money, how much of it could reali
 2. **The two anomaly categories account for $1.07M (38.5%).** Twenty extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry it; this is a monitoring problem. [Report, Section 4 (p. 15)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=15) · [Dashboard, 4. Diagnostics tab](https://zt-payment-failure-economics.streamlit.app/)
 3. **Remaining exposure is $1.71M (61.5%), and it is steady.** Monthly count failure stays between 48% and 61%; card carries 82% of remaining exposure and USD card alone 61%. [Report, Section 2 (p. 8)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=8) · [Dashboard, 3. Concentration tab](https://zt-payment-failure-economics.streamlit.app/)
 4. **USD card completion is the main improvement opportunity.** Excluding extreme-volume anomalies, USD card fails 78–96% by count across the markets against 43–69% for mobile money; even among the 1,332 customers who use both, card fails about 29 percentage points more often. [Report, Section 7 (p. 23)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=23) · [Dashboard, 7. Recovery tab](https://zt-payment-failure-economics.streamlit.app/)
-5. **Extreme-volume anomalies explain 96% of January 2024's rise in fees on failed transactions.** Exchange-rate translation is small next to it, and the Ghanaian cedi drives 81% of that effect. [Report, Sections 5 and 6 (p. 19)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=19) · [Dashboard, 5. January 2024 tab](https://zt-payment-failure-economics.streamlit.app/)
+5. **January 2024 was a few accounts, not a breakdown.** Extreme-volume anomalies explain 96% of the month's rise in fees on failed transactions; exchange-rate translation moved it by only $0.4K. [Report, Section 5 (p. 19)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=19) · [Dashboard, 5. January 2024 tab](https://zt-payment-failure-economics.streamlit.app/)
+6. **Exchange rates distort the reported trend.** Depreciation cut local-currency fees on failed transactions by $201K (15%) against 2022 rates, and the Ghanaian cedi drives 81% of that effect. [Report, Section 6 (p. 21)](outputs/report/The_Economics_of_Payment_Failure.pdf#page=21) · [Dashboard, 6. Foreign exchange tab](https://zt-payment-failure-economics.streamlit.app/)
 
 ## What recovery is worth
 
@@ -76,7 +77,7 @@ It is a conditional estimate, not a forecast:
 
 ### Reproduce the analysis
 
-Requirements: Python 3.11+ (tested on 3.14 locally and Streamlit Cloud [version shown in the app settings]), plus Chrome or Edge for the static figures and the PDF.
+Requirements: Python 3.11+ (tested on 3.14, locally and on Streamlit Cloud), plus Chrome or Edge for the static figures and the PDF.
 
 ```
 git clone https://github.com/JascoJohn/ZT-payment-failure-economics.git
@@ -93,7 +94,7 @@ Changing an assumption: edit [`config/assumptions.yaml`](config/assumptions.yaml
 
 Dashboard: `streamlit run app/streamlit_app.py`.
 
-Checks: 128 automated checks, including an independent recomputation in plain pandas; `pytest -q` runs them.
+Checks: 129 automated checks, including an independent recomputation in plain pandas; `pytest -q` runs them.
 
 | No. | Script | Report chapter | Excel sheet |
 | --- | --- | --- | --- |

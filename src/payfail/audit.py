@@ -657,6 +657,28 @@ def figures_resolve(au) -> None:
     au.add(S, "Ten dashboard-only figures, labelled D1-D10", len(dash) == 10 and list(dash.label) == [f"Figure D{i}" for i in range(1, 11)])
 
 
+PLACEHOLDER = re.compile(r"(?<![\[!])\[[^\[\]\n]{3,120}\](?!\()|\b(?:TBD|TODO|XX)\b|\d\.XX|to be added|link pending|lorem ipsum", re.I)
+
+
+def placeholders(au) -> None:
+    """No text in square brackets that looks like a placeholder (and no XX, TBD, TODO or 'to be added') in the README, the report or the brief."""
+    S = "7. Cross-output consistency"
+    sources = {}
+    readme = ROOT / "README.md"
+    if readme.exists():
+        sources["README.md"] = re.sub(r"```.*?```", " ", readme.read_text(encoding="utf-8"), flags=re.S)
+    for name in ["The_Economics_of_Payment_Failure.html", "Executive_Brief.html"]:
+        f = OUT / "report" / name
+        if f.exists():
+            sources[name] = _plain(f.read_text(encoding="utf-8"))
+    hits = []
+    for name, text in sources.items():
+        for m in PLACEHOLDER.finditer(text):
+            hits.append(f"{name}: '{text[max(0, m.start() - 30):m.end() + 20].strip()}'")
+    au.add(S, "No placeholder text in square brackets (or XX, TBD, 'to be added') in the README, the report and the brief", not hits and len(sources) == 3,
+           f"{len(sources)} files scanned" + (f"; {len(hits)} found: " + " | ".join(hits[:4]) if hits else ""))
+
+
 def readme_checks(au, res: dict) -> None:
     """README.md: figures come from results.json, every relative link and image path exists, the name line and the contents rules hold."""
     import yaml
@@ -713,4 +735,5 @@ def run_audit(au, res: dict, prep, cfg: dict, ctx: dict) -> None:
     claims(au, res, prep)
     cross_output(au, res, ctx, cfg)
     hedging(au)
+    placeholders(au)
     readme_checks(au, res)

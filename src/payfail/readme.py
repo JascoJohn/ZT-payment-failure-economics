@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from .report import context, render
+from .report import context, k0, k1, p0, render
 
 REPORT_PDF = "outputs/report/The_Economics_of_Payment_Failure.pdf"
 BRIEF_PDF = "outputs/report/Executive_Brief.pdf"
@@ -48,6 +48,9 @@ def tokens(res: dict, root: Path, rep: dict) -> dict:
              meta_year=re.search(r"\d{4}", meta["date"]).group(0), meta_email=meta["email"], meta_orcid=meta["orcid"], source_code=meta["source_code"], dashboard=meta["dashboard"],
              rel_report=REPORT_PDF, rel_brief=BRIEF_PDF, rel_xlsx=WORKBOOK, rep_pages=str(n_rep), brief_pages=str(n_brief),
              wb_mb=str(int(round(wb.stat().st_size / 1e6))) if wb.exists() else "0", n_checks=n_checks_from_last_audit(root))
+    fx = res["fx"]
+    loc_eff = fx["local_reported"] - fx["local_constant"]
+    t.update(rd_jan_fx=k1(abs(res["january"]["fx_effect"])), rd_fx_local=k0(abs(loc_eff)), rd_fx_pct=p0(abs(loc_eff / fx["local_constant"])))
     for n in range(2, 9):
         t[f"pg{n}"] = _page_of(cont, pages, f"{n}.")
     t["pgA"] = _page_of(cont, pages, "Appendix A")
