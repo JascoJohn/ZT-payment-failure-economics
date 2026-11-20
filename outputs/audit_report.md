@@ -1,6 +1,6 @@
 # Audit report
 
-111 checks: **109 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
+116 checks: **114 pass**, **0 fail**, **2 flagged for the author**. A FLAG is a finding that needs a decision; nothing was changed because of it.
 
 ## Flagged for you
 
@@ -34,7 +34,7 @@
 | --- | --- | --- |
 | PASS | results.json matches the baseline except approved changes (ints exact, floats to 1e-9) | 0 approved differences; every other value identical |
 | PASS | Every baseline table (CSV) matches except approved changes | 38 tables compared |
-| PASS | Every rendered report value matches the baseline except approved changes (exact text) | 566 identical, 3 approved changes, 92 new values |
+| PASS | Every rendered report value matches the baseline except approved changes (exact text) | 566 identical, 3 approved changes, 93 new values |
 
 ## 1. Independent recomputation (plain pandas from data/raw)
 
@@ -140,6 +140,11 @@
 | PASS | Recovery: the resampling interval contains the base case; 5,000 replicates with a fixed seed | 90% interval $142,444-$430,626, median $262,338, seed 2026 |
 | PASS | Lapse: 4,328 customers had no activity in Feb-Apr 2024; 46% were active in only one or two months and 33% had an earlier gap of three months or more | 4,328 customers; 46.2% in one or two months; 32.8% with a gap of three months or more |
 | PASS | Records by status: 39,570 failed and 23,114 successful | 39,570 failed; 23,114 successful |
+| PASS | The executive summary: the $324K sentence is followed by the zero-success and interval sentence, with the figures of Section 7 | zero-success $159K; 90% interval $142K–$431K; benchmark without account 47087 $324K |
+| PASS | The brief: the $324K sentence is followed by the zero-success and interval sentence, with the figures of Section 7 | zero-success $159K; 90% interval $142K–$431K; benchmark without account 47087 $324K |
+| PASS | Executive summary is 400-500 words | 493 words |
+| PASS | Brief is 5 pages | 5 pages |
+| PASS | Brief and summary open the anomaly bullet with 'Twenty extreme-volume observations' (the number in words) |  |
 | PASS | No content uses the ambiguous {{customers}} token (customers with failed fees: customers_failed; who transacted: customers_transacting) |  |
 
 ## 7. Cross-output consistency
@@ -148,7 +153,7 @@
 | --- | --- | --- |
 | PASS | Every value the text uses appears in the report PDF | all values found |
 | PASS | Every value the text uses appears in the brief PDF | all values found |
-| PASS | Report and brief draw the same rendered value for every shared token | 38 shared tokens come from one context dictionary |
+| PASS | Report and brief draw the same rendered value for every shared token | 42 shared tokens come from one context dictionary |
 | PASS | The_Economics_of_Payment_Failure.pdf: centred footer (author line, contact, ORCID) on every page except the cover | pages without it: [] |
 | PASS | The_Economics_of_Payment_Failure.pdf: the page number follows the title on line 2 |  |
 | PASS | Executive_Brief.pdf: centred footer (author line, contact, ORCID) on every page except the cover | pages without it: [] |

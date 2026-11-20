@@ -40,7 +40,7 @@
   </div>
   <h3>What the data shows</h3>
   <ul>
-    <li><strong>A few accounts account for the spikes.</strong> {{an_obs}} extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry {{anom_m}}.
+    <li><strong>Most of the spikes come from a few accounts.</strong> {{an_obs_words}} extreme-volume observations, including one from account 47087, and that account's continuing escalation, carry {{anom_m}}.
         They explain {{jan_ex_share}} of January 2024's jump in failed fees.</li>
     <li><strong>Underlying failure is persistent but stable.</strong> Excluding the two anomaly categories, between {{rem_range_words}} of attempts failed in
         every month, with no upward trend.</li>
@@ -98,7 +98,7 @@
      Tanzania ranks high despite small volumes because each successful card payment there earns {{rm_Tanzania_fps}} in fees.</p>
   <div class="callout amber"><p><strong>Read with care.</strong> These are conditional scenarios, not forecasts. They use historical volumes and
      observed fees, assume the gap is actually closed, and are before processing costs. Break-even is {{rc_be}} of cost per additional
-     successful payment. Leaving the escalation account out of the mobile money benchmark raises the base case to {{bx_inc0}}.</p></div>
+     successful payment. Leaving the escalation account out of the mobile money benchmark raises the base case to {{bx_inc0}}. Leaving out card customer-months with no successful card payment, which may be correct rejections, lowers it to {{rc_nr_k0}}, and resampling customers gives a {{rc_ci_level}} interval of {{rc_ci_lo}}–{{rc_ci_hi}}.</p></div>
   <div class="insight" style="margin-top:10pt">
     <div><h4>Bottom line</h4>
       <p>A large part of the {{failed_fees_m}} comes from a small number of accounts in the two anomaly categories. The rest is a steady, long-running problem in which USD card is the main part that can be improved. Closing even

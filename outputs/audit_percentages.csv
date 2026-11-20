@@ -1,12 +1,12 @@
 sentence,percentages,population_cues
-"The two anomaly categories: $1.07M (38.5%) Contain A small number of accounts produced sudden, massive bursts of failed attempts, most of all in December 2023 and January 2024.",1,"attempts, customers"
+"The two anomaly categories: $1.07M (38.5%) Contain A small number of accounts produced sudden bursts of failed attempts, most of all in December 2023 and January 2024.",1,"attempts, customers"
 Remaining exposure: $1.71M (61.5%) Improve This is everything left once the two anomaly categories are set aside.,1,
 "It covers every channel, but card carries 82% of remaining exposure ($1.40M) and USD card alone 61% of remaining exposure ($1.04M).",2,
-The picture is steady and stubborn: between 48% and 61% of payment attempts failed in every one of the 28 months.,2,attempts
+Between 48% and 61% of payment attempts failed in every one of the 28 months.,2,attempts
 "Excluding extreme-volume anomalies, USD card payments fail 78–96% of the time across the five markets, while mobile money fails 43–69% of the time in the same markets.",2,non-anomalous
 Where the money sits Card carries 79% of all fees on failed transactions.,1,fees
-"Bank transfer works well, failing only 5.7% of attempts, but it is too small to make a difference.",1,attempts
-"Three key findings 1 Concentrated spikes 20 extreme-volume observations, including one from account 47087, and that account's continuing escalation, account for $1.07M (38.5%) of fees on failed transactions.",1,"customers, fees"
+"Leaving out card customer-months with no successful card payment, which may be correct rejections, lowers it to $159K, and resampling customers gives a 90% interval of $142K–$431K.",1,customers
+"Three key findings 1 Concentrated spikes Twenty extreme-volume observations, including one from account 47087, and that account's continuing escalation, account for $1.07M (38.5%) of fees on failed transactions.",1,"customers, fees"
 "96% of January 2024's rise came from extreme-volume anomalies, led by three card accounts.",1,customers
 "2 Persistent, not deteriorating Excluding the two anomaly categories, monthly count failure stayed between 48% and 61% for 28 months.",2,"attempts, non-anomalous"
 "The failed-fee share of remaining exposure, averaged over the months of each year, declined from 89% in 2022 to 79% in 2024.",2,fees

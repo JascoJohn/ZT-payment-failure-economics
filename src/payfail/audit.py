@@ -263,6 +263,10 @@ def units(au, res: dict) -> None:
 
 
 # --------------------------------------------------------------------------------------- item 6
+def cr_k(res: dict) -> str:
+    return f"${round(res['recovery']['benchmark_ex_escalation']['incremental'] / 1e3)}K"
+
+
 def ctx_tok(k: str) -> str:
     return CTX_HOLDER["ctx"][k]
 
@@ -384,6 +388,29 @@ def claims(au, res: dict, prep) -> None:
         f"{la['lapsed']:,} customers; {la['few_months_share']:.1%} in one or two months; {la['gap3_share']:.1%} with a gap of three months or more")
     rcn = res["headline"]
     add("Records by status: 39,570 failed and 23,114 successful", rcn["failed_records"] == 39570 and rcn["successful_records"] == 23114, f"{rcn['failed_records']:,} failed; {rcn['successful_records']:,} successful")
+    # the summary and the brief give the same recovery figures as Section 7, and keep their size
+    nrk = f"${round(nr['incremental'] / 1e3)}K"
+    rng = f"${round(iv['low'] / 1e3)}K\u2013${round(iv['high'] / 1e3)}K"
+    bxk = f"${round(res['recovery']['benchmark_ex_escalation']['incremental'] / 1e3)}K"
+    sec7 = main_txt[main_txt.find("Scenarios and sensitivities"):]
+    from bs4 import BeautifulSoup as _BS
+    rep_html = _BS((OUT / "report" / "The_Economics_of_Payment_Failure.html").read_text(encoding="utf-8"), "html.parser")
+    front = rep_html.find("section", class_="front")
+    summ = re.sub(r"\s+", " ", front.get_text(" ")) if front else ""
+    brief = _plain((OUT / "report" / "Executive_Brief.html").read_text(encoding="utf-8")) if (OUT / "report" / "Executive_Brief.html").exists() else ""
+    sent = f"lowers it to {nrk}, and resampling customers gives a {iv['level']:.0%} interval of {rng}"
+    for name, txt in [("executive summary", summ), ("brief", brief)]:
+        i = txt.find(f"the base case would be {bxk}") if name == "executive summary" else txt.find(f"raises the base case to {bxk}")
+        add(f"The {name}: the $324K sentence is followed by the zero-success and interval sentence, with the figures of Section 7",
+            i >= 0 and sent in txt[i:i + 400] and nrk in sec7 and rng in sec7 and f"{cr_k(res)}" == bxk,
+            f"zero-success {nrk}; {iv['level']:.0%} interval {rng}; benchmark without account 47087 {bxk}")
+    words_summ = len(summ.split()) if summ else 0
+    add("Executive summary is 400-500 words", 400 <= words_summ <= 500, f"{words_summ} words")
+    import fitz as _fz
+    bp = OUT / "report" / "Executive_Brief.pdf"
+    add("Brief is 5 pages", bp.exists() and _fz.open(bp).page_count == 5, f"{_fz.open(bp).page_count if bp.exists() else 'missing'} pages")
+    add("Brief and summary open the anomaly bullet with 'Twenty extreme-volume observations' (the number in words)", "Twenty extreme-volume observations, including one from account 47087" in summ and "Twenty extreme-volume observations, including one from account 47087" in brief
+        and "Most of the spikes come from a few accounts" in brief, "")
     used_customers = [f for f in TEXT_FILES if "{{customers}}" in (CONTENT / f).read_text(encoding="utf-8")]
     add("No content uses the ambiguous {{customers}} token (customers with failed fees: customers_failed; who transacted: customers_transacting)", not used_customers, ", ".join(used_customers))
 

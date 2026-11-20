@@ -10,6 +10,7 @@ Every rendered value, table or results.json entry that differs from `baseline/`,
 | rendered value `dr_uc_fpf` | $6.26 | $6.27 | 5  Fee per failed attempt computed on translatable records only (numerator and denominator) |
 | rendered value `dr_tc_fpf` | $18.86 | $18.87 | 5  Fee per failed attempt computed on translatable records only (numerator and denominator) |
 | new value `an_early_words` | | six | new |
+| new value `an_obs_words` | | Twenty | new |
 | new value `an_top_n_words` | | Four | new |
 | new value `an_top_n_words_l` | | four | new |
 | new value `anom_in_n_words` | | Two in five | new |

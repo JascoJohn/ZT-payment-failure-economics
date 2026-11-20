@@ -188,7 +188,7 @@ def context(res: dict) -> dict[str, str]:
         c[f"an{k_}_m"] = f"{r.prior_med:g}"
     rest = o.iloc[5:]
     c.update(an_rest_n=i0(len(rest)), an_rest_f=i0(rest.f_att.sum()), an_rest_ff=k1(rest.f_fee.sum()),
-             an_obs=i0(len(o)), an_cust=i0(o.customer_id.nunique()))
+             an_obs=i0(len(o)), an_obs_words=words(len(o), True), an_cust=i0(o.customer_id.nunique()))
     sens = an["sensitivity"].set_index("thresholds")
     c.update(an_strict=p1(sens.share["strict"]), an_agreed=p1(sens.share["agreed"]), an_loose=p1(sens.share["loose"]))
     es_ = an["escalation_series"].set_index("period")
