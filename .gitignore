@@ -10,3 +10,4 @@ venv/
 outputs/intermediate/
 _docx_tmp/
 .claude/
+CLAUDE.md
